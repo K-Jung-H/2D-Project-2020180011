@@ -33,10 +33,18 @@ def Normal_Attack_Animation(): #Great_Husk_Sentry
     global frame
     if frame < 5:
         Knight1.clip_draw((391 * frame) + 3, 3310, 388, 467, 500, 400)
-
     else:
         Knight1.clip_draw((667 * (frame - 5)) + 3 * (frame - 3), 2864, 667, 424, 500 + 150, 400 - 20) # 사진이 조금 밀려서 그리는 위치를 옮김
     frame = (frame + 1) % 7
+
+
+def Defense_Animation(): #Great_Husk_Sentry
+    global frame
+    if  frame < 4:
+        Knight1.clip_draw(367 * frame + 4, 4567, 363, 354, 500, 400)
+    frame = (frame + 1) % 4
+
+
 
 
 #=======================================================================================+
@@ -76,7 +84,7 @@ while(running):
     clear_canvas()
     handle_events()
 
-    Normal_Attack_Animation()
+    Defense_Animation()
     update_canvas()
     delay(0.1)
 
