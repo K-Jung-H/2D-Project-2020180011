@@ -19,8 +19,19 @@ def Standing_Animation(): #Great_Husk_Sentry
     Knight1.clip_draw(317 * frame + 3, 6027, 312, 347, 500, 400)
     frame = (frame + 1) % 5
 
+def Walking_Animation(): #Great_Husk_Sentry
+    global frame
+    if  frame < 6:
+        Knight1.clip_draw(318 * frame + 3, 5665, 312, 340, 500, 400)
+    else:
+        Knight1.clip_draw(315 * (frame - 6) + 6, 5321, 312, 340, 500, 400)
+    frame = (frame + 1) % 8
 
 
+
+
+
+#=======================================================================================+
 def handle_events():
     global running
     global pic_x,pic_y, size
@@ -48,12 +59,6 @@ def handle_events():
         else:
             handle_events()
 
-
-
-def Standing_Animation(): #Great_Husk_Sentry
-    global frame
-    Knight1.clip_draw(317 * frame + 3, 6027, 312, 347, 500, 400)
-    frame = (frame + 1) % 5
 
 running = True
 clear_canvas()
