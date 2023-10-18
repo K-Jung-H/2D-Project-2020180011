@@ -19,6 +19,7 @@ def Standing_Animation(): #Great_Husk_Sentry
     Knight1.clip_draw(317 * frame + 3, 6027, 312, 347, 500, 400)
     frame = (frame + 1) % 5
 
+
 def Walking_Animation(): #Great_Husk_Sentry
     global frame
     if  frame < 6:
@@ -28,7 +29,14 @@ def Walking_Animation(): #Great_Husk_Sentry
     frame = (frame + 1) % 8
 
 
+def Normal_Attack_Animation(): #Great_Husk_Sentry
+    global frame
+    if frame < 5:
+        Knight1.clip_draw((391 * frame) + 3, 3310, 388, 467, 500, 400)
 
+    else:
+        Knight1.clip_draw((667 * (frame - 5)) + 3 * (frame - 3), 2864, 667, 424, 500 + 150, 400 - 20) # 사진이 조금 밀려서 그리는 위치를 옮김
+    frame = (frame + 1) % 7
 
 
 #=======================================================================================+
@@ -68,7 +76,7 @@ while(running):
     clear_canvas()
     handle_events()
 
-    Walking_Animation()
+    Normal_Attack_Animation()
     update_canvas()
     delay(0.1)
 
