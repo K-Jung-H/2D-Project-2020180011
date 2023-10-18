@@ -45,6 +45,33 @@ def Defense_Animation(): #Great_Husk_Sentry
     frame = (frame + 1) % 4
 
 
+def Counter_Animation(): #Great_Husk_Sentry
+    global frame
+    if  frame < 3:
+        Knight1.clip_draw(445 * frame + 3, 1318, 442, 430, 500, 400)
+    elif frame == 3:
+        Knight1.clip_draw(1370, 1107, 371, 641, 500, 400 + 100)
+    elif 3 < frame < 7:
+        Knight1.clip_draw(421 * (frame-4) + 3, 650, 418, 430, 500, 400)
+    frame = (frame + 1) % 7
+
+
+# 카운터 동작 예시
+def Defense_Counter_Animation(): #Great_Husk_Sentry
+    global frame
+    temp = 0
+    if  frame < 4:
+        Knight1.clip_draw(367 * frame + 4, 4567, 363, 354, 500, 400)
+    elif  frame < 7:
+        temp = frame - 4
+        Knight1.clip_draw(445 * temp + 3, 1318, 442, 430, 500, 400)
+    elif frame == 7:
+        Knight1.clip_draw(1370, 1107, 371, 641, 500, 400 + 100)
+    elif 7 < frame < 12:
+        temp = frame - 4
+        Knight1.clip_draw(421 * (temp-4) + 3, 650, 418, 430, 500, 400)
+    frame = (frame + 1) % 11
+
 
 
 #=======================================================================================+
@@ -84,7 +111,7 @@ while(running):
     clear_canvas()
     handle_events()
 
-    Defense_Animation()
+    Defense_Counter_Animation()
     update_canvas()
     delay(0.1)
 
