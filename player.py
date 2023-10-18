@@ -202,8 +202,7 @@ class Boy:
         self.x, self.y = 400, 90
         self.frame = 0
         self.action = 3
-        self.image = load_image('resource/Sword_Kirby'
-                                '.png')
+        self.image = load_image('resource/Sword_Kirby.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
 
