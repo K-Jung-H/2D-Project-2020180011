@@ -74,6 +74,22 @@ def Defense_Counter_Animation(): #Great_Husk_Sentry
 
 
 
+def Damaged_Animation():
+    global frame
+    if frame % 2 == 0:
+        Knight1.clip_draw(3, 274, 379, 349, 500, 400)
+    frame = (frame + 1) % 8
+
+
+def Lose_Animation():
+    global frame
+    if frame < 3:
+        Knight1.clip_draw(382 * frame + 3, 274, 379, 349, 500, 400)
+    else:
+        Knight1.clip_draw(388 * (frame-3) + 3, 3, 385, 249, 500, 400)
+    frame = (frame + 1) % 6
+
+
 #=======================================================================================+
 def handle_events():
     global running
@@ -111,7 +127,7 @@ while(running):
     clear_canvas()
     handle_events()
 
-    Defense_Counter_Animation()
+    Damaged_Animation()
     update_canvas()
     delay(0.1)
 
