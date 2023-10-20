@@ -2,10 +2,12 @@ from pico2d import *
 
 #Meta_Knight
 walking_focus = [ [3,58], [3,66], [10,66], [15,50], [6,50], [3,66], [5,66] ]
-Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[645,110],[540, 100],[540, 100]]
+Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[540, 100],[540, 100],[540, 100],[645,110]]
 Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
 Speed_Attack_focus = [ [2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
 
+Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340],[592, 42, 330], [636, 42, 340],[0, 50, 210],[50, 50, 210],[113, 50, 210],[163, 50, 210]]
+Counter_Attack_focus = [[0,52,275], [52,54,275], [106,52,275],[160,55,275],[215,65,275],[320,52,415],[320,52,415],[320,52,415],[425,65,405]]
 
 
 
@@ -33,7 +35,7 @@ def Walking_Animation(): #Meta_Knight
 def Charge_Attack_Animation(): #Meta_Knight
     global frame
     Meta_Knight.clip_draw(Charge_Attack_focus[frame][0], 480, Charge_Attack_focus[frame][1], 60, 500, 400,400,400)
-    frame = (frame + 1) % 9
+    frame = (frame + 1) % 10
 
 
 def Normal_Attack_Animation(): #Meta_Knight
@@ -52,22 +54,23 @@ def Speed_Attack_Animation(): #Meta_Knight
 
 
 
+Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340],[592, 42, 330], [636, 42, 340],[0, 50, 210],[50, 50, 210],[113, 50, 210],[163, 50, 210]]
+
+
 def Defense_Animation(): #Great_Husk_Sentry
     global frame
-    if  frame < 4:
-        Meta_Knight.clip_draw(367 * frame + 4, 4567, 363, 354, 500, 400)
-    frame = (frame + 1) % 4
+    Meta_Knight.clip_draw(Defense_focus[frame][0], Defense_focus[frame][2], Defense_focus[frame][1], 70, 500, 400)
+    frame = (frame + 1) % 9
 
 
-def Counter_Animation(): #Great_Husk_Sentry
+Counter_Attack_focus = [[0,52,275], [52,54,275], [106,52,275],[160,55,275],[215,65,275],[320,52,415],[320,52,415],[320,52,415],[425,65,405]]
+
+
+def Counter_Animation(): #Meta_Knight
     global frame
-    if  frame < 3:
-        Meta_Knight.clip_draw(445 * frame + 3, 1318, 442, 430, 500, 400)
-    elif frame == 3:
-        Meta_Knight.clip_draw(1370, 1107, 371, 641, 500, 400 + 100)
-    elif 3 < frame < 7:
-        Meta_Knight.clip_draw(421 * (frame-4) + 3, 650, 418, 430, 500, 400)
-    frame = (frame + 1) % 7
+
+    Meta_Knight.clip_draw(Counter_Attack_focus[frame][0], Counter_Attack_focus[frame][2], Counter_Attack_focus[frame][1], 60, 500, 400)
+    frame = (frame + 1) % 9
 
 
 # 카운터 동작 예시
@@ -85,6 +88,7 @@ def Defense_Counter_Animation(): #Great_Husk_Sentry
         temp = frame - 4
         Meta_Knight.clip_draw(421 * (temp-4) + 3, 650, 418, 430, 500, 400)
     frame = (frame + 1) % 11
+
 
 
 
@@ -131,7 +135,11 @@ while(running):
     clear_canvas()
     handle_events()
 
-    Speed_Attack_Animation()
+    #Normal_Attack_Animation()
+    #Charge_Attack_Animation()
+    #Speed_Attack_Animation()
+    #Walking_Animation()
+    #Counter_Animation()
     update_canvas()
     delay(0.1)
 
