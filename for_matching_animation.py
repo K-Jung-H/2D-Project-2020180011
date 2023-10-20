@@ -2,6 +2,7 @@ from pico2d import *
 
 #Meta_Knight
 walking_focus = [ [3,58], [3,66], [10,66], [15,50], [6,50], [3,66], [5,66] ]
+Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110],[540, 100], [645,110],[645,110],[645,110]]
 
 
 
@@ -33,6 +34,20 @@ def Walking_Animation(): #Meta_Knight
     global frame
     Meta_Knight.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, 500, 400, 400, 400)
     frame = (frame + 1) % 7
+
+# 1c : 55 * 0 + 2 ~ 50
+# 2c : 62 * 1 + 55 ~ 50
+# 3c : 62 * 2 + 10 ~ 66
+# 4c : 62 * 3 + 15 ~ 50
+# 5c : 62 * 4 + 6  ~ 50
+# 6c : 62 * 5 - 3  ~ 66
+# 7c : 62 * 6 + 5  ~ 66
+
+def Charge_Attack_Animation(): #Meta_Knight
+    global frame
+    Meta_Knight.clip_draw(Charge_Attack_focus[frame][0], 480, Charge_Attack_focus[frame][1], 60, 500, 400,400,400)
+    frame = (frame + 1) % 9
+
 
 
 def Normal_Attack_Animation(): #Great_Husk_Sentry
@@ -123,7 +138,7 @@ while(running):
     clear_canvas()
     handle_events()
 
-    Walking_Animation()
+    Charge_Attack_Animation()
     update_canvas()
     delay(0.1)
 
