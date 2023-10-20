@@ -1,15 +1,5 @@
-from pico2d import *
-
-#Great_Husk_Sentry
-
-open_canvas()
-TUK_WIDTH, TUK_HEIGHT = 1000,800
-open_canvas(TUK_WIDTH,TUK_HEIGHT)
-Knight1 = load_image('resource/Great_Husk_Sentry.png')
-frame = 0
-
-
 #complete parts
+Knight1 = load_image('resource/Great_Husk_Sentry.png')
 
 def Standing_Animation(): #Great_Husk_Sentry
     global frame
@@ -85,36 +75,3 @@ def Lose_Animation():
     else:
         Knight1.clip_draw(388 * (frame-3) + 3, 3, 385, 249, 500, 400)
     frame = (frame + 1) % 6
-
-
-#=======================================================================================
-
-
-def handle_events():
-    global running
-    global pic_x,pic_y, size
-
-    events = get_events()
-    for event in events:
-        if event.type == SDL_QUIT:
-            running = False
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-            running = False
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_RETURN:
-            print(pic_x, pic_y)
-        else:
-            handle_events()
-
-
-running = True
-clear_canvas()
-
-
-while(running):
-    clear_canvas()
-    handle_events()
-
-    Normal_Attack_Animation()
-    update_canvas()
-    delay(0.1)
-
