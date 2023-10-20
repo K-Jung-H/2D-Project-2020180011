@@ -2,7 +2,9 @@ from pico2d import *
 
 #Meta_Knight
 walking_focus = [ [3,58], [3,66], [10,66], [15,50], [6,50], [3,66], [5,66] ]
-Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110],[540, 100], [645,110],[645,110],[645,110]]
+Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[645,110],[540, 100],[540, 100]]
+Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
+Speed_Attack_focus = [ [2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
 
 
 
@@ -21,27 +23,12 @@ def Standing_Animation(): #Meta_Knight
     Meta_Knight.clip_draw(317 * frame + 3, 6027, 312, 347, 500, 400)
     frame = (frame + 1) % 5
 
-# 1c : 62 * 0 + 3 ~ 58
-# 2c : 62 * 1 + 3 ~ 66
-# 3c : 62 * 2 + 10 ~ 66
-# 4c : 62 * 3 + 15 ~ 50
-# 5c : 62 * 4 + 6  ~ 50
-# 6c : 62 * 5 - 3  ~ 66
-# 7c : 62 * 6 + 5  ~ 66
-
 
 def Walking_Animation(): #Meta_Knight
     global frame
     Meta_Knight.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, 500, 400, 400, 400)
     frame = (frame + 1) % 7
 
-# 1c : 55 * 0 + 2 ~ 50
-# 2c : 62 * 1 + 55 ~ 50
-# 3c : 62 * 2 + 10 ~ 66
-# 4c : 62 * 3 + 15 ~ 50
-# 5c : 62 * 4 + 6  ~ 50
-# 6c : 62 * 5 - 3  ~ 66
-# 7c : 62 * 6 + 5  ~ 66
 
 def Charge_Attack_Animation(): #Meta_Knight
     global frame
@@ -49,14 +36,20 @@ def Charge_Attack_Animation(): #Meta_Knight
     frame = (frame + 1) % 9
 
 
-
-def Normal_Attack_Animation(): #Great_Husk_Sentry
+def Normal_Attack_Animation(): #Meta_Knight
     global frame
-    if frame < 5:
-        Meta_Knight.clip_draw((391 * frame) + 3, 3310, 388, 467, 500, 400)
-    else:
-        Meta_Knight.clip_draw((667 * (frame - 5)) + 3 * (frame - 3), 2864, 667, 424, 500 + 150, 400 - 20) # 사진이 조금 밀려서 그리는 위치를 옮김
-    frame = (frame + 1) % 7
+    global frame
+    Meta_Knight.clip_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60, 500, 400,400,400)
+    frame = (frame + 1) % 5
+
+
+
+
+def Speed_Attack_Animation(): #Meta_Knight
+    global frame
+    Meta_Knight.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][2], Speed_Attack_focus[frame][1], 60, 500, 400,400,400)
+    frame = (frame + 1) % 5
+
 
 
 def Defense_Animation(): #Great_Husk_Sentry
@@ -138,7 +131,7 @@ while(running):
     clear_canvas()
     handle_events()
 
-    Charge_Attack_Animation()
+    Speed_Attack_Animation()
     update_canvas()
     delay(0.1)
 
