@@ -2,7 +2,6 @@
 
 
 from pico2d import get_time, load_image, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT
-
 import World
 
 # state event check
@@ -32,131 +31,114 @@ def time_out(e):
 # time_out = lambda e : e[0] == 'TIME_OUT'
 
 
+walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
+
 
 class Idle:
 
     @staticmethod
-    def enter(boy, e):
-        if boy.face_dir == -1:
-            boy.action = 2
-        elif boy.face_dir == 1:
-            boy.action = 3
-        boy.dir = 0
-        boy.frame = 0
-        boy.wait_time = get_time() # pico2d import 필요
+    def enter(metaknight, e):
+        if metaknight.face_dir == -1:
+            metaknight.action = 2
+        elif metaknight.face_dir == 1:
+            metaknight.action = 3
+        metaknight.dir = 0
+        metaknight.frame = 0
+        metaknight.wait_time = get_time() # pico2d import 필요
         pass
 
     @staticmethod
-    def exit(boy, e):
-        if space_down(e):
-            boy.fire_ball()
+    def exit(metaknight, e):
         pass
 
     @staticmethod
-    def do(boy):
-        boy.frame = (boy.frame + 1) % 8
-        if get_time() - boy.wait_time > 2:
-            boy.state_machine.handle_event(('TIME_OUT', 0))
+    def do(metaknight):
+        metaknight.do_call_count += 1
+
+        if metaknight.do_call_count == 3:
+            metaknight.frame = (metaknight.frame + 1) % 4
+        metaknight.do_call_count %= 3
+
+
 
     @staticmethod
-    def draw(boy):
-        boy.image.clip_draw(boy.frame * 100, boy.action * 100, 100, 100, boy.x, boy.y)
-
+    def draw(metaknight):
+        frame = metaknight.frame
+        metaknight.image.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, metaknight.x,
+                                   metaknight.y, 100, 100)
 
 
 class Run:
 
     @staticmethod
-    def enter(boy, e):
+    def enter(metaknight, e):
         if right_down(e) or left_up(e): # 오른쪽으로 RUN
-            boy.dir, boy.face_dir, boy.action = 1, 1, 1
+            metaknight.dir, metaknight.face_dir, metaknight.action = 1, 1, 1
         elif left_down(e) or right_up(e): # 왼쪽으로 RUN
-            boy.dir, boy.face_dir, boy.action = -1, -1, 0
+            metaknight.dir, metaknight.face_dir, metaknight.action = -1, -1, 0
+        metaknight.frame = 0
 
     @staticmethod
-    def exit(boy, e):
-        if space_down(e):
-            boy.fire_ball()
+    def exit(metaknight, e):
+
         pass
 
     @staticmethod
-    def do(boy):
-        boy.frame = (boy.frame + 1) % 8
-        boy.x += boy.dir * 5
+    def do(metaknight):
+        metaknight.do_call_count += 1
+
+        # Check if do has been called twice
+        if metaknight.do_call_count == 3:
+            metaknight.frame = (metaknight.frame + 1) % 7
+        metaknight.do_call_count = metaknight.do_call_count % 3
+        metaknight.x += metaknight.dir * 5
         pass
 
     @staticmethod
-    def draw(boy):
-        boy.image.clip_draw(boy.frame * 100, boy.action * 100, 100, 100, boy.x, boy.y)
-
-
-
-class Sleep:
-
-    @staticmethod
-    def enter(boy, e):
-        boy.frame = 0
-        pass
-
-    @staticmethod
-    def exit(boy, e):
-        pass
-
-    @staticmethod
-    def do(boy):
-        boy.frame = (boy.frame + 1) % 8
-
-    @staticmethod
-    def draw(boy):
-        if boy.face_dir == -1:
-            boy.image.clip_composite_draw(boy.frame * 100, 200, 100, 100,
-                                          -3.141592 / 2, '', boy.x + 25, boy.y - 25, 100, 100)
-
-        else:
-            boy.image.clip_composite_draw(boy.frame * 100, 300, 100, 100,
-                                          3.141592 / 2, '', boy.x - 25, boy.y - 25, 100, 100)
+    def draw(metaknight):
+        frame = metaknight.frame
+        metaknight.image.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, metaknight.x, metaknight.y, 100, 100)
 
 
 class StateMachine:
-    def __init__(self, boy):
-        self.boy = boy
+    def __init__(self, metaknight):
+        self.metaknight = metaknight
         self.cur_state = Idle
         self.transitions = {
-            Idle: {space_down: Idle, right_down: Run, left_down: Run, left_up: Run, right_up: Run, time_out: Sleep},
+            Idle: {space_down: Idle, right_down: Run, left_down: Run, left_up: Run, right_up: Run },
             Run: {space_down: Run, right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle},
-            Sleep: {right_down: Run, left_down: Run, right_up: Run, left_up: Run}
         }
 
     def start(self):
-        self.cur_state.enter(self.boy, ('NONE', 0))
+        self.cur_state.enter(self.metaknight, ('NONE', 0))
 
     def update(self):
-        self.cur_state.do(self.boy)
+        self.cur_state.do(self.metaknight)
 
     def handle_event(self, e):
         for check_event, next_state in self.transitions[self.cur_state].items():
             if check_event(e):
-                self.cur_state.exit(self.boy, e)
+                self.cur_state.exit(self.metaknight, e)
                 self.cur_state = next_state
-                self.cur_state.enter(self.boy, e)
+                self.cur_state.enter(self.metaknight, e)
                 return True
 
         return False
 
     def draw(self):
-        self.cur_state.draw(self.boy)
+        self.cur_state.draw(self.metaknight)
 
 
-class Player:
-
+class MetaKnight:
 
     def __init__(self):
         self.x, self.y = 400, 90
+        self.do_call_count = 0
         self.frame = 0
         self.action = 3 # 오른쪽 idle
         self.dir = 0
         self.face_dir = 1 # 오른쪽 방향으로 얼굴 향하게
-        self.image = load_image('resource/Meta_Knight_2.png')
+        self.image = load_image('resource/Meta_Knight_3.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
 

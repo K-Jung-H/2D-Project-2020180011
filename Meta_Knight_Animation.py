@@ -15,7 +15,7 @@ Counter_Attack_focus = [[0,52,275], [52,54,275], [106,52,275],[160,55,275],[215,
 Damaged_focus = [[0, 40], [40, 40]]
 
 
-
+frame = 0
 
 #complete parts
 
@@ -38,7 +38,6 @@ def Charge_Attack_Animation(): #Meta_Knight
 
 
 def Normal_Attack_Animation(): #Meta_Knight
-    global frame
     global frame
     Meta_Knight.clip_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60, 500, 400,400,400)
     frame = (frame + 1) % 5
