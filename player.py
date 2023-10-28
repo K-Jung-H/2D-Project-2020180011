@@ -1,7 +1,7 @@
 ﻿# 이것은 각 상태들을 객체로 구현한 것임.
 
 
-from pico2d import get_time, load_image, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT
+from pico2d import get_time, load_image, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_f
 import World
 
 # state event check
@@ -28,11 +28,12 @@ def space_down(e):
 def time_out(e):
     return e[0] == 'TIME_OUT'
 
-# time_out = lambda e : e[0] == 'TIME_OUT'
+def F_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_f
 
 
 walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
-
+Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
 
 class Idle:
 
@@ -60,7 +61,6 @@ class Idle:
         metaknight.do_call_count %= 3
 
 
-
     @staticmethod
     def draw(metaknight):
         frame = metaknight.frame
@@ -80,7 +80,6 @@ class Run:
 
     @staticmethod
     def exit(metaknight, e):
-
         pass
 
     @staticmethod
@@ -100,13 +99,41 @@ class Run:
         metaknight.image.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, metaknight.x, metaknight.y, 100, 100)
 
 
+
+class Normal_Attack:
+
+    @staticmethod
+    def enter(metaknight, e):
+        metaknight.frame = 0
+        metaknight.do_call_count = 0
+
+    @staticmethod
+    def exit(metaknight, e):
+        pass
+
+    @staticmethod
+    def do(metaknight):
+        metaknight.do_call_count += 1
+
+        if metaknight.do_call_count == 3:
+            metaknight.frame = (metaknight.frame + 1) % 5
+        metaknight.do_call_count = metaknight.do_call_count % 3
+        pass
+
+    @staticmethod
+    def draw(metaknight):
+        frame = metaknight.frame
+        metaknight.image.clip_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60, metaknight.x, metaknight.y, 100, 100)
+
+
 class StateMachine:
     def __init__(self, metaknight):
         self.metaknight = metaknight
         self.cur_state = Idle
         self.transitions = {
-            Idle: {space_down: Idle, right_down: Run, left_down: Run, left_up: Run, right_up: Run },
-            Run: {space_down: Run, right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle},
+            Idle: {space_down: Idle, right_down: Run, left_down: Run, left_up: Run, right_up: Run, F_down: Normal_Attack},
+            Run: {space_down: Run, right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, F_down: Normal_Attack},
+            Normal_Attack: {time_out: Idle}
         }
 
     def start(self):
