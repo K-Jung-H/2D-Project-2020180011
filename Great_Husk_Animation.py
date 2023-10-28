@@ -1,5 +1,10 @@
 #complete parts
-Knight1 = load_image('resource/Great_Husk_Sentry.png')
+from pico2d import *
+
+
+
+
+
 
 def Standing_Animation(): #Great_Husk_Sentry
     global frame
@@ -10,9 +15,9 @@ def Standing_Animation(): #Great_Husk_Sentry
 def Walking_Animation(): #Great_Husk_Sentry
     global frame
     if  frame < 6:
-        Knight1.clip_draw(318 * frame + 3, 5665, 312, 340, 500, 400)
+        Knight1.clip_draw(318 * frame + 3, 5665, 312, 340, 500, 400, 100, 100)
     else:
-        Knight1.clip_draw(315 * (frame - 6) + 6, 5321, 312, 340, 500, 400)
+        Knight1.clip_draw(315 * (frame - 6) + 6, 5321, 312, 340, 500, 400, 100, 100)
     frame = (frame + 1) % 8
 
 
@@ -75,3 +80,23 @@ def Lose_Animation():
     else:
         Knight1.clip_draw(388 * (frame-3) + 3, 3, 385, 249, 500, 400)
     frame = (frame + 1) % 6
+
+
+
+def handle_events():
+    global running
+    global pic_x,pic_y, size
+
+    events = get_events()
+    for event in events:
+        if event.type == SDL_QUIT:
+            running = False
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            running = False
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_RETURN:
+            print(pic_x, pic_y)
+        else:
+            handle_events()
+
+
+

@@ -1,36 +1,33 @@
 from pico2d import *
 
 #Meta_Knight
-walking_focus = [ [3,58], [3,66], [10,66], [15,50], [6,50], [3,66], [5,66] ]
-Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[540, 100],[540, 100],[540, 100],[645,110]]
-Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
-Speed_Attack_focus = [ [2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
 
-Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340],[592, 42, 330], [636, 42, 340],[0, 50, 210],[50, 50, 210],[113, 50, 210],[163, 50, 210]]
-Counter_Attack_focus = [[0,52,275], [52,54,275], [106,52,275],[160,55,275],[215,65,275],[320,52,415],[320,52,415],[320,52,415],[425,65,405]]
-Damaged_focus = [ [0, 40], [40, 40]]
+
+
 
 
 
 open_canvas()
-TUK_WIDTH, TUK_HEIGHT = 1000,800
+TUK_WIDTH, TUK_HEIGHT = 1000, 800
 open_canvas(TUK_WIDTH,TUK_HEIGHT)
-Meta_Knight = load_image('resource/Meta_Knight_2.png')
+Kirby = load_image('resource/Sword_Kirby.png')
 frame = 0
 
 
 #complete parts
 
-def Standing_Animation(): #Meta_Knight
+def Standing_Animation(): #Kirby
     global frame
-    Meta_Knight.clip_draw(317 * frame + 3, 6027, 312, 347, 500, 400)
-    frame = (frame + 1) % 5
+    Kirby.clip_draw(30 * frame + 9, 2100, 30, 53, 500, 400,300, 300)
+    frame = (frame + 1) % 1
 
 
-def Walking_Animation(): #Meta_Knight
+walking_focus = [[9,2100],]
+
+def Walking_Animation(): #Kirby
     global frame
-    Meta_Knight.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, 500, 400, 400, 400)
-    frame = (frame + 1) % 7
+    Kirby.clip_draw(30 * frame + 9, 2010, 30, 43, 500, 400, 300, 300)
+    frame = 3 # (frame + 1) % 3
 
 
 def Charge_Attack_Animation(): #Meta_Knight
@@ -114,12 +111,13 @@ clear_canvas()
 while(running):
     clear_canvas()
     handle_events()
-
+    #Standing_Animation()
+    Walking_Animation()
     #Damaged_Animation()
     #Normal_Attack_Animation()
     #Charge_Attack_Animation()
     #Speed_Attack_Animation()
-    #Walking_Animation()
+
     #Counter_Animation()
     update_canvas()
     delay(0.1)
