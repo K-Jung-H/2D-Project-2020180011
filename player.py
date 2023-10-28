@@ -3,9 +3,7 @@
 
 from pico2d import get_time, load_image, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT
 
-import game_world
-from ball import Ball
-
+import World
 
 # state event check
 # ( state event type, event value )
@@ -149,10 +147,7 @@ class StateMachine:
         self.cur_state.draw(self.boy)
 
 
-
-
-
-class Boy:
+class Player:
 
 
     def __init__(self):
@@ -161,7 +156,7 @@ class Boy:
         self.action = 3 # 오른쪽 idle
         self.dir = 0
         self.face_dir = 1 # 오른쪽 방향으로 얼굴 향하게
-        self.image = load_image('animation_sheet.png')
+        self.image = load_image('resource/Meta_Knight_2.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
 
@@ -173,14 +168,4 @@ class Boy:
 
     def draw(self):
         self.state_machine.draw()
-
-    def fire_ball(self):
-        ball = Ball(self.x, self.y, self.face_dir * 10)
-        #생성한 볼을 월드에 넣어줘야 한다.
-        game_world.add_object(ball, 2)
-        if  self.face_dir == 1:
-            print("FIRE BALL to right")
-        elif self.face_dir == -1:
-            print("FIRE BALL to left")
-
 

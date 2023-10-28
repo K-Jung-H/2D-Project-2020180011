@@ -1,12 +1,11 @@
 from pico2d import *
 
-import game_world
-from grass import Grass
-from boy import Boy
+import World
+from Background import BackGround
+from player import Player
 
 
 # Game object class here
-
 
 def handle_events():
     global running
@@ -18,43 +17,35 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             running = False
         else:
-            boy.handle_event(event)
+            player.handle_event(event)
 
 
 def create_world():
     global running
-    global grass
-    global team
-    global boy
+    global background
+    global player
 
     running = True
 
-    boy = Boy()
-    game_world.add_object(boy, 1)
+    player = Player()
+    World.add_object(player, 1)
 
-
-    grass = Grass()
-    game_world.add_object(grass, 4)
-
-    back_grass = Grass(400, 60)
-    game_world.add_object(back_grass, 3)
-
-    front_grass = Grass(400,90)
-    game_world.add_object(front_grass, 0)
+    background = BackGround()
+    World.add_object(background, 0)
 
 
 def update_world():
-    game_world.update()
+    World.update()
     pass
 
 
 def render_world():
     clear_canvas()
-    game_world.render()
+    World.render()
     update_canvas()
 
 
-open_canvas()
+open_canvas(1000,600)
 create_world()
 # game loop
 
