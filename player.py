@@ -86,7 +86,7 @@ class Run:
     def do(metaknight):
         metaknight.do_call_count += 1
 
-        # Check if do has been called twice
+
         if metaknight.do_call_count == 3:
             metaknight.frame = (metaknight.frame + 1) % 7
         metaknight.do_call_count = metaknight.do_call_count % 3
@@ -97,6 +97,7 @@ class Run:
     def draw(metaknight):
         frame = metaknight.frame
         metaknight.image.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, metaknight.x, metaknight.y, 100, 100)
+
 
 
 
