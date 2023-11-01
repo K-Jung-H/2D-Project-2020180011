@@ -31,6 +31,9 @@ def time_out(e):
 def F_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_f
 
+def F_out(e):
+    return e[0] == 'STOP'
+
 
 walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
@@ -118,8 +121,10 @@ class Normal_Attack:
 
         if metaknight.do_call_count == 3:
             metaknight.frame = (metaknight.frame + 1) % 5
+            if metaknight.frame == 4:
+                metaknight.state_machine.handle_event(('STOP', 0))
         metaknight.do_call_count = metaknight.do_call_count % 3
-        pass
+
 
     @staticmethod
     def draw(metaknight):
@@ -127,14 +132,16 @@ class Normal_Attack:
         metaknight.image.clip_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60, metaknight.x, metaknight.y, 100, 100)
 
 
+
 class StateMachine:
     def __init__(self, metaknight):
         self.metaknight = metaknight
         self.cur_state = Idle
         self.transitions = {
-            Idle: {space_down: Idle, right_down: Run, left_down: Run, left_up: Run, right_up: Run, F_down: Normal_Attack},
-            Run: {space_down: Run, right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, F_down: Normal_Attack},
-            Normal_Attack: {time_out: Idle}
+            Idle: {right_down: Run, left_down: Run, left_up: Idle, right_up: Idle, F_down: Normal_Attack, },
+            Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, F_down: Normal_Attack, F_out: Idle },
+            Normal_Attack: {F_out: Idle}
+
         }
 
     def start(self):
