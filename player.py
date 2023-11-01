@@ -1,7 +1,7 @@
 ﻿# 이것은 각 상태들을 객체로 구현한 것임.
 
 
-from pico2d import get_time, load_image, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_f
+from pico2d import get_time, load_image, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_f, SDLK_e
 import World
 
 # state event check
@@ -34,9 +34,23 @@ def F_down(e):
 def F_out(e):
     return e[0] == 'STOP'
 
+def E_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_e
+
+def E_out(e):
+    return e[0] == 'STOP'
+
 
 walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
+Speed_Attack_focus = [[2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
+
+
+def Speed_Attack_Animation(): #Meta_Knight
+    global frame
+
+
+
 
 class Idle:
 
@@ -164,8 +178,9 @@ class Speed_Attack:
     @staticmethod
     def draw(p1):
         frame = p1.frame
-        p1.image.clip_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60, p1.x, p1.y, 100, 100)
-
+        p_size_x = Speed_Attack_focus[frame][1]
+        p_size_y = 60
+        p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][2], Speed_Attack_focus[frame][1], 60, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
 
 
 class StateMachine:
@@ -173,9 +188,10 @@ class StateMachine:
         self.metaknight = metaknight
         self.cur_state = Idle
         self.transitions = {
-            Idle: {right_down: Run, left_down: Run, left_up: Idle, right_up: Idle, F_down: Normal_Attack, },
-            Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, F_down: Normal_Attack, F_out: Idle },
-            Normal_Attack: {F_out: Idle}
+            Idle: {right_down: Run, left_down: Run, left_up: Idle, right_up: Idle, F_down: Normal_Attack, E_down: Speed_Attack, E_out: Idle},
+            Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, F_down: Normal_Attack, F_out: Idle, E_down: Speed_Attack, E_out: Idle},
+            Normal_Attack: {F_out: Idle},
+            Speed_Attack: {F_out: Idle},
 
         }
 
