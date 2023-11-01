@@ -41,65 +41,69 @@ Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
 class Idle:
 
     @staticmethod
-    def enter(metaknight, e):
-        if metaknight.face_dir == -1:
-            metaknight.action = 2
-        elif metaknight.face_dir == 1:
-            metaknight.action = 3
-        metaknight.dir = 0
-        metaknight.frame = 0
-        metaknight.wait_time = get_time() # pico2d import 필요
+    def enter(p1, e):
+        if p1.face_dir == -1:
+            p1.action = 2
+        elif p1.face_dir == 1:
+            p1.action = 3
+        p1.dir = 0
+        p1.frame = 0
+        p1.wait_time = get_time() # pico2d import 필요
         pass
 
     @staticmethod
-    def exit(metaknight, e):
+    def exit(p1, e):
         pass
 
     @staticmethod
-    def do(metaknight):
-        metaknight.do_call_count += 1
+    def do(p1):
+        p1.do_call_count += 1
 
-        if metaknight.do_call_count == 3:
-            metaknight.frame = (metaknight.frame + 1) % 4
-        metaknight.do_call_count %= 3
+        if p1.do_call_count == 3:
+            p1.frame = (p1.frame + 1) % 4
+        p1.do_call_count %= 3
 
 
     @staticmethod
-    def draw(metaknight):
-        frame = metaknight.frame
-        metaknight.image.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, metaknight.x,
-                                   metaknight.y, 100, 100)
+    def draw(p1):
+        frame = p1.frame
+        p_size_x = walking_focus[frame][1]
+        p_size_y = 60
+        p1.image.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, p1.x,
+                                   p1.y, p_size_x * 2, p_size_y * 2)
 
 
 class Run:
 
     @staticmethod
-    def enter(metaknight, e):
+    def enter(p1, e):
         if right_down(e) or left_up(e): # 오른쪽으로 RUN
-            metaknight.dir, metaknight.face_dir, metaknight.action = 1, 1, 1
+            p1.dir, p1.face_dir, p1.action = 1, 1, 1
         elif left_down(e) or right_up(e): # 왼쪽으로 RUN
-            metaknight.dir, metaknight.face_dir, metaknight.action = -1, -1, 0
-        metaknight.frame = 0
+            p1.dir, p1.face_dir, p1.action = -1, -1, 0
+        p1.frame = 0
 
     @staticmethod
-    def exit(metaknight, e):
+    def exit(p1, e):
         pass
 
     @staticmethod
-    def do(metaknight):
-        metaknight.do_call_count += 1
+    def do(p1):
+        p1.do_call_count += 1
 
 
-        if metaknight.do_call_count == 3:
-            metaknight.frame = (metaknight.frame + 1) % 7
-        metaknight.do_call_count = metaknight.do_call_count % 3
-        metaknight.x += metaknight.dir * 5
+        if p1.do_call_count == 3:
+            p1.frame = (p1.frame + 1) % 7
+        p1.do_call_count = p1.do_call_count % 3
+        p1.x += p1.dir * 5
         pass
 
     @staticmethod
-    def draw(metaknight):
-        frame = metaknight.frame
-        metaknight.image.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, metaknight.x, metaknight.y, 100, 100)
+    def draw(p1):
+        frame = p1.frame
+        p_size_x = walking_focus[frame][1]
+        p_size_y = 60
+        p1.image.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
 
 
@@ -107,29 +111,60 @@ class Run:
 class Normal_Attack:
 
     @staticmethod
-    def enter(metaknight, e):
-        metaknight.frame = 0
-        metaknight.do_call_count = 0
+    def enter(p1, e):
+        p1.frame = 0
+        p1.do_call_count = 0
 
     @staticmethod
-    def exit(metaknight, e):
+    def exit(p1, e):
         pass
 
     @staticmethod
-    def do(metaknight):
-        metaknight.do_call_count += 1
+    def do(p1):
+        p1.do_call_count += 1
 
-        if metaknight.do_call_count == 3:
-            metaknight.frame = (metaknight.frame + 1) % 5
-            if metaknight.frame == 4:
-                metaknight.state_machine.handle_event(('STOP', 0))
-        metaknight.do_call_count = metaknight.do_call_count % 3
+        if p1.do_call_count == 3:
+            p1.frame = (p1.frame + 1) % 5
+            if p1.frame == 4:
+                p1.state_machine.handle_event(('STOP', 0))
+        p1.do_call_count = p1.do_call_count % 3
+
+    @staticmethod
+    def draw(p1):
+        frame = p1.frame
+        p_size_x = Normal_Attack_focus[frame][1]
+        p_size_y = 60
+        p1.image.clip_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
+
+
+
+
+class Speed_Attack:
+
+    @staticmethod
+    def enter(p1, e):
+        p1.frame = 0
+        p1.do_call_count = 0
+
+    @staticmethod
+    def exit(p1, e):
+        pass
+
+    @staticmethod
+    def do(p1):
+        p1.do_call_count += 1
+
+        if p1.do_call_count == 3:
+            p1.frame = (p1.frame + 1) % 5
+            if p1.frame == 4:
+                p1.state_machine.handle_event(('STOP', 0))
+        p1.do_call_count = p1.do_call_count % 3
 
 
     @staticmethod
-    def draw(metaknight):
-        frame = metaknight.frame
-        metaknight.image.clip_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60, metaknight.x, metaknight.y, 100, 100)
+    def draw(p1):
+        frame = p1.frame
+        p1.image.clip_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60, p1.x, p1.y, 100, 100)
 
 
 
