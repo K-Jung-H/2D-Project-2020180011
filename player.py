@@ -1,4 +1,4 @@
-﻿from pico2d import get_time, load_image, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_f, SDLK_e
+﻿from pico2d import get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_f, SDLK_e, SDLK_q
 import World
 import game_framework
 
@@ -48,9 +48,23 @@ def E_out(e):
     return e[0] == 'STOP'
 
 
+def Q_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_q
+
+def Q_up(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_q
+
+
+def Q_out(e):
+    return e[0] == 'STOP'
+
+def STOP(e):
+    return e[0] == 'STOP'
+
 walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
 Speed_Attack_focus = [[2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
+Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[540, 100],[540, 100],[540, 100],[645,110]]
 
 
 
@@ -58,10 +72,6 @@ class Idle:
 
     @staticmethod
     def enter(p1, e):
-        if p1.face_dir == -1:
-            p1.action = 2
-        elif p1.face_dir == 1:
-            p1.action = 3
         p1.dir = 0
         p1.frame = 0
         p1.wait_time = get_time() # pico2d import 필요
@@ -90,10 +100,14 @@ class Run:
     @staticmethod
     def enter(p1, e):
         if right_down(e) or left_up(e): # 오른쪽으로 RUN
-            p1.dir, p1.face_dir, p1.action = 1, 1, 1
+            p1.dir, p1.face_dir = 1, 1
         elif left_down(e) or right_up(e): # 왼쪽으로 RUN
-            p1.dir, p1.face_dir, p1.action = -1, -1, 0
+            p1.dir, p1.face_dir = -1, -1
+
+        if p1.Attacking == True:
+            p1.state_machine.handle_event(('STOP', 0))
         p1.frame = 0
+
 
     @staticmethod
     def exit(p1, e):
@@ -102,7 +116,8 @@ class Run:
     @staticmethod
     def do(p1):
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
-        p1.x += p1.dir * 5
+        p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
+        p1.x = clamp(25, p1.x, 1000 - 25)
         pass
 
     @staticmethod
@@ -119,8 +134,7 @@ class Normal_Attack:
 
     @staticmethod
     def enter(p1, e):
-        p1.frame = 0
-        p1.do_call_count = 0
+            p1.frame = 0
 
     @staticmethod
     def exit(p1, e):
@@ -128,10 +142,13 @@ class Normal_Attack:
 
     @staticmethod
     def do(p1):
+        p1.Attacking = True
+        #p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
         if int(p1.frame) == 4:
+            p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
-        p1.do_call_count = p1.do_call_count % 3
+
 
     @staticmethod
     def draw(p1):
@@ -156,10 +173,12 @@ class Speed_Attack:
 
     @staticmethod
     def do(p1):
+        p1.Attacking = True
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
         if int(p1.frame) == 4:
+            p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
-        p1.do_call_count = p1.do_call_count % 3
+
 
 
     @staticmethod
@@ -170,15 +189,60 @@ class Speed_Attack:
         p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][2], Speed_Attack_focus[frame][1], 60, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
 
 
+
+class Charge_Attack:
+
+    @staticmethod
+    def enter(p1, e):
+        p1.frame = 0
+        if Q_down(e):
+            p1.charging = True
+        elif Q_up(e):
+            p1.charging = False
+            p1.Attacking = True
+
+    @staticmethod
+    def exit(p1, e):
+        pass
+
+    @staticmethod
+    def do(p1):
+        if p1.charging == True:
+            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+        elif  p1.charging == False:
+            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 10
+        if int(p1.frame) == 9:
+            p1.Attacking = False
+            p1.state_machine.handle_event(('STOP', 0))
+
+
+
+    @staticmethod
+    def draw(p1):
+        frame = int(p1.frame)
+        p_size_x = Charge_Attack_focus[frame][1]
+        p_size_y = 60
+        p1.image.clip_draw(Charge_Attack_focus[frame][0], 480, Charge_Attack_focus[frame][1], 60, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
+
+
+
+
+
+
 class StateMachine:
     def __init__(self, meta_knight):
         self.player = meta_knight
         self.cur_state = Idle
         self.transitions = {
-            Idle: {right_down: Run, left_down: Run, left_up: Idle, right_up: Idle, F_down: Normal_Attack, E_down: Speed_Attack, E_out: Idle},
-            Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle, F_down: Normal_Attack, F_out: Idle, E_down: Speed_Attack, E_out: Idle},
-            Normal_Attack: {F_out: Idle},
-            Speed_Attack: {F_out: Idle},
+            Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run,
+                   F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack},
+
+            Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle,
+                  F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, STOP: Run },
+            Normal_Attack: {F_out: Idle, right_down: Normal_Attack, left_down: Normal_Attack, left_up: Normal_Attack, right_up: Normal_Attack,},
+            Speed_Attack: {E_out: Run},
+            Charge_Attack: {Q_up: Charge_Attack, Q_out: Run},
+
 
         }
 
@@ -208,8 +272,9 @@ class MetaKnight:
         self.x, self.y = 400, 90
         self.do_call_count = 0
         self.frame = 0
-        self.action = 3 # 오른쪽 idle
         self.dir = 0
+        self.charging = False
+        self.Attacking = False
         self.face_dir = 1 # 오른쪽 방향으로 얼굴 향하게
         self.image = load_image('resource/Meta_Knight_3.png')
         self.state_machine = StateMachine(self)
