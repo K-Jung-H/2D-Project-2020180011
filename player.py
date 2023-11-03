@@ -53,11 +53,6 @@ Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
 Speed_Attack_focus = [[2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
 
 
-def Speed_Attack_Animation(): #Meta_Knight
-    global frame
-
-
-
 
 class Idle:
 
@@ -79,10 +74,6 @@ class Idle:
     @staticmethod
     def do(p1):
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
-        # p1.do_call_count += 1
-        # if p1.do_call_count == 3:
-        #     p1.frame = (p1.frame + 1) % 4
-        # p1.do_call_count %= 3
 
 
     @staticmethod
@@ -111,10 +102,6 @@ class Run:
     @staticmethod
     def do(p1):
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
-        # p1.do_call_count += 1
-        # if p1.do_call_count == 3:
-        #     p1.frame = (p1.frame + 1) % 7
-        # p1.do_call_count = p1.do_call_count % 3
         p1.x += p1.dir * 5
         pass
 
@@ -142,9 +129,6 @@ class Normal_Attack:
     @staticmethod
     def do(p1):
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
-        # p1.do_call_count += 1
-        # if p1.do_call_count == 3:
-        #     p1.frame = (p1.frame + 1) % 5
         if int(p1.frame) == 4:
             p1.state_machine.handle_event(('STOP', 0))
         p1.do_call_count = p1.do_call_count % 3
@@ -173,9 +157,6 @@ class Speed_Attack:
     @staticmethod
     def do(p1):
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
-        # p1.do_call_count += 1
-        # if p1.do_call_count == 3:
-        #     p1.frame = (p1.frame + 1) % 5
         if int(p1.frame) == 4:
             p1.state_machine.handle_event(('STOP', 0))
         p1.do_call_count = p1.do_call_count % 3
