@@ -3,7 +3,7 @@ import game_framework
 
 import World
 from Background import BackGround
-from player import MetaKnight
+from player_MetaKnight import MetaKnight
 
 
 # Game object class here
