@@ -38,7 +38,7 @@ def time_out(e):
 def F_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_f
 
-def F_out(e):
+def STOP(e):
     return e[0] == 'STOP'
 
 def E_down(e):
@@ -58,8 +58,7 @@ def Q_up(e):
 def Q_out(e):
     return e[0] == 'STOP'
 
-def STOP(e):
-    return e[0] == 'STOP'
+
 
 walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
@@ -79,6 +78,7 @@ class Idle:
 
     @staticmethod
     def exit(p1, e):
+
         pass
 
     @staticmethod
@@ -104,8 +104,8 @@ class Run:
         elif left_down(e) or right_up(e): # 왼쪽으로 RUN
             p1.dir, p1.face_dir = -1, -1
 
-        if p1.Attacking == True:
-            p1.state_machine.handle_event(('STOP', 0))
+        # if p1.Attacking == True:
+        #     p1.state_machine.handle_event(('STOP', 0))
         p1.frame = 0
 
 
@@ -148,6 +148,7 @@ class Normal_Attack:
         if int(p1.frame) == 4:
             p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
+
 
 
     @staticmethod
@@ -226,7 +227,9 @@ class Charge_Attack:
 
 
 
-
+# 움직이는 방향키에서 반대키 누르면 멈추고 다시 때면 다시 가게 함
+# 차징하면서 조금씩 이동 방향으로 움직이게 해볼까
+# 움직이면서 공격 기능은 나중에 추가하기
 
 
 class StateMachine:
@@ -234,14 +237,14 @@ class StateMachine:
         self.player = meta_knight
         self.cur_state = Idle
         self.transitions = {
-            Idle: {right_down: Run, left_down: Run, left_up: Run, right_up: Run,
-                   F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack},
+            Idle: {right_down: Run, left_down: Run,
+                   F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, },
 
             Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle,
-                  F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, STOP: Run },
-            Normal_Attack: {F_out: Idle, right_down: Normal_Attack, left_down: Normal_Attack, left_up: Normal_Attack, right_up: Normal_Attack,},
-            Speed_Attack: {E_out: Run},
-            Charge_Attack: {Q_up: Charge_Attack, Q_out: Run},
+                  F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, },
+            Normal_Attack: {STOP: Run, },
+            Speed_Attack: {STOP: Run, },
+            Charge_Attack: {Q_up: Charge_Attack, STOP: Run, },
 
 
         }
