@@ -4,7 +4,7 @@ import game_framework
 import World
 from Background import BackGround
 from player_MetaKnight import MetaKnight
-
+from player_Kirby import Kirby
 
 # Game object class here
 
@@ -22,11 +22,12 @@ def handle_events():
 
 def init():
     global background
-    global p1
+    global p1, p2
 
     p1 = MetaKnight()
+    p2 = Kirby()
     World.add_object(p1, 1)
-
+    World.add_object(p2, 1)
     background = BackGround()
     World.add_object(background, 0)
 

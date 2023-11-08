@@ -304,7 +304,7 @@ class Kirby:
         self.charging = False
         self.Attacking = False
         self.face_dir = 1 # 오른쪽 방향으로 얼굴 향하게
-        self.image = load_image('resource/Meta_Knight_3.png')
+        self.image = load_image('resource/Master_Kirby.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
 
