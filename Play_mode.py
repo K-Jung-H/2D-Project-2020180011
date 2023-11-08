@@ -17,16 +17,17 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
         else:
-            p1.handle_event(event)
+            #p1.handle_event(event)
+            p2.handle_event(event)
 
 
 def init():
     global background
     global p1, p2
 
-    p1 = MetaKnight()
+    #p1 = MetaKnight()
     p2 = Kirby()
-    World.add_object(p1, 1)
+    #World.add_object(p1, 1)
     World.add_object(p2, 1)
     background = BackGround()
     World.add_object(background, 0)

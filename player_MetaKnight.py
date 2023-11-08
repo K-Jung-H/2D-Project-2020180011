@@ -142,7 +142,6 @@ class Normal_Attack:
     @staticmethod
     def do(p1):
         p1.Attacking = True
-        #p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
         if int(p1.frame) == 4:
             p1.Attacking = False
