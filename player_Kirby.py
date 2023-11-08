@@ -1,4 +1,4 @@
-from pico2d import get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_f, SDLK_e, SDLK_q
+from pico2d import get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_f, SDLK_e, SDLK_q, SDLK_s
 import World
 import game_framework
 
@@ -35,17 +35,19 @@ def space_down(e):
 def time_out(e):
     return e[0] == 'TIME_OUT'
 
-def S_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_s
-
 def F_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_f
 
 def STOP(e):
     return e[0] == 'STOP'
 
+def S_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_s
+
+
 def E_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_e
+
 
 def Q_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_q
@@ -56,10 +58,12 @@ def Q_up(e):
 
 
 
+
+
 walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
 Speed_Attack_focus = [[2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
-Charge_Attack_focus = [[2, 50], [110, 50], [220,60], [325, 75], [425, 110], [425, 110], [540, 100], [540, 100], [540, 100], [645, 110] ]
+Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[540, 100],[540, 100],[540, 100],[645,110]]
 Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340], [592, 42, 330], [636, 42, 340], [0, 50, 210], [50, 50, 210], [113, 50, 210], [163, 50, 210]]
 
 
@@ -101,8 +105,6 @@ class Run:
         elif left_down(e) or right_up(e): # 왼쪽으로 RUN
             p1.dir, p1.face_dir = -1, -1
 
-        # if p1.Attacking == True:
-        #     p1.state_machine.handle_event(('STOP', 0))
         p1.frame = 0
 
 
@@ -222,16 +224,13 @@ class Charge_Attack:
         p_size_y = 60
         p1.image.clip_draw(Charge_Attack_focus[frame][0], 480, Charge_Attack_focus[frame][1], 60, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
 
+
+
 class Defense:
 
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
-        if Q_down(e):
-            p1.charging = True
-        elif Q_up(e):
-            p1.charging = False
-            p1.Attacking = True
 
     @staticmethod
     def exit(p1, e):
@@ -239,12 +238,8 @@ class Defense:
 
     @staticmethod
     def do(p1):
-        if p1.charging == True:
-            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
-        elif  p1.charging == False:
-            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 10
-        if int(p1.frame) == 9:
-            p1.Attacking = False
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 9
+        if int(p1.frame) == 8:
             p1.state_machine.handle_event(('STOP', 0))
 
 
@@ -252,17 +247,13 @@ class Defense:
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_size_x = Charge_Attack_focus[frame][1]
+        p_size_x = Defense_focus[frame][1]
         p_size_y = 60
-        p1.image.clip_draw(Charge_Attack_focus[frame][0], 480, Charge_Attack_focus[frame][1], 60, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
-
-
-
-
+        p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][2], Defense_focus[frame][1], 70, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
 
 # 움직이는 방향키에서 반대키 누르면 멈추고 다시 때면 다시 가게 함
 # 차징하면서 조금씩 이동 방향으로 움직이게 해볼까
-# 움직이면서 공격 기능은 나중에 추가하기 움직일 때 공격키 눌린 상태를 추가 해야 함...
+# 움직이면서 공격 기능은 나중에 추가하기
 
 
 class StateMachine:
@@ -278,7 +269,8 @@ class StateMachine:
             Normal_Attack: {STOP: Run, },
             Speed_Attack: {STOP: Run, },
             Charge_Attack: {Q_up: Charge_Attack, STOP: Run, },
-            Defense: { STOP: Run,}
+            Defense: { STOP: Idle, }
+
 
         }
 
@@ -302,7 +294,7 @@ class StateMachine:
         self.cur_state.draw(self.player)
 
 
-class MetaKnight:
+class Kirby:
 
     def __init__(self):
         self.x, self.y = 400, 90
