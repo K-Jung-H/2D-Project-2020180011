@@ -12,12 +12,15 @@ RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 # Boy Action Speed
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
-FRAMES_PER_ACTION = 8
+FRAMES_PER_ACTION = 10
 
 
 TIME_PER_ATTACK = 0.5
 ATTACK_PER_TIME = 1.0 / TIME_PER_ATTACK
-FRAMES_PER_ATTACK = 8
+FRAMES_PER_ATTACK = 10      # 일반 공격 동작 속도
+FRAMES_PER_FAST_ATTACK = 15 # 빠른 공격 동작 속도 더 빠르게
+
+
 
 def right_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_RIGHT
@@ -69,7 +72,7 @@ walking_focus = [[25, 1070], [70, 1070], [111, 1070], [152, 1070], [197, 1070], 
 Normal_Attack_focus = [[45, 800, 45, 50],[97,800, 60, 50],[160, 800, 60, 50],[227, 800, 45, 50], [290, 800, 55, 50], [362, 785, 90, 50], [455, 785, 95, 50],[555, 785, 70, 50] ]
 
 #to do
-Speed_Attack_focus = [[2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
+
 Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[540, 100],[540, 100],[540, 100],[645,110]]
 Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340], [592, 42, 330], [636, 42, 340], [0, 50, 210], [50, 50, 210], [113, 50, 210], [163, 50, 210]]
 
@@ -186,8 +189,8 @@ class Speed_Attack:
     @staticmethod
     def do(p1):
         p1.Attacking = True
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
-        if int(p1.frame) == 4:
+        p1.frame = (p1.frame + FRAMES_PER_FAST_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 9
+        if int(p1.frame) == 8:
             p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
 
@@ -196,11 +199,16 @@ class Speed_Attack:
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_size_x = Speed_Attack_focus[frame][1]
-        p_size_y = 60
-        p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][2], Speed_Attack_focus[frame][1], 60, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
+        p_size_x = Speed_Attack_focus[frame][2]
+        p_size_y = Speed_Attack_focus[frame][3]
+        if frame < 3:
+            p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+        elif 3 <= frame < 6:
+            p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + 10 * frame, p1.y , p_size_x * 2, p_size_y * 2)
+        else:
+            p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x+ 40, p1.y - 10, p_size_x * 2, p_size_y * 2)
 
-
+Speed_Attack_focus = [[40, 700, 55, 50], [105, 700, 55, 50], [165, 700, 55, 50], [230, 700, 75, 50], [310, 695, 65, 50],  [390, 690, 85, 50], [570,616,85,50], [670,616,70,50], ]
 
 class Charge_Attack:
 
