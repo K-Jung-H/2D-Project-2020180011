@@ -25,7 +25,7 @@ def init():
     global background
     global p1, p2
 
-    #p1 = MetaKnight()
+    p1 = MetaKnight()
     p2 = Kirby()
     #World.add_object(p1, 1)
     World.add_object(p2, 1)

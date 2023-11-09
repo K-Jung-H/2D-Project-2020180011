@@ -70,10 +70,11 @@ def Q_up(e):
 Standing_focus = [[223,1195],[268,1195],[315,1195], [362,1195]]
 walking_focus = [[25, 1070], [70, 1070], [111, 1070], [152, 1070], [197, 1070], [240, 1070], ]
 Normal_Attack_focus = [[45, 800, 45, 50],[97,800, 60, 50],[160, 800, 60, 50],[227, 800, 45, 50], [290, 800, 55, 50], [362, 785, 90, 50], [455, 785, 95, 50],[555, 785, 70, 50] ]
+Speed_Attack_focus = [[40, 700, 55, 50], [105, 700, 55, 50], [165, 700, 55, 50], [230, 700, 75, 50], [310, 695, 65, 50],  [390, 690, 85, 50], [570,616,85,50], [670,616,70,50], ]
+
 
 #to do
 
-Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[540, 100],[540, 100],[540, 100],[645,110]]
 Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340], [592, 42, 330], [636, 42, 340], [0, 50, 210], [50, 50, 210], [113, 50, 210], [163, 50, 210]]
 
 
@@ -208,7 +209,6 @@ class Speed_Attack:
         else:
             p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x+ 40, p1.y - 10, p_size_x * 2, p_size_y * 2)
 
-Speed_Attack_focus = [[40, 700, 55, 50], [105, 700, 55, 50], [165, 700, 55, 50], [230, 700, 75, 50], [310, 695, 65, 50],  [390, 690, 85, 50], [570,616,85,50], [670,616,70,50], ]
 
 class Charge_Attack:
 
@@ -228,8 +228,11 @@ class Charge_Attack:
     @staticmethod
     def do(p1):
         if p1.charging == True:
-            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+            #0,1,2 이후로 차징 모션 3 ~ 6 인덱스 반복 # 그냥 차징 동작, 배기 동작으로 상태를를 나누자
+            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
+            p1.frame = max(p1.frame, 3)
         elif  p1.charging == False:
+            p1.frame = max(p1.frame, 7)
             p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 10
         if int(p1.frame) == 9:
             p1.Attacking = False
@@ -240,9 +243,12 @@ class Charge_Attack:
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_size_x = Charge_Attack_focus[frame][1]
-        p_size_y = 60
-        p1.image.clip_draw(Charge_Attack_focus[frame][0], 480, Charge_Attack_focus[frame][1], 60, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
+        p_size_x = Charge_Attack_focus[frame][2]
+        p_size_y = Charge_Attack_focus[frame][3]
+        p1.image.clip_draw(Charge_Attack_focus[frame][0], Charge_Attack_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
+
+Charge_Attack_focus = [(140, 566, 60, 40), (205, 560, 65, 40),(275, 560, 75, 40), (355, 560, 45, 40), (405, 560, 45, 40), (460, 560, 45, 40),  (510, 560, 45, 40),   ]
 
 
 
