@@ -329,6 +329,8 @@ class Kirby:
         self.dir = 0
         self.charging = False
         self.Attacking = False
+        self.Left_Move = Fasle
+        self.Right_Move = Fasle
         self.face_dir = 1 # 오른쪽 방향으로 얼굴 향하게
         self.image = load_image('resource/Master_Kirby.png')
         self.state_machine = StateMachine(self)
