@@ -91,7 +91,6 @@ Charge_Attack_focus = [
 #     p1.Left_Move, p1.Right_Move, p1.dir = False, False, 1
 
 
-Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340], [592, 42, 330], [636, 42, 340], [0, 50, 210], [50, 50, 210], [113, 50, 210], [163, 50, 210]]
 
 
 
@@ -311,8 +310,8 @@ class Defense:
 
     @staticmethod
     def do(p1):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 9
-        if int(p1.frame) == 8:
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 15
+        if int(p1.frame) == 14:
             p1.state_machine.handle_event(('STOP', 0))
 
 
@@ -320,12 +319,20 @@ class Defense:
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_size_x = Defense_focus[frame][1]
-        p_size_y = 60
-        p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][2], Defense_focus[frame][1], 70, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
+        p_size_x = Defense_focus[frame][2]
+        p_size_y = Defense_focus[frame][3]
+        p_x = p1.x + Defense_focus[frame][4]
+        p_y = p1.y + Defense_focus[frame][5]
+        p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y, p_x , p_y, p_size_x * 2, p_size_y * 2)
+
+Defense_focus = [(35, 940, 40, 40,0 ,0), (75, 940, 40, 40, 0 ,0), (125, 940, 40, 40, 0 ,0), (175, 940, 50, 40, 0 ,0), (235, 930, 40, 65, 0 ,0),
+                 (280, 930, 40, 65, 0 ,0), (325, 930, 40, 65, 0 ,0), (375, 930, 40, 65, 0 ,0), (420, 930, 40, 65, 0 ,0), (470, 930, 40, 65, 0 ,0),
+                 (510, 940, 65, 40, 0, 0), (585, 940, 65, 40, 0, 0), (665, 940, 70, 40, 0, 0), (750, 940, 65, 40, 0, 0),]
+
+
 
 # 움직이는 방향키에서 반대키 누르면 멈추고 다시 때면 다시 가게 함
-# 차징하면서 조금씩 이동 방향으로 움직이게 해볼까
+# 차징하면서 조금씩 이동 방향으로 움직이게 하기
 # 움직이면서 공격 기능은 나중에 추가하기
 
 
