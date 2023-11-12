@@ -19,7 +19,7 @@ TIME_PER_ATTACK = 0.5
 ATTACK_PER_TIME = 1.0 / TIME_PER_ATTACK
 FRAMES_PER_ATTACK = 10      # 일반 공격 동작 속도
 FRAMES_PER_FAST_ATTACK = 15 # 빠른 공격 동작 속도 더 빠르게
-
+FRAMES_PER_CHARGE_ATTACK = 5
 
 
 def right_down(e):
@@ -71,9 +71,25 @@ Standing_focus = [[223,1195],[268,1195],[315,1195], [362,1195]]
 walking_focus = [[25, 1070], [70, 1070], [111, 1070], [152, 1070], [197, 1070], [240, 1070], ]
 Normal_Attack_focus = [[45, 800, 45, 50],[97,800, 60, 50],[160, 800, 60, 50],[227, 800, 45, 50], [290, 800, 55, 50], [362, 785, 90, 50], [455, 785, 95, 50],[555, 785, 70, 50] ]
 Speed_Attack_focus = [[40, 700, 55, 50], [105, 700, 55, 50], [165, 700, 55, 50], [230, 700, 75, 50], [310, 695, 65, 50],  [390, 690, 85, 50], [570,616,85,50], [670,616,70,50], ]
+Charge_Attack_focus = [
+    (140, 566, 60, 40, -10, 5), (205, 560, 65, 40, -15, 0), (275, 560, 75, 40, -18, 0),
+    (355, 560, 45, 40, 2, -5), (405, 560, 45, 40, 1, -5), (460, 560, 45, 40, 2, -8),
+    (510, 560, 45, 40, 0, -7), (30, 480, 65, 60, 18, 0), (110, 470, 75, 60, 15, -25),
+    (210, 470, 80, 60, 0, 0), (315, 460, 100, 60, 0, 0)
+]
+
 
 
 #to do
+#이동은 이제 잘 됨
+# 문제: 공격 도중 이동 키를 꾹 누르고 있다면 문제 발생
+
+#Run 입장에서 이렇게 설정하면 위 문제는 해결되는데, 이동 좌우 전환이 부자연스러워짐
+# if right_up(e):
+#     p1.Left_Move, p1.Right_Move, p1.dir = False, False, -1
+# if left_up(e):
+#     p1.Left_Move, p1.Right_Move, p1.dir = False, False, 1
+
 
 Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340], [592, 42, 330], [636, 42, 340], [0, 50, 210], [50, 50, 210], [113, 50, 210], [163, 50, 210]]
 
@@ -130,10 +146,6 @@ class Run:
             p1.Left_Move, p1.Right_Move, p1.dir = True, False, -1
         if left_up(e):
             p1.Left_Move, p1.Right_Move, p1.dir = False, True, 1
-        # if right_down(e) or left_up(e): # 오른쪽으로 RUN
-        #     p1.dir, p1.Left_Move, p1.Right_Move = 1,  False, True
-        # elif left_down(e) or right_up(e): # 왼쪽으로 RUN
-        #     p1.dir, p1.Left_Move, p1.Right_Move = -1, True, False
 
         p1.frame = 0
 
@@ -146,14 +158,14 @@ class Run:
     def do(p1):
 
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 6
-        if p1.Left_Move  and p1.Right_Move:
+        if p1.Left_Move and p1.Right_Move:
             p1.state_machine.handle_event(('STOP', 0))
 
-        elif p1.Left_Move  or p1.Right_Move:
+        elif p1.Left_Move or p1.Right_Move:
             p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
             p1.x = clamp(25, p1.x, 1000 - 25)
 
-        elif not(p1.Left_Move  and p1.Right_Move):
+        elif not(p1.Left_Move and p1.Right_Move):
             p1.state_machine.handle_event(('STOP', 0))
 
         print(p1.Left_Move,p1.Right_Move)
@@ -174,11 +186,10 @@ class Normal_Attack:
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
-        if right_down(e):
-            p1.Right_Move =  True
-        if left_down(e): p1.Left_Move = True
-        if right_up(e): p1.Right_Move =  False
-        if left_up(e): p1.Left_Move = False
+        if right_down(e) or left_up(e):  # 오른쪽으로 RUN
+            p1.Left_Move, p1.Right_Move = False, False
+        elif left_down(e) or right_up(e):  # 왼쪽으로 RUN
+            p1.Left_Move, p1.Right_Move = False, False
 
 
     @staticmethod
@@ -248,7 +259,8 @@ class Charge_Attack:
     def enter(p1, e):
         p1.frame = 0
         if Q_down(e):
-            p1.charging = True
+            p1.frame = 0
+            #p1.charging = True
         elif Q_up(e):
             p1.charging = False
             p1.Attacking = True
@@ -259,28 +271,31 @@ class Charge_Attack:
 
     @staticmethod
     def do(p1):
-        if p1.charging == True:
-            #0,1,2 이후로 차징 모션 3 ~ 6 인덱스 반복 # 그냥 차징 동작, 배기 동작으로 상태를를 나누자
-            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
-            p1.frame = max(p1.frame, 3)
-        elif  p1.charging == False:
+        frame_increment = FRAMES_PER_CHARGE_ATTACK * ACTION_PER_TIME * game_framework.frame_time
+
+        if not (p1.charging or p1.Attacking) and int(p1.frame) < 3:
+            p1.frame = (p1.frame + frame_increment) % 4
+            if int(p1.frame) == 3:
+                p1.charging = True
+        elif p1.charging:
+            p1.frame = max(3, p1.frame)
+            p1.frame = (p1.frame + frame_increment) % 7
+            p1.frame = max(3, p1.frame)
+        elif not p1.charging:
             p1.frame = max(p1.frame, 7)
-            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 10
-        if int(p1.frame) == 9:
+            p1.frame = (p1.frame + frame_increment) % 12
+        if int(p1.frame) == 11:
             p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
-
-
 
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
+
         p_size_x = Charge_Attack_focus[frame][2]
         p_size_y = Charge_Attack_focus[frame][3]
-        p1.image.clip_draw(Charge_Attack_focus[frame][0], Charge_Attack_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+        p1.image.clip_draw(Charge_Attack_focus[frame][0], Charge_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + Charge_Attack_focus[frame][4], p1.y + Charge_Attack_focus[frame][5], p_size_x * 2, p_size_y * 2)
 
-
-Charge_Attack_focus = [(140, 566, 60, 40), (205, 560, 65, 40),(275, 560, 75, 40), (355, 560, 45, 40), (405, 560, 45, 40), (460, 560, 45, 40),  (510, 560, 45, 40),   ]
 
 
 
