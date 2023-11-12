@@ -84,6 +84,11 @@ class Idle:
     @staticmethod
     def enter(p1, e):
         p1.dir = 0
+        if right_down(e) or left_up(e):  # 오른쪽으로 RUN
+            p1.Left_Move, p1.Right_Move = False, False
+        elif left_down(e) or right_up(e):  # 왼쪽으로 RUN
+            p1.Left_Move, p1.Right_Move = False, False
+        print('IDLE')
         p1.frame = 0
         p1.wait_time = get_time() # pico2d import 필요
         pass
@@ -107,17 +112,28 @@ class Idle:
                                    p1.y, p_size_x * 2, p_size_y * 2)
         draw_rectangle(p1.x - p_size_x, p1.y - p_size_y, p1.x + p_size_x, p1.y + p_size_y)
 
-
+        # if right_down(e) or left_up(e):  # 오른쪽으로 RUN
+        #     p1.Left_Move, p1.Right_Move = False, True
+        # elif left_down(e) or right_up(e):  # 왼쪽으로 RUN
+        #     p1.Left_Move, p1.Right_Move = True, False
 
 
 class Run:
 
     @staticmethod
     def enter(p1, e):
-        if right_down(e) or left_up(e): # 오른쪽으로 RUN
-            p1.dir, p1.face_dir = 1, 1
-        elif left_down(e) or right_up(e): # 왼쪽으로 RUN
-            p1.dir, p1.face_dir = -1, -1
+        if right_down(e):
+            p1.Right_Move, p1.dir = True, 1
+        if left_down(e):
+            p1.Left_Move, p1.dir = True, -1
+        if right_up(e):
+            p1.Left_Move, p1.Right_Move, p1.dir = True, False, -1
+        if left_up(e):
+            p1.Left_Move, p1.Right_Move, p1.dir = False, True, 1
+        # if right_down(e) or left_up(e): # 오른쪽으로 RUN
+        #     p1.dir, p1.Left_Move, p1.Right_Move = 1,  False, True
+        # elif left_down(e) or right_up(e): # 왼쪽으로 RUN
+        #     p1.dir, p1.Left_Move, p1.Right_Move = -1, True, False
 
         p1.frame = 0
 
@@ -128,10 +144,20 @@ class Run:
 
     @staticmethod
     def do(p1):
+
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 6
-        p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
-        p1.x = clamp(25, p1.x, 1000 - 25)
-        pass
+        if p1.Left_Move  and p1.Right_Move:
+            p1.state_machine.handle_event(('STOP', 0))
+
+        elif p1.Left_Move  or p1.Right_Move:
+            p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
+            p1.x = clamp(25, p1.x, 1000 - 25)
+
+        elif not(p1.Left_Move  and p1.Right_Move):
+            p1.state_machine.handle_event(('STOP', 0))
+
+        print(p1.Left_Move,p1.Right_Move)
+
 
     @staticmethod
     def draw(p1):
@@ -147,7 +173,13 @@ class Normal_Attack:
 
     @staticmethod
     def enter(p1, e):
-            p1.frame = 0
+        p1.frame = 0
+        if right_down(e):
+            p1.Right_Move =  True
+        if left_down(e): p1.Left_Move = True
+        if right_up(e): p1.Right_Move =  False
+        if left_up(e): p1.Left_Move = False
+
 
     @staticmethod
     def exit(p1, e):
@@ -283,15 +315,15 @@ class Defense:
 
 
 class StateMachine:
-    def __init__(self, meta_knight):
-        self.player = meta_knight
+    def __init__(self, kirby):
+        self.player = kirby
         self.cur_state = Idle
         self.transitions = {
-            Idle: {right_down: Run, left_down: Run,
+            Idle: {right_down: Run, left_down: Run, right_up: Run, left_up: Run,
                    F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, S_down: Defense, },
 
             Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle,
-                  F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, S_down: Defense, },
+                  F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, S_down: Defense, STOP: Idle },
             Normal_Attack: {STOP: Run, },
             Speed_Attack: {STOP: Run, },
             Charge_Attack: {Q_up: Charge_Attack, STOP: Run, },
@@ -329,8 +361,8 @@ class Kirby:
         self.dir = 0
         self.charging = False
         self.Attacking = False
-        self.Left_Move = Fasle
-        self.Right_Move = Fasle
+        self.Left_Move = False
+        self.Right_Move = False
         self.face_dir = 1 # 오른쪽 방향으로 얼굴 향하게
         self.image = load_image('resource/Master_Kirby.png')
         self.state_machine = StateMachine(self)
