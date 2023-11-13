@@ -173,11 +173,19 @@ class Run:
         p_size_x = 40
         p_size_y = 45
         if p1.Picked_Player == 'p1':
-            p1.image.clip_draw(walking_focus[frame][0], walking_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+            if p1.dir == 1:
+                p1.image.clip_draw(walking_focus[frame][0], walking_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+            elif p1.dir == -1:
+                p1.image.clip_composite_draw(walking_focus[frame][0], walking_focus[frame][1], p_size_x, p_size_y,
+                                             0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
         elif p1.Picked_Player == 'p2':
-            p1.image.clip_composite_draw(walking_focus[frame][0], walking_focus[frame][1], p_size_x, p_size_y,
-                                         0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+            if p1.dir == 1:
+                p1.image.clip_draw(walking_focus[frame][0], walking_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y,
+                                   p_size_x * 2, p_size_y * 2)
+            elif p1.dir == -1:
+                p1.image.clip_composite_draw(walking_focus[frame][0], walking_focus[frame][1], p_size_x, p_size_y,
+                                             0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
         draw_rectangle(p1.x - p_size_x, p1.y - p_size_y, p1.x + p_size_x, p1.y + p_size_y)
 
