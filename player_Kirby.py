@@ -77,27 +77,15 @@ Charge_Attack_focus = [
     (510, 560, 45, 40, 0, -7), (30, 480, 65, 60, 18, 0), (110, 470, 75, 60, 15, -25),
     (210, 470, 80, 60, 0, 0), (315, 460, 100, 60, 0, 0)
 ]
-
-
-
-#to do
-#이동은 이제 잘 됨
-# 문제: 공격 도중 이동 키를 꾹 누르고 있다면 문제 발생
-
-#Run 입장에서 이렇게 설정하면 위 문제는 해결되는데, 이동 좌우 전환이 부자연스러워짐
-# if right_up(e):
-#     p1.Left_Move, p1.Right_Move, p1.dir = False, False, -1
-# if left_up(e):
-#     p1.Left_Move, p1.Right_Move, p1.dir = False, False, 1
-
-
-
-
+Defense_focus = [(35, 940, 40, 40,0 ,0), (75, 940, 40, 40, 0 ,0), (125, 940, 40, 40, 0 ,0), (175, 940, 50, 40, 0 ,0), (235, 930, 40, 65, 0 ,0),
+                 (280, 930, 40, 65, 0 ,0), (325, 930, 40, 65, 0 ,0), (375, 930, 40, 65, 0 ,0), (420, 930, 40, 65, 0 ,0), (470, 930, 40, 65, 0 ,0),
+                 (510, 940, 65, 40, 0, 0), (585, 940, 65, 40, 0, 0), (665, 940, 70, 40, 0, 0), (750, 940, 65, 40, 0, 0),]
 
 class Idle:
 
     @staticmethod
     def enter(p1, e):
+        p1.frame = 0
         p1.dir = 0
         if right_down(e):
             p1.Right_Move, p1.dir = True, 1
@@ -107,14 +95,12 @@ class Idle:
             p1.Right_Move = False
         if left_up(e):
             p1.Left_Move = False
-        print('IDLE')
-        p1.frame = 0
-        p1.wait_time = get_time() # pico2d import 필요
+
+        p1.Defense_time = get_time() # 카운터를 위한 타이머
         pass
 
     @staticmethod
     def exit(p1, e):
-
         pass
 
     @staticmethod
@@ -136,6 +122,7 @@ class Run:
 
     @staticmethod
     def enter(p1, e):
+        p1.frame = 0
         if right_down(e):
             p1.Right_Move, p1.dir = True, 1
         if left_down(e):
@@ -148,7 +135,7 @@ class Run:
             p1.dir = 1
         elif p1.Left_Move:
             p1.dir = -1
-        p1.frame = 0
+
 
 
     @staticmethod
@@ -161,7 +148,6 @@ class Run:
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 6
         if p1.Left_Move and p1.Right_Move:
             p1.dir = 0
-            #p1.state_machine.handle_event(('STOP', 0))
 
         elif p1.Left_Move or p1.Right_Move:
             p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
@@ -170,7 +156,7 @@ class Run:
         elif not(p1.Left_Move and p1.Right_Move):
             p1.state_machine.handle_event(('STOP', 0))
 
-        print(p1.Left_Move,p1.Right_Move)
+        print(p1.Left_Move, p1.Right_Move)
 
 
     @staticmethod
@@ -188,15 +174,6 @@ class Normal_Attack:
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
-        if right_down(e):
-            p1.Right_Move, p1.dir = True, 1
-        if left_down(e):
-            p1.Left_Move, p1.dir = True, -1
-        if right_up(e):
-            p1.Right_Move = False
-        if left_up(e):
-            p1.Left_Move = False
-
 
     @staticmethod
     def exit(p1, e):
@@ -230,7 +207,7 @@ class Speed_Attack:
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
-        p1.do_call_count = 0
+
 
     @staticmethod
     def exit(p1, e):
@@ -264,9 +241,11 @@ class Charge_Attack:
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
+
+
         if Q_down(e):
             p1.frame = 0
-            #p1.charging = True
+
         elif Q_up(e):
             p1.charging = False
             p1.Attacking = True
@@ -313,6 +292,8 @@ class Defense:
 
     @staticmethod
     def exit(p1, e):
+        p1.Right_Move = False
+        p1.Left_Move = False
         pass
 
     @staticmethod
@@ -332,9 +313,7 @@ class Defense:
         p_y = p1.y + Defense_focus[frame][5]
         p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y, p_x , p_y, p_size_x * 2, p_size_y * 2)
 
-Defense_focus = [(35, 940, 40, 40,0 ,0), (75, 940, 40, 40, 0 ,0), (125, 940, 40, 40, 0 ,0), (175, 940, 50, 40, 0 ,0), (235, 930, 40, 65, 0 ,0),
-                 (280, 930, 40, 65, 0 ,0), (325, 930, 40, 65, 0 ,0), (375, 930, 40, 65, 0 ,0), (420, 930, 40, 65, 0 ,0), (470, 930, 40, 65, 0 ,0),
-                 (510, 940, 65, 40, 0, 0), (585, 940, 65, 40, 0, 0), (665, 940, 70, 40, 0, 0), (750, 940, 65, 40, 0, 0),]
+
 
 
 
@@ -353,10 +332,10 @@ class StateMachine:
 
             Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle,
                   F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, S_down: Defense, STOP: Idle },
-            Normal_Attack: {STOP: Run},
-            Speed_Attack: {STOP: Run, },
-            Charge_Attack: {Q_up: Charge_Attack, STOP: Run, },
-            Defense: { STOP: Idle, }
+            Normal_Attack: {STOP: Run, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
+            Speed_Attack: {STOP: Run, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
+            Charge_Attack: {Q_up: Charge_Attack, STOP: Run, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
+            Defense: { STOP: Run, }
 
 
         }
