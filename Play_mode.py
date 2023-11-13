@@ -6,7 +6,16 @@ from Background import BackGround
 from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
 
-# Game object class here
+def P1_handle(event):
+    if event.key == SDLK_q or event.key == SDLK_w or event.key == SDLK_a or event.key == SDLK_s or event.key == SDLK_d or event.key == SDLK_f:
+        return True
+    return False
+
+def P2_handle(event):
+    if event.key == SDLK_COMMA or event.key == SDLK_PERIOD or event.key == SDLK_SLASH or event.key == SDLK_UP or event.key == SDLK_DOWN or event.key == SDLK_LEFT or event.key == SDLK_RIGHT:
+        return True
+    return False
+
 
 def handle_events():
 
@@ -17,8 +26,10 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
         else:
-            p1.handle_event(event)
-            #p2.handle_event(event)
+            if P1_handle(event):
+                p1.handle_event(event)
+            elif P2_handle(event):
+                p2.handle_event(event)
 
 
 def init():
@@ -26,9 +37,9 @@ def init():
     global p1, p2
 
     p1 = MetaKnight()
-    #p2 = Kirby()
+    p2 = Kirby()
     World.add_object(p1, 1)
-    #World.add_object(p2, 1)
+    World.add_object(p2, 1)
     background = BackGround()
     World.add_object(background, 0)
 
