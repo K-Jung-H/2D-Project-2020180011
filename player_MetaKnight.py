@@ -72,9 +72,18 @@ class Idle:
 
     @staticmethod
     def enter(p1, e):
-        p1.dir = 0
         p1.frame = 0
-        p1.wait_time = get_time() # pico2d import 필요
+        p1.dir = 0
+        if right_down(e):
+            p1.Right_Move, p1.dir = True, 1
+        if left_down(e):
+            p1.Left_Move, p1.dir = True, -1
+        if right_up(e):
+            p1.Right_Move = False
+        if left_up(e):
+            p1.Left_Move = False
+
+        p1.Defense_time = get_time()  # 카운터를 위한 타이머
         pass
 
     @staticmethod
@@ -100,12 +109,20 @@ class Run:
 
     @staticmethod
     def enter(p1, e):
-        if right_down(e) or left_up(e): # 오른쪽으로 RUN
-            p1.dir, p1.face_dir = 1, 1
-        elif left_down(e) or right_up(e): # 왼쪽으로 RUN
-            p1.dir, p1.face_dir = -1, -1
-
         p1.frame = 0
+        if right_down(e):
+            p1.Right_Move, p1.dir = True, 1
+        if left_down(e):
+            p1.Left_Move, p1.dir = True, -1
+        if right_up(e):
+            p1.Right_Move = False
+        if left_up(e):
+            p1.Left_Move = False
+        if p1.Right_Move:
+            p1.dir = 1
+        elif p1.Left_Move:
+            p1.dir = -1
+
 
 
     @staticmethod
@@ -115,9 +132,15 @@ class Run:
     @staticmethod
     def do(p1):
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
-        p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
-        p1.x = clamp(25, p1.x, 1000 - 25)
-        pass
+        if p1.Left_Move and p1.Right_Move:
+            p1.dir = 0
+
+        elif p1.Left_Move or p1.Right_Move:
+            p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
+            p1.x = clamp(25, p1.x, 1000 - 25)
+
+        elif not(p1.Left_Move and p1.Right_Move):
+            p1.state_machine.handle_event(('STOP', 0))
 
     @staticmethod
     def draw(p1):
@@ -133,7 +156,7 @@ class Normal_Attack:
 
     @staticmethod
     def enter(p1, e):
-            p1.frame = 0
+        p1.frame = 0
 
     @staticmethod
     def exit(p1, e):
@@ -233,6 +256,8 @@ class Defense:
 
     @staticmethod
     def exit(p1, e):
+        p1.Right_Move = False
+        p1.Left_Move = False
         pass
 
     @staticmethod
@@ -250,25 +275,21 @@ class Defense:
         p_size_y = 60
         p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][2], Defense_focus[frame][1], 70, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
 
-# 움직이는 방향키에서 반대키 누르면 멈추고 다시 때면 다시 가게 함
-# 차징하면서 조금씩 이동 방향으로 움직이게 해볼까
-# 움직이면서 공격 기능은 나중에 추가하기
-
 
 class StateMachine:
     def __init__(self, meta_knight):
         self.player = meta_knight
         self.cur_state = Idle
         self.transitions = {
-            Idle: {right_down: Run, left_down: Run,
+            Idle: {right_down: Run, left_down: Run, right_up: Run, left_up: Run,
                    F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, S_down: Defense, },
 
             Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle,
-                  F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, S_down: Defense, },
-            Normal_Attack: {STOP: Run, },
-            Speed_Attack: {STOP: Run, },
-            Charge_Attack: {Q_up: Charge_Attack, STOP: Run, },
-            Defense: { STOP: Idle,}
+                  F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, S_down: Defense, STOP: Idle },
+            Normal_Attack: {STOP: Run, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
+            Speed_Attack: {STOP: Run, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
+            Charge_Attack: {Q_up: Charge_Attack, STOP: Run, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
+            Defense: { STOP: Run, }
 
 
         }
@@ -296,12 +317,14 @@ class StateMachine:
 class MetaKnight:
 
     def __init__(self):
-        self.x, self.y = 400, 90
+        self.x, self.y = 400, 150
         self.do_call_count = 0
         self.frame = 0
         self.dir = 0
         self.charging = False
         self.Attacking = False
+        self.Left_Move = False
+        self.Right_Move = False
         self.face_dir = 1 # 오른쪽 방향으로 얼굴 향하게
         self.image = load_image('resource/Meta_Knight_3.png')
         self.state_machine = StateMachine(self)
