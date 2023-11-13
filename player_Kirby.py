@@ -1,6 +1,6 @@
 from pico2d import (get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE,
                     SDLK_LEFT, SDLK_RIGHT, SDLK_DOWN, SDLK_COMMA, SDLK_PERIOD, SDLK_SLASH,
-                    SDLK_a, SDLK_s, SDLK_d, SDLK_f, SDLK_e, SDLK_q, draw_rectangle )
+                    SDLK_a, SDLK_s, SDLK_d, SDLK_f, SDLK_e, SDLK_q, draw_rectangle, load_font )
 import World
 import game_framework
 
@@ -32,11 +32,11 @@ def Right_Move_Up(e):
 
 
 def Left_Move_Down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_LEFT or e[1].key ==  SDLK_a)
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_LEFT or e[1].key == SDLK_a)
 
 
 def Left_Move_Up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_LEFT or e[1].key ==  SDLK_a)
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_LEFT or e[1].key == SDLK_a)
 
 def space_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
@@ -118,12 +118,12 @@ class Idle:
         if p1.Picked_Player == 'p1':
             p1.image.clip_draw(Standing_focus[frame][0], Standing_focus[frame][1], p_size_x, p_size_y,
                                p1.x, p1.y, p_size_x * 2, p_size_y * 2)
-            draw_rectangle(p1.x - 5, p1.y - 45, p1.x + 35, p1.y - 5)
+
 
         elif p1.Picked_Player == 'p2':
             p1.image.clip_composite_draw(Standing_focus[frame][0], Standing_focus[frame][1], p_size_x, p_size_y,
                                          0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
-            draw_rectangle(p1.x - 35, p1.y - 45, p1.x + 5, p1.y - 5)
+
 
 
 
@@ -188,10 +188,6 @@ class Run:
                 p1.image.clip_composite_draw(walking_focus[frame][0], walking_focus[frame][1], p_size_x, p_size_y,
                                              0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
-        if p1.dir == 1:
-            draw_rectangle(p1.x - 5, p1.y - 45, p1.x + 35, p1.y - 5)
-        elif p1.dir == -1:
-            draw_rectangle(p1.x - 35, p1.y - 45, p1.x + 5, p1.y - 5)
 
 
 class Normal_Attack:
@@ -233,7 +229,6 @@ class Normal_Attack:
                 p1.image.clip_composite_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y,
                                              0, 'h', p1.x - 5*frame, p1.y -5, p_size_x * 2, p_size_y * 2)
 
-        draw_rectangle(p1.x - 35, p1.y - 45, p1.x + 35, p1.y - 5)
 
 class Speed_Attack:
 
@@ -281,7 +276,6 @@ class Speed_Attack:
                 p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y,
                                              0, 'h', p1.x - 40, p1.y - 10, p_size_x * 2, p_size_y * 2)
 
-            draw_rectangle(p1.x - 35, p1.y - 45, p1.x + 5, p1.y - 5)
 
 
 class Charge_Attack:
@@ -289,14 +283,13 @@ class Charge_Attack:
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
-
-
         if Charge_Attack_Down(e):
             p1.frame = 0
-
+            p1.Time_Stamp = get_time()
         elif Charge_Attack_Up(e):
             p1.charging = False
             p1.Attacking = True
+            p1.Charging_Point = 0
 
     @staticmethod
     def exit(p1, e):
@@ -306,14 +299,15 @@ class Charge_Attack:
     def do(p1):
         frame_increment = FRAMES_PER_CHARGE_ATTACK * ACTION_PER_TIME * game_framework.frame_time
 
-        if not (p1.charging or p1.Attacking) and int(p1.frame) < 3:
+        if not (p1.charging or p1.Attacking) and int(p1.frame) < 3: #차징 준비 동작
             p1.frame = (p1.frame + frame_increment) % 4
             if int(p1.frame) == 3:
                 p1.charging = True
-        elif p1.charging:
+        elif p1.charging:   #차징
             p1.frame = max(3, p1.frame)
             p1.frame = (p1.frame + frame_increment) % 7
             p1.frame = max(3, p1.frame)
+            p1.Charging_Point = int(get_time() - p1.Time_Stamp)
         elif not p1.charging:
             p1.frame = max(p1.frame, 7)
             p1.frame = (p1.frame + frame_increment) % 12
@@ -334,7 +328,9 @@ class Charge_Attack:
             p1.image.clip_composite_draw(Charge_Attack_focus[frame][0], Charge_Attack_focus[frame][1], p_size_x, p_size_y,
                                          0, 'h', p1.x - Charge_Attack_focus[frame][4], p1.y + Charge_Attack_focus[frame][5], p_size_x * 2, p_size_y * 2)
 
-        draw_rectangle(p1.x - 35, p1.y - 45, p1.x + 35, p1.y - 5)
+        if p1.charging == True:
+            p1.font.draw(p1.x - 10, p1.y + 50, f'{p1.Charging_Point:02d}', (255, 255, 0))
+
 
 class Defense:
 
@@ -369,8 +365,7 @@ class Defense:
         elif p1.Picked_Player == 'p2':
             p1.image.clip_composite_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y,
                                          0, 'h', p_x , p_y, p_size_x * 2, p_size_y * 2)
-            draw_rectangle(p1.x - 30, p1.y - 45, p1.x + 30, p1.y + 25)
-        #draw_rectangle(p1.x - 25, p1.y - 45, p1.x + 35, p1.y + 25)
+
 
 
 class StateMachine:
@@ -428,6 +423,9 @@ class Kirby:
         self.dir = 0
         self.charging = False
         self.Attacking = False
+        self.Charging_Point = 0
+        self.Time_Stamp = 0
+        self.font = load_font('resource/ENCR10B.TTF', 16)
         self.Left_Move = False
         self.Right_Move = False
         self.image = load_image('resource/Master_Kirby.png')
@@ -442,8 +440,12 @@ class Kirby:
 
     def draw(self):
         self.state_machine.draw()
+        #체력 표기
+        #self.font.draw(self.x - 10, self.y + 50, f'{self.Charging_Point:02d}', (255, 255, 0))
+        draw_rectangle(*self.get_bb())
 
     def get_bb(self):
+        print(self.state_machine.cur_state)
         if self.state_machine.cur_state == Idle or self.state_machine.cur_state == Speed_Attack:
             if self.Picked_Player == 'p1':
                 return self.x - 5, self.y - 45, self.x + 35, self.y - 5
@@ -453,19 +455,20 @@ class Kirby:
         elif self.state_machine.cur_state == Run:
             if self.dir == 1:
                 return self.x - 5, self.y - 45, self.x + 35, self.y - 5
-            elif p1.dir == -1:
+            elif self.dir == -1:
                 return self.x - 35, self.y - 45, self.x + 5, self.y - 5
+            else:
+                if self.Picked_Player == 'p1':
+                    return self.x - 5, self.y - 45, self.x + 35, self.y - 5
+                elif self.Picked_Player == 'p2':
+                    return self.x - 35, self.y - 45, self.x + 5, self.y - 5
 
         elif self.state_machine.cur_state == Normal_Attack or self.state_machine.cur_state == Charge_Attack:
             return self.x - 35, self.y - 45, self.x + 35, self.y - 5
 
         elif self.state_machine.cur_state == Defense:
             if self.Picked_Player == 'p1':
-                draw_rectangle(p1.x - 25, p1.y - 45, p1.x + 35, p1.y + 25)
+                return self.x - 25, self.y - 45, self.x + 35, self.y + 25
             elif self.Picked_Player == 'p2':
-                draw_rectangle(p1.x - 30, p1.y - 45, p1.x + 30, p1.y + 25)
-
-
-        #elif self.state_machine.cur_state == Normal_Attack:
-        #    return
+                return self.x - 30, self.y - 45, self.x + 30, self.y + 25
 

@@ -38,7 +38,7 @@ def init():
     global background
     global p1, p2
 
-    p1 = Kirby()
+    p1 = MetaKnight()
     p1.Picked_Player = 'p1'
 
     p2 = Kirby()
