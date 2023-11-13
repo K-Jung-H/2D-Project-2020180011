@@ -7,12 +7,14 @@ from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
 
 def P1_handle(event):
-    if event.key == SDLK_q or event.key == SDLK_w or event.key == SDLK_a or event.key == SDLK_s or event.key == SDLK_d or event.key == SDLK_f:
+    if (event.key == SDLK_q or event.key == SDLK_w or event.key == SDLK_a or event.key == SDLK_s
+                            or event.key == SDLK_d or event.key == SDLK_e or event.key == SDLK_f):
         return True
     return False
 
 def P2_handle(event):
-    if event.key == SDLK_COMMA or event.key == SDLK_PERIOD or event.key == SDLK_SLASH or event.key == SDLK_UP or event.key == SDLK_DOWN or event.key == SDLK_LEFT or event.key == SDLK_RIGHT:
+    if (event.key == SDLK_COMMA or event.key == SDLK_PERIOD or event.key == SDLK_SLASH or event.key == SDLK_UP
+                                or event.key == SDLK_DOWN or event.key == SDLK_LEFT or event.key == SDLK_RIGHT):
         return True
     return False
 

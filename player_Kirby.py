@@ -1,4 +1,6 @@
-from pico2d import get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT, SDLK_f, SDLK_e, SDLK_q, SDLK_s, draw_rectangle
+from pico2d import (get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE,
+                    SDLK_LEFT, SDLK_RIGHT, SDLK_DOWN, SDLK_COMMA, SDLK_PERIOD, SDLK_SLASH,
+                    SDLK_a, SDLK_s, SDLK_d, SDLK_f, SDLK_e, SDLK_q, draw_rectangle )
 import World
 import game_framework
 
@@ -21,48 +23,48 @@ FRAMES_PER_ATTACK = 10      # 일반 공격 동작 속도
 FRAMES_PER_FAST_ATTACK = 15 # 빠른 공격 동작 속도 더 빠르게
 FRAMES_PER_CHARGE_ATTACK = 5
 
-
-def right_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_RIGHT
-
-
-def right_up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_RIGHT
+def Right_Move_Down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_RIGHT or e[1].key == SDLK_d)
 
 
-def left_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_LEFT
+def Right_Move_Up(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_RIGHT or e[1].key == SDLK_d)
 
 
-def left_up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_LEFT
+def Left_Move_Down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_LEFT or e[1].key ==  SDLK_a)
+
+
+def Left_Move_Up(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_LEFT or e[1].key ==  SDLK_a)
 
 def space_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
 
-def time_out(e):
+def Time_Out(e):
     return e[0] == 'TIME_OUT'
 
-def F_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_f
+
+def Normal_Attack_Down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_f or e[1].key == SDLK_PERIOD)
+
 
 def STOP(e):
     return e[0] == 'STOP'
 
-def S_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_s
+def Defense_Down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_s or e[1].key == SDLK_DOWN)
 
 
-def E_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_e
+def Fast_Attack_Down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_e or e[1].key == SDLK_COMMA)
 
 
-def Q_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_q
+def Charge_Attack_Down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_q or e[1].key == SDLK_SLASH)
 
-def Q_up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == SDLK_q
-
+def Charge_Attack_Up(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_q or e[1].key == SDLK_SLASH)
 
 
 
@@ -87,13 +89,13 @@ class Idle:
     def enter(p1, e):
         p1.frame = 0
         p1.dir = 0
-        if right_down(e):
+        if Right_Move_Down(e):
             p1.Right_Move, p1.dir = True, 1
-        if left_down(e):
+        if Left_Move_Down(e):
             p1.Left_Move, p1.dir = True, -1
-        if right_up(e):
+        if Right_Move_Up(e):
             p1.Right_Move = False
-        if left_up(e):
+        if Left_Move_Up(e):
             p1.Left_Move = False
 
         p1.Defense_time = get_time() # 카운터를 위한 타이머
@@ -123,13 +125,13 @@ class Run:
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
-        if right_down(e):
+        if Right_Move_Down(e):
             p1.Right_Move, p1.dir = True, 1
-        if left_down(e):
+        if Left_Move_Down(e):
             p1.Left_Move, p1.dir = True, -1
-        if right_up(e):
+        if Right_Move_Up(e):
             p1.Right_Move = False
-        if left_up(e):
+        if Left_Move_Up(e):
             p1.Left_Move = False
         if p1.Right_Move:
             p1.dir = 1
@@ -243,10 +245,10 @@ class Charge_Attack:
         p1.frame = 0
 
 
-        if Q_down(e):
+        if Charge_Attack_Down(e):
             p1.frame = 0
 
-        elif Q_up(e):
+        elif Charge_Attack_Up(e):
             p1.charging = False
             p1.Attacking = True
 
@@ -327,15 +329,23 @@ class StateMachine:
         self.player = kirby
         self.cur_state = Idle
         self.transitions = {
-            Idle: {right_down: Run, left_down: Run, right_up: Run, left_up: Run,
-                   F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, S_down: Defense, },
+            Idle: {Right_Move_Down: Run, Left_Move_Down: Run, Right_Move_Up: Run, Left_Move_Up: Run,
+                   Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
+                   Defense_Down: Defense, },
 
-            Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle,
-                  F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, S_down: Defense, STOP: Idle },
-            Normal_Attack: {STOP: Run, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
-            Speed_Attack: {STOP: Run, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
-            Charge_Attack: {Q_up: Charge_Attack, STOP: Run, right_down: Run, left_down: Run, right_up: Run, left_up: Run},
-            Defense: { STOP: Run, }
+            Run: {Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
+                  Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
+                  Defense_Down: Defense, STOP: Idle},
+
+            Normal_Attack: {STOP: Run, Right_Move_Down: Run, Left_Move_Down: Run, Right_Move_Up: Run,
+                            Left_Move_Up: Run},
+
+            Speed_Attack: {STOP: Run, Right_Move_Down: Run, Left_Move_Down: Run, Right_Move_Up: Run, Left_Move_Up: Run},
+
+            Charge_Attack: {Charge_Attack_Up: Charge_Attack, STOP: Run,
+                            Right_Move_Down: Run, Left_Move_Down: Run, Right_Move_Up: Run, Left_Move_Up: Run},
+
+            Defense: {STOP: Run, }
 
 
         }
