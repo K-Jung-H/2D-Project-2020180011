@@ -105,8 +105,14 @@ class Idle:
         frame = int(p1.frame)
         p_size_x = walking_focus[frame][1]
         p_size_y = 60
-        p1.image.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, p1.x,
-                                   p1.y, p_size_x * 2, p_size_y * 2)
+
+        if p1.Picked_Player == 'p1':
+            p1.image.clip_draw(62 * frame + walking_focus[frame][0], 655,p_size_x, p_size_y, p1.x,
+                               p1.y, p_size_x * 2, p_size_y * 2)
+
+        elif p1.Picked_Player == 'p2':
+            p1.image.clip_composite_draw(62 * frame + walking_focus[frame][0], 655, p_size_x, p_size_y, 0, 'h', p1.x, p1.y,
+                               p_size_x * 2, p_size_y * 2)
 
 
 class Run:
@@ -151,6 +157,7 @@ class Run:
         frame = int(p1.frame)
         p_size_x = walking_focus[frame][1]
         p_size_y = 60
+
         if p1.Picked_Player == 'p1':
             p1.image.clip_draw(62 * frame + walking_focus[frame][0], 655, p_size_x, p_size_y, p1.x, p1.y,
                                p_size_x * 2, p_size_y * 2)
@@ -186,9 +193,12 @@ class Normal_Attack:
         frame = int(p1.frame)
         p_size_x = Normal_Attack_focus[frame][1]
         p_size_y = 60
-        p1.image.clip_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
+        if p1.Picked_Player == 'p1':
+            p1.image.clip_draw(Normal_Attack_focus[frame][0], 480, p_size_x, p_size_y, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
 
-
+        elif p1.Picked_Player == 'p2':
+            p1.image.clip_composite_draw(Normal_Attack_focus[frame][0], 480, p_size_x, p_size_y, 0, 'h', p1.x - 30, p1.y,
+                               p_size_x * 2, p_size_y * 2)
 
 
 class Speed_Attack:
@@ -216,8 +226,12 @@ class Speed_Attack:
         frame = int(p1.frame)
         p_size_x = Speed_Attack_focus[frame][1]
         p_size_y = 60
-        p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][2], Speed_Attack_focus[frame][1], 60, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
+        if p1.Picked_Player == 'p1':
+            p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][2], p_size_x, p_size_y, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
 
+        elif p1.Picked_Player == 'p2':
+            p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][2], p_size_x, p_size_y,
+                               0, 'h', p1.x - 30, p1.y, p_size_x * 2, p_size_y * 2)
 
 
 class Charge_Attack:
@@ -252,9 +266,11 @@ class Charge_Attack:
         frame = int(p1.frame)
         p_size_x = Charge_Attack_focus[frame][1]
         p_size_y = 60
-        p1.image.clip_draw(Charge_Attack_focus[frame][0], 480, Charge_Attack_focus[frame][1], 60, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
-
-
+        if p1.Picked_Player == 'p1':
+            p1.image.clip_draw(Charge_Attack_focus[frame][0], 480, p_size_x, p_size_y, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
+        elif p1.Picked_Player == 'p2':
+            p1.image.clip_composite_draw(Charge_Attack_focus[frame][0], 480, p_size_x, p_size_y,
+                               0, 'h', p1.x - 30, p1.y, p_size_x * 2, p_size_y * 2)
 
 class Defense:
 
@@ -280,8 +296,12 @@ class Defense:
     def draw(p1):
         frame = int(p1.frame)
         p_size_x = Defense_focus[frame][1]
-        p_size_y = 60
-        p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][2], Defense_focus[frame][1], 70, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
+        p_size_y = 70
+        if p1.Picked_Player == 'p1':
+            p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][2], p_size_x, p_size_y, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
+        elif p1.Picked_Player == 'p2':
+            p1.image.clip_composite_draw(Defense_focus[frame][0], Defense_focus[frame][2], p_size_x, p_size_y,
+                               0, 'h', p1.x - 30, p1.y, p_size_x * 2, p_size_y * 2)
 
 
 class StateMachine:

@@ -21,7 +21,7 @@ TIME_PER_ATTACK = 0.5
 ATTACK_PER_TIME = 1.0 / TIME_PER_ATTACK
 FRAMES_PER_ATTACK = 10      # 일반 공격 동작 속도
 FRAMES_PER_FAST_ATTACK = 15 # 빠른 공격 동작 속도 더 빠르게
-FRAMES_PER_CHARGE_ATTACK = 5
+FRAMES_PER_CHARGE_ATTACK = 8
 
 def Right_Move_Down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_RIGHT or e[1].key == SDLK_d)
@@ -115,8 +115,14 @@ class Idle:
         frame = int(p1.frame)
         p_size_x = 35
         p_size_y = 45
-        p1.image.clip_draw(Standing_focus[frame][0], Standing_focus[frame][1], p_size_x, p_size_y, p1.x,
-                                   p1.y, p_size_x * 2, p_size_y * 2)
+        if p1.Picked_Player == 'p1':
+            p1.image.clip_draw(Standing_focus[frame][0], Standing_focus[frame][1], p_size_x, p_size_y,
+                               p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
+        elif p1.Picked_Player == 'p2':
+            p1.image.clip_composite_draw(Standing_focus[frame][0], Standing_focus[frame][1], p_size_x, p_size_y,
+                                         0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
         draw_rectangle(p1.x - p_size_x, p1.y - p_size_y, p1.x + p_size_x, p1.y + p_size_y)
 
 
@@ -166,7 +172,13 @@ class Run:
         frame = int(p1.frame)
         p_size_x = 40
         p_size_y = 45
-        p1.image.clip_draw(walking_focus[frame][0], walking_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+        if p1.Picked_Player == 'p1':
+            p1.image.clip_draw(walking_focus[frame][0], walking_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
+        elif p1.Picked_Player == 'p2':
+            p1.image.clip_composite_draw(walking_focus[frame][0], walking_focus[frame][1], p_size_x, p_size_y,
+                                         0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
         draw_rectangle(p1.x - p_size_x, p1.y - p_size_y, p1.x + p_size_x, p1.y + p_size_y)
 
 
@@ -196,10 +208,20 @@ class Normal_Attack:
         frame = int(p1.frame)
         p_size_x = Normal_Attack_focus[frame][2]
         p_size_y = Normal_Attack_focus[frame][3]
-        if  frame <= 4:
-            p1.image.clip_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
-        elif frame > 4:
-            p1.image.clip_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + 5*frame, p1.y -5, p_size_x * 2, p_size_y * 2)
+        if p1.Picked_Player == 'p1':
+            if  frame <= 4:
+                p1.image.clip_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
+            elif frame > 4:
+                p1.image.clip_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + 5*frame, p1.y -5, p_size_x * 2, p_size_y * 2)
+
+        elif p1.Picked_Player == 'p2':
+            if  frame <= 4:
+                p1.image.clip_composite_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y,
+                                             0, 'h', p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
+            elif frame > 4:
+                p1.image.clip_composite_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y,
+                                             0, 'h', p1.x - 5*frame, p1.y -5, p_size_x * 2, p_size_y * 2)
+
         draw_rectangle(p1.x - p_size_x, p1.y - p_size_y, p1.x + p_size_x, p1.y + p_size_y)
 
 
@@ -230,12 +252,25 @@ class Speed_Attack:
         frame = int(p1.frame)
         p_size_x = Speed_Attack_focus[frame][2]
         p_size_y = Speed_Attack_focus[frame][3]
-        if frame < 3:
-            p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
-        elif 3 <= frame < 6:
-            p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + 10 * frame, p1.y , p_size_x * 2, p_size_y * 2)
-        else:
-            p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x+ 40, p1.y - 10, p_size_x * 2, p_size_y * 2)
+
+        if p1.Picked_Player == 'p1':
+            if frame < 3:
+                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+            elif 3 <= frame < 6:
+                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + 10 * frame, p1.y , p_size_x * 2, p_size_y * 2)
+            else:
+                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x+ 40, p1.y - 10, p_size_x * 2, p_size_y * 2)
+
+        elif p1.Picked_Player == 'p2':
+            if frame < 3:
+                p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y,
+                                             0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+            elif 3 <= frame < 6:
+                p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y,
+                                             0, 'h', p1.x - 10 * frame, p1.y, p_size_x * 2, p_size_y * 2)
+            else:
+                p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y,
+                                             0, 'h', p1.x - 40, p1.y - 10, p_size_x * 2, p_size_y * 2)
 
 
 class Charge_Attack:
@@ -281,8 +316,12 @@ class Charge_Attack:
 
         p_size_x = Charge_Attack_focus[frame][2]
         p_size_y = Charge_Attack_focus[frame][3]
-        p1.image.clip_draw(Charge_Attack_focus[frame][0], Charge_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + Charge_Attack_focus[frame][4], p1.y + Charge_Attack_focus[frame][5], p_size_x * 2, p_size_y * 2)
+        if p1.Picked_Player == 'p1':
+            p1.image.clip_draw(Charge_Attack_focus[frame][0], Charge_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + Charge_Attack_focus[frame][4], p1.y + Charge_Attack_focus[frame][5], p_size_x * 2, p_size_y * 2)
 
+        elif p1.Picked_Player == 'p2':
+            p1.image.clip_composite_draw(Charge_Attack_focus[frame][0], Charge_Attack_focus[frame][1], p_size_x, p_size_y,
+                                         0, 'h', p1.x - Charge_Attack_focus[frame][4], p1.y + Charge_Attack_focus[frame][5], p_size_x * 2, p_size_y * 2)
 
 
 
@@ -313,15 +352,11 @@ class Defense:
         p_size_y = Defense_focus[frame][3]
         p_x = p1.x + Defense_focus[frame][4]
         p_y = p1.y + Defense_focus[frame][5]
-        p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y, p_x , p_y, p_size_x * 2, p_size_y * 2)
-
-
-
-
-
-# 움직이는 방향키에서 반대키 누르면 멈추고 다시 때면 다시 가게 함
-# 차징하면서 조금씩 이동 방향으로 움직이게 하기
-# 움직이면서 공격 기능은 나중에 추가하기
+        if p1.Picked_Player == 'p1':
+            p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y, p_x , p_y, p_size_x * 2, p_size_y * 2)
+        elif p1.Picked_Player == 'p2':
+            p1.image.clip_composite_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y,
+                                         0, 'h', p_x , p_y, p_size_x * 2, p_size_y * 2)
 
 
 class StateMachine:
@@ -374,14 +409,13 @@ class Kirby:
 
     def __init__(self):
         self.x, self.y = 400, 150
-        self.do_call_count = 0
+        self.Picked_Player = "None"
         self.frame = 0
         self.dir = 0
         self.charging = False
         self.Attacking = False
         self.Left_Move = False
         self.Right_Move = False
-        self.face_dir = 1 # 오른쪽 방향으로 얼굴 향하게
         self.image = load_image('resource/Master_Kirby.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
