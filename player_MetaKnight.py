@@ -151,8 +151,13 @@ class Run:
         frame = int(p1.frame)
         p_size_x = walking_focus[frame][1]
         p_size_y = 60
-        p1.image.clip_draw(62 * frame + walking_focus[frame][0], 655, walking_focus[frame][1], 60, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+        if p1.Picked_Player == 'p1':
+            p1.image.clip_draw(62 * frame + walking_focus[frame][0], 655, p_size_x, p_size_y, p1.x, p1.y,
+                               p_size_x * 2, p_size_y * 2)
 
+        elif p1.Picked_Player == 'p2':
+            p1.image.clip_composite_draw(62 * frame + walking_focus[frame][0], 655, p_size_x, p_size_y, 0, 'h', p1.x, p1.y,
+                               p_size_x * 2, p_size_y * 2)
 
 
 
@@ -328,7 +333,7 @@ class MetaKnight:
 
     def __init__(self):
         self.x, self.y = 400, 150
-        self.do_call_count = 0
+        self.Picked_Player = "p2"
         self.frame = 0
         self.dir = 0
         self.charging = False
