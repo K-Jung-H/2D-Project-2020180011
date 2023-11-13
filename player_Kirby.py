@@ -99,10 +99,14 @@ class Idle:
     @staticmethod
     def enter(p1, e):
         p1.dir = 0
-        if right_down(e) or left_up(e):  # 오른쪽으로 RUN
-            p1.Left_Move, p1.Right_Move = False, False
-        elif left_down(e) or right_up(e):  # 왼쪽으로 RUN
-            p1.Left_Move, p1.Right_Move = False, False
+        if right_down(e):
+            p1.Right_Move, p1.dir = True, 1
+        if left_down(e):
+            p1.Left_Move, p1.dir = True, -1
+        if right_up(e):
+            p1.Right_Move = False
+        if left_up(e):
+            p1.Left_Move = False
         print('IDLE')
         p1.frame = 0
         p1.wait_time = get_time() # pico2d import 필요
@@ -127,11 +131,6 @@ class Idle:
                                    p1.y, p_size_x * 2, p_size_y * 2)
         draw_rectangle(p1.x - p_size_x, p1.y - p_size_y, p1.x + p_size_x, p1.y + p_size_y)
 
-        # if right_down(e) or left_up(e):  # 오른쪽으로 RUN
-        #     p1.Left_Move, p1.Right_Move = False, True
-        # elif left_down(e) or right_up(e):  # 왼쪽으로 RUN
-        #     p1.Left_Move, p1.Right_Move = True, False
-
 
 class Run:
 
@@ -142,10 +141,13 @@ class Run:
         if left_down(e):
             p1.Left_Move, p1.dir = True, -1
         if right_up(e):
-            p1.Left_Move, p1.Right_Move, p1.dir = True, False, -1
+            p1.Right_Move = False
         if left_up(e):
-            p1.Left_Move, p1.Right_Move, p1.dir = False, True, 1
-
+            p1.Left_Move = False
+        if p1.Right_Move:
+            p1.dir = 1
+        elif p1.Left_Move:
+            p1.dir = -1
         p1.frame = 0
 
 
@@ -158,7 +160,8 @@ class Run:
 
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 6
         if p1.Left_Move and p1.Right_Move:
-            p1.state_machine.handle_event(('STOP', 0))
+            p1.dir = 0
+            #p1.state_machine.handle_event(('STOP', 0))
 
         elif p1.Left_Move or p1.Right_Move:
             p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
@@ -185,10 +188,14 @@ class Normal_Attack:
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
-        if right_down(e) or left_up(e):  # 오른쪽으로 RUN
-            p1.Left_Move, p1.Right_Move = False, False
-        elif left_down(e) or right_up(e):  # 왼쪽으로 RUN
-            p1.Left_Move, p1.Right_Move = False, False
+        if right_down(e):
+            p1.Right_Move, p1.dir = True, 1
+        if left_down(e):
+            p1.Left_Move, p1.dir = True, -1
+        if right_up(e):
+            p1.Right_Move = False
+        if left_up(e):
+            p1.Left_Move = False
 
 
     @staticmethod
@@ -346,7 +353,7 @@ class StateMachine:
 
             Run: {right_down: Idle, left_down: Idle, right_up: Idle, left_up: Idle,
                   F_down: Normal_Attack, E_down: Speed_Attack, Q_down: Charge_Attack, S_down: Defense, STOP: Idle },
-            Normal_Attack: {STOP: Run, },
+            Normal_Attack: {STOP: Run},
             Speed_Attack: {STOP: Run, },
             Charge_Attack: {Q_up: Charge_Attack, STOP: Run, },
             Defense: { STOP: Idle, }
