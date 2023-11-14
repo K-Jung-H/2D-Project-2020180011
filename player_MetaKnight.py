@@ -3,6 +3,7 @@
                     SDLK_a, SDLK_s, SDLK_d, SDLK_f, SDLK_e, SDLK_q, draw_rectangle, load_font )
 import World
 import game_framework
+from M_Sword_Attack import Meta_Knight_Sword_Strike as Sword_Strike
 
 PIXEL_PER_METER = (10.0 / 0.3) # 10 pixel 30 cm
 RUN_SPEED_KMPH = 20.0 # Km / Hour
@@ -261,13 +262,16 @@ class Charge_Attack:
             p1.Time_Stamp = get_time()
 
         elif Charge_Attack_Up(e):
-            p1.Charging_Point = 0
             p1.charging = False
             p1.Attacking = True
 
     @staticmethod
     def exit(p1, e):
-        pass
+        if p1.Charging_Point >= 3:
+            p1.SwordStrike()
+            print("oooooooooooooooooooooooooooooooooooooo")
+        p1.Charging_Point = 0
+
 
     @staticmethod
     def do(p1):
@@ -403,6 +407,14 @@ class MetaKnight:
         #self.font.draw(self.x - 10, self.y + 50, f'{self.Charging_Point:02d}', (255, 255, 0))
         draw_rectangle(*self.get_bb())
 
+    def SwordStrike(self):
+        if self.Picked_Player == 'p1':
+            S_S = Sword_Strike(self.x, self.y, self.Charging_Point)
+            World.add_object(S_S)
+        elif self.Picked_Player == 'p2':
+            S_S = Sword_Strike(self.x, self.y, -self.Charging_Point)
+            World.add_object(S_S)
+
     def get_bb(self):
 
         if self.state_machine.cur_state == Idle:
@@ -413,7 +425,7 @@ class MetaKnight:
 
         if self.state_machine.cur_state == Speed_Attack:
             if self.Picked_Player == 'p1':
-                return self.x - 35, self.y - 45, self.x + 35, self.y - 5
+                return self.x + 25, self.y - 25, self.x + 65, self.y + 20
             elif self.Picked_Player == 'p2':
                 return self.x - 65, self.y - 20, self.x - 25, self.y + 20
 
@@ -429,11 +441,17 @@ class MetaKnight:
                 elif self.Picked_Player == 'p2':
                     return self.x - 25, self.y - 25, self.x + 15, self.y + 15
 
-        elif self.state_machine.cur_state == Normal_Attack or self.state_machine.cur_state == Charge_Attack:
+        elif self.state_machine.cur_state == Normal_Attack:
             if self.Picked_Player == 'p1':
-                return self.x - 35, self.y - 45, self.x + 35, self.y - 5
+                return self.x + 25, self.y - 25, self.x + 65, self.y + 20
             elif self.Picked_Player == 'p2':
                 return self.x - 65, self.y - 20, self.x - 25, self.y + 20
+
+        elif self.state_machine.cur_state == Charge_Attack:
+            if self.Picked_Player == 'p1':
+                return self.x + 5, self.y - 45, self.x + 65, self.y + 25
+            elif self.Picked_Player == 'p2':
+                return self.x - 65, self.y - 45, self.x - 5, self.y + 25
 
         elif self.state_machine.cur_state == Defense:
             if self.Picked_Player == 'p1':

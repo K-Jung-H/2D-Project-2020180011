@@ -41,7 +41,7 @@ def init():
     p1 = MetaKnight()
     p1.Picked_Player = 'p1'
 
-    p2 = Kirby()
+    p2 = MetaKnight()
     p2.Picked_Player = 'p2'
 
     World.add_object(p1, 1)
