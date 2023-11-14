@@ -39,12 +39,13 @@ def init():
     global background
     global p1, p2
 
-    if controller.P1 == 0:
-        p1 = Kirby()
-    elif controller.P1 == 1:
-        p1 = MetaKnight()
+    # if controller.P1 == 0:
+    #     p1 = Kirby()
+    # elif controller.P1 == 1:
+    #     p1 = MetaKnight()
+    # p1.Picked_Player = 'p1'
+    p1 = Kirby()
     p1.Picked_Player = 'p1'
-
     p2 = MetaKnight()
     p2.Picked_Player = 'p2'
 
