@@ -21,7 +21,7 @@ TIME_PER_ATTACK = 0.5
 ATTACK_PER_TIME = 1.0 / TIME_PER_ATTACK
 FRAMES_PER_ATTACK = 8      # 일반 공격 동작 속도
 FRAMES_PER_FAST_ATTACK = 10 # 빠른 공격 동작 속도 더 빠르게
-FRAMES_PER_CHARGE_ATTACK = 8
+FRAMES_PER_CHARGE_ATTACK = 10
 
 
 #walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
@@ -72,6 +72,8 @@ def STOP(e):
 def Defense_Down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_s or e[1].key == SDLK_DOWN)
 
+def Defense_Up(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_s or e[1].key == SDLK_DOWN)
 
 def Fast_Attack_Down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_e or e[1].key == SDLK_COMMA)
@@ -341,10 +343,10 @@ class Normal_Attack:
         frame = int(p1.frame)
         p_size_x = Normal_Attack_focus[frame][1]
         p_size_y = 60
-        if p1.Picked_Player == 'p1':
+        if p1.dir == 1:
             p1.image.clip_draw(Normal_Attack_focus[frame][0], 480, p_size_x, p_size_y, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
 
-        elif p1.Picked_Player == 'p2':
+        elif p1.dir == -1:
             p1.image.clip_composite_draw(Normal_Attack_focus[frame][0], 480, p_size_x, p_size_y, 0, 'h', p1.x - 30, p1.y,
                                p_size_x * 2, p_size_y * 2)
 
@@ -374,10 +376,10 @@ class Speed_Attack:
         frame = int(p1.frame)
         p_size_x = Speed_Attack_focus[frame][1]
         p_size_y = 60
-        if p1.Picked_Player == 'p1':
+        if p1.dir == 1:
             p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][2], p_size_x, p_size_y, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
 
-        elif p1.Picked_Player == 'p2':
+        elif p1.dir == -1:
             p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][2], p_size_x, p_size_y,
                                0, 'h', p1.x - 30, p1.y, p_size_x * 2, p_size_y * 2)
 
@@ -389,27 +391,47 @@ class Charge_Attack:
         p1.frame = 0
         if Charge_Attack_Down(e):
             p1.charging = True
-            p1.Time_Stamp = get_time()
+            p1.Charging_Time = get_time()
 
         elif Charge_Attack_Up(e):
             p1.charging = False
             p1.Attacking = True
 
+        if Right_Move_Down(e):
+            p1.Right_Move, p1.dir = True, 1
+
+        if Left_Move_Down(e):
+            p1.Left_Move, p1.dir = True, -1
+
+        if Right_Move_Up(e):
+            p1.Right_Move = False
+
+        if Left_Move_Up(e):
+            p1.Left_Move = False
+
+        if p1.Right_Move:
+            p1.dir = 1
+        elif p1.Left_Move:
+            p1.dir = -1
+
     @staticmethod
     def exit(p1, e):
-        if p1.Charging_Point >= 3:
-            p1.SwordStrike()
-            print("oooooooooooooooooooooooooooooooooooooo")
-        p1.Charging_Point = 0
+        pass
 
 
     @staticmethod
     def do(p1):
         if p1.charging == True:
             p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
-            p1.Charging_Point = int(get_time() - p1.Time_Stamp)
+            p1.Charging_Point = int(get_time() - p1.Charging_Time)
         elif  p1.charging == False:
             p1.frame = (p1.frame + FRAMES_PER_CHARGE_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
+
+        if int (p1.frame) == 5: # 투사체 발사
+            if p1.Charging_Point >= 2:
+                p1.SwordStrike()
+                p1.Charging_Point = 0
+
         if int(p1.frame) == 9:
             p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
@@ -421,32 +443,49 @@ class Charge_Attack:
         frame = int(p1.frame)
         p_size_x = Charge_Attack_focus[frame][1]
         p_size_y = 60
-        if p1.Picked_Player == 'p1':
+        if p1.dir == 1:
             p1.image.clip_draw(Charge_Attack_focus[frame][0], 480, p_size_x, p_size_y, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
-        elif p1.Picked_Player == 'p2':
+        elif p1.dir == -1:
             p1.image.clip_composite_draw(Charge_Attack_focus[frame][0], 480, p_size_x, p_size_y,
                                0, 'h', p1.x - 30, p1.y, p_size_x * 2, p_size_y * 2)
 
         if p1.charging == True:
             p1.font.draw(p1.x - 10, p1.y + 50, f'{p1.Charging_Point:02d}', (255, 255, 0))
 
+
 class Defense:
 
     @staticmethod
     def enter(p1, e):
-        p1.frame = 0
+        waiting_time = int(get_time() - p1.Defense_cooltime)
+        print(waiting_time)
+        if p1.Defense_cooltime == 0 or waiting_time > 3: # 첫 사용 또는 재사용 대기시간이 지났을 때
+            p1.frame = 0
+            p1.Defense_time = get_time()
+
+        elif waiting_time <= 3:
+            p1.state_machine.handle_event(('STOP', 0))
+
+
+
+
 
     @staticmethod
     def exit(p1, e):
         p1.Right_Move = False
         p1.Left_Move = False
+        p1.dir = p1.Last_Input_Direction
+
+        if Defense_Up(e):
+            p1.Defense_cooltime = get_time()
         pass
 
     @staticmethod
     def do(p1):
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 9
-        if int(p1.frame) == 8:
+        if int(get_time() - p1.Defense_time) == 5:
             p1.state_machine.handle_event(('STOP', 0))
+            p1.Defense_cooltime = get_time()
 
 
 
@@ -455,9 +494,10 @@ class Defense:
         frame = int(p1.frame)
         p_size_x = Defense_focus[frame][1]
         p_size_y = 70
-        if p1.Picked_Player == 'p1':
+
+        if p1.dir == 1:
             p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][2], p_size_x, p_size_y, p1.x + 20, p1.y, p_size_x * 1.8, p_size_y * 1.8)
-        elif p1.Picked_Player == 'p2':
+        elif p1.dir == -1:
             p1.image.clip_composite_draw(Defense_focus[frame][0], Defense_focus[frame][2], p_size_x, p_size_y,
                                0, 'h', p1.x - 20, p1.y, p_size_x * 1.8, p_size_y * 1.8)
 
@@ -490,9 +530,9 @@ class StateMachine:
             Speed_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk},
 
             Charge_Attack: {Charge_Attack_Up: Charge_Attack, STOP: Walk,
-                            Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk},
+                            Right_Move_Down: Charge_Attack, Left_Move_Down: Charge_Attack, Right_Move_Up: Charge_Attack, Left_Move_Up: Charge_Attack},
 
-            Defense: { STOP: Walk, }
+            Defense: { Defense_Up: Idle, STOP: Idle, }#STOP: Walk,
 
 
         }
@@ -534,11 +574,12 @@ class MetaKnight:
         self.Last_Input_Direction = None  # 대쉬 파악용
 
         self.jump_value = 0 #점프 구현
-
+        self.Defense_time = None # 방어 지속 시간 체크
+        self.Defense_cooltime = 0  # 방어 재사용 대기시간
         self.charging = False
         self.Attacking = False
         self.Charging_Point = 0
-        self.Time_Stamp = 0
+        self.Charging_Time = 0
         self.font = load_font('resource/ENCR10B.TTF', 16)
         self.Left_Move = False
         self.Right_Move = False
@@ -561,12 +602,12 @@ class MetaKnight:
         draw_rectangle(*self.get_bb())
 
     def SwordStrike(self):
-        if self.Picked_Player == 'p1':
+        if self.dir == 1:
             S_S = Sword_Strike(self.x, self.y, self.Charging_Point)
-            World.add_object(S_S)
-        elif self.Picked_Player == 'p2':
+            World.add_object(S_S, 2)
+        elif self.dir == -1:
             S_S = Sword_Strike(self.x, self.y, -self.Charging_Point)
-            World.add_object(S_S)
+            World.add_object(S_S, 2)
 
     def get_bb(self):
 
