@@ -91,7 +91,7 @@ def Charge_Attack_Up(e):
 #start_x, width
 Walk_focus = [[2,39], [51,36], [100, 34], [149, 37], [203, 36], [258, 40], [316, 41], [377, 38] ]
 Run_focus = [[7,25], [59,23], [100, 34], [147, 23], [189, 23] ]
-Jump_focus = [[],]
+
 
 Fly_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 
@@ -245,7 +245,7 @@ class Jump:
     @staticmethod
     def enter(p1, e):
         if  p1.state_machine.last_state != Jump:
-            p1.jump_value = 20
+            p1.jump_value = 10
             p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7 #10
         else: # 점프 도중에 새로운 입력을 받는 경우
             if Right_Move_Down(e):
@@ -295,7 +295,7 @@ class Jump:
 
         # 점프: y값 변경
         p1.y += p1.jump_value
-        p1.jump_value -= 1
+        p1.jump_value -= 0.1
         if p1.y <= 150:  # 나중엔 충돌 체크로 바꿀 것
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
@@ -307,16 +307,18 @@ class Jump:
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_start_x = Walk_focus[frame][0]
+        p_start_x = Jump_focus[frame][0]
         p_start_y = 0
-        p_width = Walk_focus[frame][1]
-        p_height = 36
+        p_width = Jump_focus[frame][1]
+        p_height = 45
         if p1.dir == 1:
-            p1.walk_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
+            p1.jump_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
 
         elif p1.dir == -1:
-            p1.walk_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2, p_height * 2)
+            p1.jump_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2, p_height * 2)
 
+
+Jump_focus = [[9, 32],[57, 27], [101, 28], [143, 26], [187, 26], [230, 26], [274, 27], [315, 27], [357, 28], [401, 32]]
 
 class Normal_Attack:
 
@@ -586,6 +588,7 @@ class MetaKnight:
         self.image = load_image('resource/Meta_Knight_3.png')
         self.walk_image = load_image('resource/Meta_Knight_Walk.png')
         self.run_image = load_image('resource/Meta_Knight_Run.png')
+        self.jump_image = load_image('resource/Meta_Knight_Jump.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
 
