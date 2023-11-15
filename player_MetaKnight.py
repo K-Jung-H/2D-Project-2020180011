@@ -1,6 +1,6 @@
 ﻿from pico2d import (get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE,
-                    SDLK_LEFT, SDLK_RIGHT, SDLK_DOWN, SDLK_COMMA, SDLK_PERIOD, SDLK_SLASH,
-                    SDLK_a, SDLK_s, SDLK_d, SDLK_f, SDLK_e, SDLK_q, draw_rectangle, load_font )
+                    SDLK_LEFT, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_COMMA, SDLK_PERIOD, SDLK_SLASH,
+                    SDLK_w, SDLK_a, SDLK_s, SDLK_d, SDLK_f, SDLK_e, SDLK_q, draw_rectangle, load_font )
 import World
 import game_framework
 from M_Sword_Attack import Meta_Knight_Sword_Strike as Sword_Strike
@@ -10,9 +10,9 @@ RUN_SPEED_KMPH = 20.0 # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+FAST_RUN_SPEED_PPS = RUN_SPEED_PPS * 1.8
 
-
-# Boy Action Speed
+# Player Action Speed
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 5
@@ -24,7 +24,7 @@ FRAMES_PER_FAST_ATTACK = 10 # 빠른 공격 동작 속도 더 빠르게
 FRAMES_PER_CHARGE_ATTACK = 8
 
 
-walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
+#walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
 Speed_Attack_focus = [[2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
 Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[540, 100],[540, 100],[540, 100],[645,110]]
@@ -50,6 +50,10 @@ def Left_Move_Up(e):
 
 def space_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
+
+
+def Jump_Button_Down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_UP or e[1].key == SDLK_w)
 
 def Time_Out(e):
     return e[0] == 'TIME_OUT'
@@ -84,9 +88,10 @@ def Charge_Attack_Up(e):
 
 #start_x, width
 Walk_focus = [[2,39], [51,36], [100, 34], [149, 37], [203, 36], [258, 40], [316, 41], [377, 38] ]
+Run_focus = [[7,25], [59,23], [100, 34], [147, 23], [189, 23] ]
+Jump_focus = [[],]
 
-
-
+Fly_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 
 
 
@@ -147,7 +152,6 @@ class Walk:
 
 
         if Left_Move_Down(e) or Right_Move_Down(e):
-
             if p1.Last_Input_time == None:
                 p1.Last_Input_time = get_time()
                 p1.Last_Input_Direction = p1.dir
@@ -172,7 +176,7 @@ class Walk:
     def do(p1):
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
         if p1.Left_Move and p1.Right_Move:
-            p1.dir = 0
+            p1.dir = p1.Last_Input_Direction
 
         elif p1.Left_Move or p1.Right_Move:
             p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
@@ -198,7 +202,7 @@ class Walk:
 class Run:
     @staticmethod
     def enter(p1, e):
-        p1.frame = 0
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         p1.Last_Input_Direction = None
 
 
@@ -210,16 +214,93 @@ class Run:
 
     @staticmethod
     def do(p1):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         if p1.Left_Move and p1.Right_Move:
             p1.dir = 0
 
         elif p1.Left_Move or p1.Right_Move:
-            p1.x += (p1.dir * RUN_SPEED_PPS * game_framework.frame_time) * 2
+            p1.x += p1.dir * FAST_RUN_SPEED_PPS * game_framework.frame_time
             p1.x = clamp(25, p1.x, 1000 - 25)
 
         elif not (p1.Left_Move and p1.Right_Move):
             p1.state_machine.handle_event(('STOP', 0))
+
+    @staticmethod
+    def draw(p1):
+        frame = int(p1.frame)
+        p_start_x = Run_focus[frame][0]
+        p_start_y = 0
+        p_width = Run_focus[frame][1]
+        p_height = 39
+        if p1.dir == 1:
+            p1.run_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
+
+        elif p1.dir == -1:
+            p1.run_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2,
+                                              p_height * 2)
+
+class Jump:
+    @staticmethod
+    def enter(p1, e):
+        if  p1.state_machine.last_state != Jump:
+            p1.jump_value = 20
+            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7 #10
+        else: # 점프 도중에 새로운 입력을 받는 경우
+            if Right_Move_Down(e):
+                p1.Right_Move, p1.dir = True, 1
+
+            if Left_Move_Down(e):
+                p1.Left_Move, p1.dir = True, -1
+
+            if Right_Move_Up(e):
+                p1.Right_Move = False
+
+            if Left_Move_Up(e):
+                p1.Left_Move = False
+
+            if p1.Right_Move:
+                p1.dir = 1
+            elif p1.Left_Move:
+                p1.dir = -1
+
+            p1.Last_Input_Direction = p1.dir
+
+
+
+    @staticmethod
+    def exit(p1, e):
+        pass
+
+
+
+    @staticmethod
+    def do(p1):
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
+
+
+        if p1.Left_Move and p1.Right_Move:
+            p1.dir = p1.Last_Input_Direction
+
+        elif p1.Left_Move or p1.Right_Move:
+            if p1.state_machine.last_state == Walk:
+                p1.x += (p1.dir * RUN_SPEED_PPS * game_framework.frame_time) * 2
+            elif p1.state_machine.last_state == Run:
+                p1.x += (p1.dir * FAST_RUN_SPEED_PPS * game_framework.frame_time) * 2
+            elif p1.state_machine.last_state == Jump:
+                p1.x += (p1.dir * RUN_SPEED_PPS * game_framework.frame_time)
+
+        p1.x = clamp(25, p1.x, 1000 - 25)
+
+        # 점프: y값 변경
+        p1.y += p1.jump_value
+        p1.jump_value -= 1
+        if p1.y <= 150:  # 나중엔 충돌 체크로 바꿀 것
+            p1.y = 150
+            p1.state_machine.handle_event(('STOP', 0))
+
+
+
+
 
     @staticmethod
     def draw(p1):
@@ -232,8 +313,8 @@ class Run:
             p1.walk_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
 
         elif p1.dir == -1:
-            p1.walk_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2,
-                                              p_height * 2)
+            p1.walk_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2, p_height * 2)
+
 
 class Normal_Attack:
 
@@ -385,18 +466,23 @@ class StateMachine:
     def __init__(self, meta_knight):
         self.player = meta_knight
         self.cur_state = Idle
+        self.last_state = None
         self.transitions = {
             Idle: { Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk,
                    Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
-                   Defense_Down: Defense, },
+                   Defense_Down: Defense, Jump_Button_Down: Jump},
 
             Walk: { Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
                   Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
-                  Defense_Down: Defense, STOP: Idle, RUN: Run},
+                  Defense_Down: Defense, STOP: Idle, RUN: Run, Jump_Button_Down: Jump},
 
             Run: {Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
                   Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
-                  Defense_Down: Defense, STOP: Idle },
+                  Defense_Down: Defense, STOP: Idle , Jump_Button_Down: Jump},
+
+            Jump: {STOP: Walk,  Right_Move_Down: Jump, Left_Move_Down: Jump, Right_Move_Up: Jump, Left_Move_Up: Jump,},
+
+#            Fly: {},
 
 
             Normal_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk},
@@ -416,11 +502,13 @@ class StateMachine:
 
     def update(self):
         self.cur_state.do(self.player)
+        #print(self.cur_state)
 
     def handle_event(self, e):
         for check_event, next_state in self.transitions[self.cur_state].items():
             if check_event(e):
                 self.cur_state.exit(self.player, e)
+                self.last_state = self.cur_state
                 self.cur_state = next_state
                 self.cur_state.enter(self.player, e)
                 return True
@@ -445,6 +533,8 @@ class MetaKnight:
         self.Last_Input_time = None # 대쉬 파악용
         self.Last_Input_Direction = None  # 대쉬 파악용
 
+        self.jump_value = 0 #점프 구현
+
         self.charging = False
         self.Attacking = False
         self.Charging_Point = 0
@@ -454,6 +544,7 @@ class MetaKnight:
         self.Right_Move = False
         self.image = load_image('resource/Meta_Knight_3.png')
         self.walk_image = load_image('resource/Meta_Knight_Walk.png')
+        self.run_image = load_image('resource/Meta_Knight_Run.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
 
