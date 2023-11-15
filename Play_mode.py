@@ -2,7 +2,7 @@ from pico2d import *
 import game_framework
 
 import World
-from Character_Select_mode import controller
+import Character_Select_mode
 from Background import BackGround
 from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
@@ -39,13 +39,13 @@ def init():
     global background
     global p1, p2
 
-    # if controller.P1 == 0:
-    #     p1 = Kirby()
-    # elif controller.P1 == 1:
-    #     p1 = MetaKnight()
+    if Character_Select_mode.Select_Information_P1() == 0:
+        p1 = Kirby()
+        p1.Picked_Player = 'p1'
+    elif Character_Select_mode.Select_Information_P1() == 1:
+        p1 = MetaKnight("p1")
     # p1.Picked_Player = 'p1'
-    p1 = Kirby()
-    p1.Picked_Player = 'p1'
+
     p2 = MetaKnight()
     p2.Picked_Player = 'p2'
 

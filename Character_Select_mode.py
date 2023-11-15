@@ -10,7 +10,7 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 10
 
-controller = None
+
 
 def P1_handle(event):
     if (event.key == SDLK_a or event.key == SDLK_d):
@@ -89,7 +89,7 @@ class P1_Controller:
     def __init__(self):
         self.x1, self.y1 = 350, 150
         self.x2, self.y2 = 650, 150
-        self.P1 = 0
+        self.P1 = 1
         self.P2 = 1
         self.frame_k = 0
         self.frame_m = 0
@@ -125,6 +125,17 @@ class P1_Controller:
         elif self.P2 == 1:
             self.image_m.clip_composite_draw(62 * frame_m + M_walking_focus[frame_m][0], 655, M_walking_focus[frame_m][1], 60, 0, 'h', x2, y2,
                                M_walking_focus[frame_m][1] * 2, 60 * 2)
+
+
+
+def Select_Information_P1():
+    global controller
+    controller = P1_Controller()
+    return controller.P1
+
+def Select_Information_P2():
+    global controller
+    return controller.P2
 
 
 

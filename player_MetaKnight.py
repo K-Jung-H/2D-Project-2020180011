@@ -59,6 +59,9 @@ def Normal_Attack_Down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_f or e[1].key == SDLK_PERIOD)
 
 
+def RUN(e):
+    return e[0] == 'RUN'
+
 def STOP(e):
     return e[0] == 'STOP'
 
@@ -77,7 +80,10 @@ def Charge_Attack_Up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_q or e[1].key == SDLK_SLASH)
 
 
+#reforged_frame
 
+#start_x, width
+Walk_focus = [[2,39], [51,36], [100, 34], [149, 37], [203, 36], [258, 40], [316, 41], [377, 38] ]
 
 
 
@@ -89,67 +95,78 @@ class Idle:
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
-        p1.dir = 0
         if Right_Move_Down(e):
             p1.Right_Move, p1.dir = True, 1
         if Left_Move_Down(e):
             p1.Left_Move, p1.dir = True, -1
         if Right_Move_Up(e):
-            p1.Right_Move = False
+            p1.Right_Move, p1.dir = False, 1
         if Left_Move_Up(e):
-            p1.Left_Move = False
+            p1.Left_Move, p1.dir = False, -1
 
-        p1.Defense_time = get_time()  # 카운터를 위한 타이머
-        pass
 
     @staticmethod
     def exit(p1, e):
-
         pass
 
     @staticmethod
     def do(p1):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+        p1.frame = 0
 
 
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_size_x = walking_focus[frame][1]
-        p_size_y = 60
+        if p1.dir == 1:
+            p1.walk_image.clip_draw(44 * frame, 0, 44, 36, p1.x, p1.y, 44 * 2, 36 * 2)
 
-        if p1.Picked_Player == 'p1':
-            p1.image.clip_draw(62 * frame + walking_focus[frame][0], 655,p_size_x, p_size_y, p1.x,
-                               p1.y, p_size_x * 2, p_size_y * 2)
-
-        elif p1.Picked_Player == 'p2':
-            p1.image.clip_composite_draw(62 * frame + walking_focus[frame][0], 655, p_size_x, p_size_y, 0, 'h', p1.x, p1.y,
-                               p_size_x * 2, p_size_y * 2)
+        elif p1.dir == -1:
+            p1.walk_image.clip_composite_draw(44 * frame, 0,44, 36, 0, 'h', p1.x, p1.y, 44 * 2, 36 * 2)
 
 
-class Run:
-
+class Walk:
     @staticmethod
     def enter(p1, e):
-        p1.frame = 0
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
         if Right_Move_Down(e):
             p1.Right_Move, p1.dir = True, 1
+
         if Left_Move_Down(e):
             p1.Left_Move, p1.dir = True, -1
+
         if Right_Move_Up(e):
             p1.Right_Move = False
+
         if Left_Move_Up(e):
             p1.Left_Move = False
+
         if p1.Right_Move:
             p1.dir = 1
         elif p1.Left_Move:
             p1.dir = -1
 
 
+        if Left_Move_Down(e) or Right_Move_Down(e):
+
+            if p1.Last_Input_time == None:
+                p1.Last_Input_time = get_time()
+                p1.Last_Input_Direction = p1.dir
+            else:
+                Input_time = get_time() - p1.Last_Input_time
+                if Input_time <= 0.5:    # 1초 안에 2번 입력했다면
+                    if p1.Last_Input_Direction == p1.dir:  # 이전과 같은 방향 이동을 시도했다면
+                        p1.state_machine.handle_event(('RUN', 0))
+                        print("Running_Start")
+                p1.Last_Input_time = get_time()
+                p1.Last_Input_Direction = p1.dir
+
+
 
     @staticmethod
     def exit(p1, e):
         pass
+
+
 
     @staticmethod
     def do(p1):
@@ -167,24 +184,56 @@ class Run:
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_size_x = walking_focus[frame][1]
-        p_size_y = 60
+        p_start_x = Walk_focus[frame][0]
+        p_start_y = 0
+        p_width = Walk_focus[frame][1]
+        p_height = 36
+        if p1.dir == 1:
+            p1.walk_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
 
-        if p1.Picked_Player == 'p1':
-            if p1.dir == 1:
-                p1.image.clip_draw(62 * frame + walking_focus[frame][0], 655, p_size_x, p_size_y, p1.x, p1.y,
-                                   p_size_x * 2, p_size_y * 2)
-            elif p1.dir == -1:
-                p1.image.clip_composite_draw(62 * frame + walking_focus[frame][0], 655, p_size_x, p_size_y, 0, 'h',
-                                             p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+        elif p1.dir == -1:
+            p1.walk_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2, p_height * 2)
 
-        elif p1.Picked_Player == 'p2':
-            if p1.dir == 1:
-                p1.image.clip_draw(62 * frame + walking_focus[frame][0], 655, p_size_x, p_size_y, p1.x, p1.y,
-                                   p_size_x * 2, p_size_y * 2)
-            elif p1.dir == -1:
-                p1.image.clip_composite_draw(62 * frame + walking_focus[frame][0], 655, p_size_x, p_size_y, 0, 'h', p1.x, p1.y,
-                                    p_size_x * 2, p_size_y * 2)
+
+class Run:
+    @staticmethod
+    def enter(p1, e):
+        p1.frame = 0
+        p1.Last_Input_Direction = None
+
+
+
+    @staticmethod
+    def exit(p1, e):
+        print("Running off")
+        pass
+
+    @staticmethod
+    def do(p1):
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
+        if p1.Left_Move and p1.Right_Move:
+            p1.dir = 0
+
+        elif p1.Left_Move or p1.Right_Move:
+            p1.x += (p1.dir * RUN_SPEED_PPS * game_framework.frame_time) * 2
+            p1.x = clamp(25, p1.x, 1000 - 25)
+
+        elif not (p1.Left_Move and p1.Right_Move):
+            p1.state_machine.handle_event(('STOP', 0))
+
+    @staticmethod
+    def draw(p1):
+        frame = int(p1.frame)
+        p_start_x = Walk_focus[frame][0]
+        p_start_y = 0
+        p_width = Walk_focus[frame][1]
+        p_height = 36
+        if p1.dir == 1:
+            p1.walk_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
+
+        elif p1.dir == -1:
+            p1.walk_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2,
+                                              p_height * 2)
 
 class Normal_Attack:
 
@@ -337,22 +386,27 @@ class StateMachine:
         self.player = meta_knight
         self.cur_state = Idle
         self.transitions = {
-            Idle: { Right_Move_Down: Run, Left_Move_Down: Run, Right_Move_Up: Run, Left_Move_Up: Run,
+            Idle: { Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk,
                    Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
                    Defense_Down: Defense, },
 
-            Run: { Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
+            Walk: { Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
+                  Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
+                  Defense_Down: Defense, STOP: Idle, RUN: Run},
+
+            Run: {Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
                   Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
                   Defense_Down: Defense, STOP: Idle },
 
-            Normal_Attack: {STOP: Run, Right_Move_Down: Run, Left_Move_Down: Run, Right_Move_Up: Run, Left_Move_Up: Run},
 
-            Speed_Attack: {STOP: Run, Right_Move_Down: Run, Left_Move_Down: Run, Right_Move_Up: Run, Left_Move_Up: Run},
+            Normal_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk},
 
-            Charge_Attack: {Charge_Attack_Up: Charge_Attack, STOP: Run,
-                            Right_Move_Down: Run, Left_Move_Down: Run, Right_Move_Up: Run, Left_Move_Up: Run},
+            Speed_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk},
 
-            Defense: { STOP: Run, }
+            Charge_Attack: {Charge_Attack_Up: Charge_Attack, STOP: Walk,
+                            Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk},
+
+            Defense: { STOP: Walk, }
 
 
         }
@@ -379,11 +433,18 @@ class StateMachine:
 
 class MetaKnight:
 
-    def __init__(self):
+    def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
-        self.Picked_Player = "p2"
+        self.Picked_Player = Player
+        if Player == "p1":
+            self.dir = 1
+        else:
+            self.dir = -1
         self.frame = 0
-        self.dir = 0
+
+        self.Last_Input_time = None # 대쉬 파악용
+        self.Last_Input_Direction = None  # 대쉬 파악용
+
         self.charging = False
         self.Attacking = False
         self.Charging_Point = 0
@@ -392,6 +453,7 @@ class MetaKnight:
         self.Left_Move = False
         self.Right_Move = False
         self.image = load_image('resource/Meta_Knight_3.png')
+        self.walk_image = load_image('resource/Meta_Knight_Walk.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
 
@@ -430,7 +492,7 @@ class MetaKnight:
                 return self.x - 65, self.y - 20, self.x - 25, self.y + 20
 
 
-        elif self.state_machine.cur_state == Run:
+        elif self.state_machine.cur_state == Walk:
             if self.dir == 1:
                 return self.x - 15, self.y - 25, self.x + 25, self.y + 15
             elif self.dir == -1:
@@ -458,3 +520,6 @@ class MetaKnight:
                 return self.x - 15, self.y - 45, self.x + 45, self.y + 25
             elif self.Picked_Player == 'p2':
                 return self.x - 45, self.y - 45, self.x + 15, self.y + 25
+
+        else:
+            return 0,0,0,0
