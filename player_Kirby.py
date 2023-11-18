@@ -418,9 +418,13 @@ class StateMachine:
 
 class Kirby:
 
-    def __init__(self):
+    def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
-        self.Picked_Player = "None"
+        self.Picked_Player = Player
+        if Player == "p1":
+            self.dir = 1
+        else:
+            self.dir = -1
         self.frame = 0
         self.dir = 0
         self.charging = False

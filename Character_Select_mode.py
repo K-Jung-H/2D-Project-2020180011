@@ -10,87 +10,15 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 10
 
-
-
-def P1_handle(event):
-    if (event.key == SDLK_a or event.key == SDLK_d):
-        return True
-    return False
-
-def P2_handle(event):
-    if (event.key == SDLK_LEFT or event.key == SDLK_RIGHT):
-        return True
-    return False
-
-
-
-def init():
-    global image
-    global controller
-    image = load_image('resource/Character_Select_Background.png')
-    controller = P1_Controller()
-    pass
-
-def finish():
-    pass
-
-
-def handle_events():
-    events = get_events()
-
-    for event in events:
-        if event.type == SDL_QUIT:
-            game_framework.quit()
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-            game_framework.quit()
-
-        elif P1_handle(event):
-
-                if event.type == SDL_KEYDOWN and event.key == SDLK_d:
-                    controller.P1 = (controller.P1 + 1) % 2
-                elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
-                    controller.P1 = (controller.P1 - 1) % 2
-
-        elif P2_handle(event):
-
-            if event.type == SDL_KEYDOWN and event.key == SDLK_RIGHT:
-                controller.P2 = (controller.P2 + 1) % 2
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_LEFT:
-                controller.P2 = (controller.P2 - 1) % 2
-
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
-            game_framework.change_mode(Play_mode)
-    pass
-
-
-def update():
-    controller.update()
-    pass
-
-
-def draw():
-    clear_canvas()
-    image.clip_draw(0, 0, 1216, 907, 500, 300, 1000, 600)
-    controller.draw()
-    update_canvas()
-    pass
-
-def pause(): pass
-
-def resume(): pass
-
-
-
-K_Standing_focus = [[223, 1195], [268, 1195], [315, 1195], [362, 1195]]
-M_walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
-
+P1 = 0
+P2 = 0
 
 class P1_Controller:
     def __init__(self):
         self.x1, self.y1 = 350, 150
         self.x2, self.y2 = 650, 150
-        self.P1 = 1
-        self.P2 = 1
+        self.P1 = 0
+        self.P2 = 0
         self.frame_k = 0
         self.frame_m = 0
         self.Select = 0
@@ -101,6 +29,7 @@ class P1_Controller:
     def update(self):
         self.frame_k = (self.frame_k + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         self.frame_m = (self.frame_m + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+
 
 
 
@@ -128,14 +57,82 @@ class P1_Controller:
 
 
 
-def Select_Information_P1():
-    global controller
-    controller = P1_Controller()
-    return controller.P1
+def P1_handle(event):
+    if (event.key == SDLK_a or event.key == SDLK_d):
+        return True
+    return False
 
-def Select_Information_P2():
-    global controller
-    return controller.P2
+def P2_handle(event):
+    if (event.key == SDLK_LEFT or event.key == SDLK_RIGHT):
+        return True
+    return False
 
+
+
+def init():
+    global B_image
+    global Controller
+    B_image = load_image('resource/Character_Select_Background.png')
+    Controller = P1_Controller()
+    pass
+
+def finish():
+    pass
+
+
+def handle_events():
+    events = get_events()
+
+    for event in events:
+        if event.type == SDL_QUIT:
+            game_framework.quit()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            game_framework.quit()
+
+        elif P1_handle(event):
+
+                if event.type == SDL_KEYDOWN and event.key == SDLK_d:
+                    Controller.P1 = (Controller.P1 + 1) % 2
+                elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
+                    Controller.P1 = (Controller.P1 - 1) % 2
+
+        elif P2_handle(event):
+
+            if event.type == SDL_KEYDOWN and event.key == SDLK_RIGHT:
+                Controller.P2 = (Controller.P2 + 1) % 2
+            elif event.type == SDL_KEYDOWN and event.key == SDLK_LEFT:
+                Controller.P2 = (Controller.P2 - 1) % 2
+
+
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
+            game_framework.change_mode(Play_mode)
+
+    print(f"P1: {Controller.P1}, P2: {Controller.P2}")
+
+
+def update():
+    global P1, P2
+    Controller.update()
+    P1 = Controller.P1
+    P2 = Controller.P2
+
+
+
+
+def draw():
+    clear_canvas()
+    B_image.clip_draw(0, 0, 1216, 907, 500, 300, 1000, 600)
+    Controller.draw()
+    update_canvas()
+    pass
+
+def pause(): pass
+
+def resume(): pass
+
+
+
+K_Standing_focus = [[223, 1195], [268, 1195], [315, 1195], [362, 1195]]
+M_walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 
 
