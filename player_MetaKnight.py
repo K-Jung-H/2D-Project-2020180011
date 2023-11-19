@@ -552,7 +552,27 @@ class Drop_Attack:
 class Falling_Attack:
     @staticmethod
     def enter(p1, e):
-        p1.frame = 0
+        if  p1.state_machine.last_state != Falling_Attack:
+            p1.frame = 0
+        else: # 공격 도중에 새로운 입력을 받는 경우
+            if Right_Move_Down(e):
+                p1.Right_Move, p1.dir = True, 1
+
+            if Left_Move_Down(e):
+                p1.Left_Move, p1.dir = True, -1
+
+            if Right_Move_Up(e):
+                p1.Right_Move = False
+
+            if Left_Move_Up(e):
+                p1.Left_Move = False
+
+            if p1.Right_Move:
+                p1.dir = 1
+            elif p1.Left_Move:
+                p1.dir = -1
+
+            p1.Last_Input_Direction = p1.dir
 
     @staticmethod
     def exit(p1, e):
@@ -561,12 +581,24 @@ class Falling_Attack:
     @staticmethod
     def do(p1):
 
+        if p1.Left_Move and p1.Right_Move:
+            p1.dir = p1.Last_Input_Direction
+
+        elif p1.Left_Move or p1.Right_Move:
+                p1.x += (p1.dir * RUN_SPEED_PPS * game_framework.frame_time)
+        p1.x = clamp(25, p1.x, 1000 - 25)
+
         p1.Attacking = True
         if int(p1.frame) != 9:
             p1.y += p1.jump_value/10
             p1.jump_value -= 0.1
             p1.frame = (p1.frame + FRAMES_PER_FALLING_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
         else:
+            p1.state_machine.handle_event(('STOP', 0))
+
+        if p1.y <= 150:
+            p1.Attacking = False
+            p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
 
     @staticmethod
@@ -670,7 +702,8 @@ class StateMachine:
 
             Drop_Attack: { STOP: Idle, },
 
-            Falling_Attack: {STOP: Jump, },
+            Falling_Attack: {STOP: Jump,  Right_Move_Down: Falling_Attack, Left_Move_Down: Falling_Attack,
+                             Right_Move_Up: Falling_Attack, Left_Move_Up: Falling_Attack, },
 
             Defense: { Defense_Up: Idle, STOP: Idle, }
 
