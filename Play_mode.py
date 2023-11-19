@@ -55,8 +55,8 @@ def init():
     World.add_object(p1, 1)
     World.add_object(p2, 1)
 
-    World.add_collision_pair('p1 : p2_attack_range', p1, None)
-    World.add_collision_pair('p2 : p1_attack_range', p2, None)
+    World.add_collision_pair('p1 : p2_attack_range', p1, p2.attack_area)
+    World.add_collision_pair('p2 : p1_attack_range', p2, p1.attack_area)
 
     background = BackGround()
     World.add_object(background, 0)

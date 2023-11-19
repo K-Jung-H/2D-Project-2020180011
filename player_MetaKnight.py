@@ -4,7 +4,7 @@
 import World
 import game_framework
 from M_Sword_Attack import Meta_Knight_Sword_Strike as Sword_Strike
-import M_Attack_Area
+from M_Attack_Area import Meta_Attack_Area
 
 PIXEL_PER_METER = (10.0 / 0.3) # 10 pixel 30 cm
 RUN_SPEED_KMPH = 20.0 # Km / Hour
@@ -714,7 +714,7 @@ class StateMachine:
 
     def update(self):
         self.cur_state.do(self.player)
-        self.player.attack_area.update()
+        self.player.attack_area.update(self.cur_state, self.player.dir)
 
         #print(self.cur_state)
 
@@ -731,6 +731,7 @@ class StateMachine:
 
     def draw(self):
         self.cur_state.draw(self.player)
+        self.player.attack_area.draw()
 
 
 class MetaKnight:
@@ -751,7 +752,7 @@ class MetaKnight:
         self.Defense_time = None # 방어 지속 시간 체크
         self.Defense_cooltime = 0  # 방어 재사용 대기시간
 
-        self.attack_area = Attack_Area()
+        self.attack_area = Meta_Attack_Area(self)
         self.Attacking = False
         self.charging = False
         self.Charging_Point = 0
@@ -845,3 +846,13 @@ class MetaKnight:
 
         else:
             return 0,0,0,0
+
+
+    def handle_collision(self, group, other):
+        if self.Picked_Player == "p1":
+            if group == 'p1 : p2_attack_range':
+                print("p1 is damaged")
+        else:
+            if group == 'p2 : p1_attack_range':
+                print("p2 is damaged")
+
