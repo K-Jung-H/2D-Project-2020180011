@@ -228,6 +228,7 @@ class Run:
 
 
 
+
     @staticmethod
     def exit(p1, e):
         print("Running off")
@@ -803,55 +804,104 @@ class MetaKnight:
     def get_bb(self):
 
         if self.state_machine.cur_state == Idle:
-            if self.Picked_Player == 'p1':
-                return self.x - 15, self.y - 25, self.x + 25, self.y + 15
-            elif self.Picked_Player == 'p2':
-                return self.x - 25, self.y - 25, self.x + 15, self.y + 15
-
-        if self.state_machine.cur_state == Speed_Attack:
-            if self.Picked_Player == 'p1':
-                return self.x + 25, self.y - 25, self.x + 65, self.y + 20
-            elif self.Picked_Player == 'p2':
-                return self.x - 65, self.y - 20, self.x - 25, self.y + 20
-
+            if self.dir == 1:
+                return self.x - 40, self.y - 35, self.x + 20, self.y + 5
+            elif self.dir == -1:
+                return self.x - 20, self.y - 35, self.x + 40, self.y + 5
 
         elif self.state_machine.cur_state == Walk:
             if self.dir == 1:
-                return self.x - 15, self.y - 25, self.x + 25, self.y + 15
+                return self.x - 40, self.y - 35, self.x + 20, self.y + 5
             elif self.dir == -1:
-                return self.x - 25, self.y - 25, self.x + 15, self.y + 15
+                return self.x - 20, self.y - 35, self.x + 40, self.y + 5
             else:
-                if self.Picked_Player == 'p1':
+                if self.Last_Input_Direction == 1:
                     return self.x - 15, self.y - 25, self.x + 25, self.y + 15
-                elif self.Picked_Player == 'p2':
+                elif self.Last_Input_Direction == -1:
                     return self.x - 25, self.y - 25, self.x + 15, self.y + 15
 
-        elif self.state_machine.cur_state == Normal_Attack:
-            if self.Picked_Player == 'p1':
+        elif self.state_machine.cur_state == Jump:
+            if self.dir == 1:
+                return self.x - 30, self.y - 35, self.x + 30, self.y + 15
+            elif self.dir == -1:
+                return self.x - 30, self.y - 35, self.x + 30, self.y + 15
+            else:
+                if self.Last_Input_Direction == 1:
+                    return self.x - 30, self.y - 35, self.x + 30, self.y + 15
+                elif self.Last_Input_Direction == -1:
+                    return self.x - 30, self.y - 35, self.x + 30, self.y + 15
+
+
+        if self.state_machine.cur_state == Normal_Attack:
+            if self.dir == 1:
                 return self.x + 25, self.y - 25, self.x + 65, self.y + 20
-            elif self.Picked_Player == 'p2':
+            elif self.dir == -1:
                 return self.x - 65, self.y - 20, self.x - 25, self.y + 20
 
         elif self.state_machine.cur_state == Charge_Attack:
-            if self.Picked_Player == 'p1':
+            if self.dir == 1:
                 return self.x + 5, self.y - 45, self.x + 65, self.y + 25
-            elif self.Picked_Player == 'p2':
+            elif self.dir == -1:
                 return self.x - 65, self.y - 45, self.x - 5, self.y + 25
 
+        elif self.state_machine.cur_state == Speed_Attack:
+            if self.dir == 1:
+                return self.x + 25, self.y - 35, self.x + 65, self.y + 10
+            elif self.dir == -1:
+                return self.x - 65, self.y - 35, self.x - 25, self.y + 10
+
+
+        elif self.state_machine.cur_state == Upper_Attack:
+            if self.dir == 1:
+                return self.x - 30, self.y - 85, self.x + 30, self.y -25
+            elif self.dir == -1:
+                return self.x - 30, self.y - 85, self.x + 30, self.y -25
+            else:
+                if self.Last_Input_Direction == 1:
+                    return self.x - 30, self.y - 85, self.x + 30, self.y - 25
+                elif self.Last_Input_Direction == -1:
+                    return self.x - 30, self.y - 85, self.x + 30, self.y - 25
+
+        elif self.state_machine.cur_state == Drop_Attack:
+            if self.dir == 1:
+                return self.x - 30, self.y - 55, self.x + 30, self.y + 15
+            elif self.dir == -1:
+                return self.x - 30, self.y - 55, self.x + 30, self.y + 15
+            else:
+                if self.Last_Input_Direction == 1:
+                    return self.x - 30, self.y - 55, self.x + 30, self.y + 15
+                elif self.Last_Input_Direction == -1:
+                    return self.x - 30, self.y - 55, self.x + 30, self.y + 15
+
+        elif self.state_machine.cur_state == Falling_Attack:
+            if self.dir == 1:
+                return self.x - 35, self.y - 35, self.x + 15, self.y + 15
+            elif self.dir == -1:
+                return self.x - 15, self.y - 35, self.x + 35, self.y + 15
+            else:
+                if self.Last_Input_Direction == 1:
+                    return self.x - 30, self.y - 55, self.x + 30, self.y + 15
+                elif self.Last_Input_Direction == -1:
+                    return self.x - 30, self.y - 55, self.x + 30, self.y + 15
+
         elif self.state_machine.cur_state == Defense:
-            if self.Picked_Player == 'p1':
+            if self.dir == 1:
                 return self.x - 15, self.y - 45, self.x + 45, self.y + 25
-            elif self.Picked_Player == 'p2':
+            elif self.dir == -1:
                 return self.x - 45, self.y - 45, self.x + 15, self.y + 25
 
+
         else:
-            return 0,0,0,0
+            return self.x,self.y,self.x,self.y
 
 
     def handle_collision(self, group, other):
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range':
                 print("p1 is damaged")
+                print(self.get_bb())
+                print("p2 area")
+                print(other.get_bb())
         else:
             if group == 'p2 : p1_attack_range':
                 print("p2 is damaged")
