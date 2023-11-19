@@ -17,8 +17,8 @@ class P1_Controller:
     def __init__(self):
         self.x1, self.y1 = 350, 150
         self.x2, self.y2 = 650, 150
-        self.P1 = 0
-        self.P2 = 0
+        self.P1 = 1
+        self.P2 = 1
         self.frame_k = 0
         self.frame_m = 0
         self.Select = 0

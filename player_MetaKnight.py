@@ -22,6 +22,8 @@ ATTACK_PER_TIME = 1.0 / TIME_PER_ATTACK
 FRAMES_PER_ATTACK = 8      # 일반 공격 동작 속도
 FRAMES_PER_FAST_ATTACK = 10 # 빠른 공격 동작 속도 더 빠르게
 FRAMES_PER_CHARGE_ATTACK = 10
+FRAMES_PER_DROP_ATTACK = 12
+FRAMES_PER_FALLING_ATTACK = 5
 
 
 #walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
@@ -29,6 +31,9 @@ Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
 Speed_Attack_focus = [[2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
 Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[540, 100],[540, 100],[540, 100],[645,110]]
 Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340], [592, 42, 330], [636, 42, 340], [0, 50, 210], [50, 50, 210], [113, 50, 210], [163, 50, 210]]
+Drop_attack_focus = [[0, 28], [48, 26], [96, 26], [136, 28], [188, 27], [242, 30], [290, 37],[355, 27], [405, 27]]
+Falling_attack_focus = [[0, 33], [55,32], [112, 34], [166, 37], [227, 33], [284, 33], [339, 32], [396, 34], [451, 32], [509, 32]]
+Faf_player_location = [[0,0], [-15, -15], [-25, 0], [0, -5], [-25, -15], [0,0], [-15, -15], [-25, 0], [0,0], [0,0]]
 
 
 
@@ -62,7 +67,6 @@ def Time_Out(e):
 def Normal_Attack_Down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_f or e[1].key == SDLK_PERIOD)
 
-
 def RUN(e):
     return e[0] == 'RUN'
 
@@ -86,14 +90,28 @@ def Charge_Attack_Up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_q or e[1].key == SDLK_SLASH)
 
 
+#Air Command
+
+def Upper_Attack_DOWN(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_f or e[1].key == SDLK_PERIOD)
+            and e[2] == "Air_Up")
+
+def Drop_Attack_DOWN(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_f or e[1].key == SDLK_PERIOD)
+            and e[2] == "Air_Down")
+
+def Falling_Attack_DOWN(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_q or e[1].key == SDLK_SLASH)
+            and (e[2] == "Air_Up" or e[2] == "Air_Down"))
+
 #reforged_frame
 
 #start_x, width
 Walk_focus = [[2,39], [51,36], [100, 34], [149, 37], [203, 36], [258, 40], [316, 41], [377, 38] ]
 Run_focus = [[7,25], [59,23], [100, 34], [147, 23], [189, 23] ]
-
-
 Fly_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
+Jump_focus = [[9, 32],[57, 27], [101, 28], [143, 26], [187, 26], [230, 26], [274, 27], [315, 27], [357, 28], [401, 32]]
+Upper_attack_focus = [[130, 29], [178, 48], [240, 33], [291, 25], [337, 29] ]
 
 
 
@@ -244,8 +262,8 @@ class Run:
 class Jump:
     @staticmethod
     def enter(p1, e):
-        if  p1.state_machine.last_state != Jump:
-            p1.jump_value = 10
+        if  p1.state_machine.last_state != Jump and p1.state_machine.last_state != Falling_Attack:
+            p1.jump_value = 20
             p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7 #10
         else: # 점프 도중에 새로운 입력을 받는 경우
             if Right_Move_Down(e):
@@ -271,6 +289,7 @@ class Jump:
 
     @staticmethod
     def exit(p1, e):
+        #p1.jump_value = 0
         pass
 
 
@@ -295,7 +314,7 @@ class Jump:
 
         # 점프: y값 변경
         p1.y += p1.jump_value
-        p1.jump_value -= 0.1
+        p1.jump_value -= 1
         if p1.y <= 150:  # 나중엔 충돌 체크로 바꿀 것
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
@@ -318,7 +337,7 @@ class Jump:
             p1.jump_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2, p_height * 2)
 
 
-Jump_focus = [[9, 32],[57, 27], [101, 28], [143, 26], [187, 26], [230, 26], [274, 27], [315, 27], [357, 28], [401, 32]]
+
 
 class Normal_Attack:
 
@@ -455,6 +474,118 @@ class Charge_Attack:
             p1.font.draw(p1.x - 10, p1.y + 50, f'{p1.Charging_Point:02d}', (255, 255, 0))
 
 
+
+class Upper_Attack:
+    @staticmethod
+    def enter(p1, e):
+        p1.frame = 0
+
+    @staticmethod
+    def exit(p1, e):
+        pass
+
+    @staticmethod
+    def do(p1):
+        p1.y += 3
+        p1.jump_value -= 0.5
+        p1.Attacking = True
+        p1.frame = (p1.frame + FRAMES_PER_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 6
+        if int(p1.frame) == 5:
+            p1.Attacking = False
+            p1.state_machine.handle_event(('STOP', 0))
+
+    @staticmethod
+    def draw(p1):
+        frame = int(p1.frame)
+        p_size_x = Upper_attack_focus[frame][1]
+        p_size_y = 78
+        if p1.dir == 1:
+            p1.upper_attack_image.clip_draw(Upper_attack_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y,
+                                        p_size_x * 2, p_size_y * 2)
+
+        elif p1.dir == -1:
+            p1.upper_attack_image.clip_composite_draw(Upper_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
+                                        p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
+
+class Drop_Attack:
+    @staticmethod
+    def enter(p1, e):
+        p1.frame = 0
+
+    @staticmethod
+    def exit(p1, e):
+        pass
+
+    @staticmethod
+    def do(p1):
+
+        p1.Attacking = True
+        if int(p1.frame) != 8:
+            #p1.y += p1.jump_value
+            #p1.jump_value -= 0.5
+            p1.frame = (p1.frame + FRAMES_PER_DROP_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 9
+        else:
+            p1.y += p1.jump_value
+            p1.jump_value -= 1
+
+        if p1.y <= 150:
+            p1.Attacking = False
+            p1.y = 150
+            p1.state_machine.handle_event(('STOP', 0))
+
+
+
+    @staticmethod
+    def draw(p1):
+        frame = int(p1.frame)
+        p_size_x = Drop_attack_focus[frame][1]
+        p_size_y = 46
+        if p1.dir == 1:
+            p1.drop_attack_image.clip_draw(Drop_attack_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y,
+                                            p_size_x * 2, p_size_y * 2)
+
+        elif p1.dir == -1:
+            p1.drop_attack_image.clip_composite_draw(Drop_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
+                                                      p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
+class Falling_Attack:
+    @staticmethod
+    def enter(p1, e):
+        p1.frame = 0
+
+    @staticmethod
+    def exit(p1, e):
+        pass
+
+    @staticmethod
+    def do(p1):
+
+        p1.Attacking = True
+        if int(p1.frame) != 9:
+            p1.y += p1.jump_value/10
+            p1.jump_value -= 0.1
+            p1.frame = (p1.frame + FRAMES_PER_FALLING_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
+        else:
+            p1.state_machine.handle_event(('STOP', 0))
+
+    @staticmethod
+    def draw(p1):
+        frame = int(p1.frame)
+        p_size_x = Falling_attack_focus[frame][1]
+        p_size_y = 40
+        p_x = p1.x + Faf_player_location[frame][0] * p1.dir
+        p_y = p1.y + Faf_player_location[frame][1]
+        if p1.dir == 1:
+            p1.falling_attack_image.clip_draw(Falling_attack_focus[frame][0], 0, p_size_x, p_size_y, p_x, p_y,
+                                            p_size_x * 2, p_size_y * 2)
+        elif p1.dir == -1:
+            p1.falling_attack_image.clip_composite_draw(Falling_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
+                                                        p_x, p_y, p_size_x * 2, p_size_y * 2)
+
+
+
+
 class Defense:
 
     @staticmethod
@@ -515,16 +646,17 @@ class StateMachine:
                    Defense_Down: Defense, Jump_Button_Down: Jump},
 
             Walk: { Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
-                  Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
-                  Defense_Down: Defense, STOP: Idle, RUN: Run, Jump_Button_Down: Jump},
+                   Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
+                   Defense_Down: Defense, STOP: Idle, RUN: Run, Jump_Button_Down: Jump, },
 
             Run: {Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
                   Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
-                  Defense_Down: Defense, STOP: Idle , Jump_Button_Down: Jump},
+                  Defense_Down: Defense, STOP: Idle, Jump_Button_Down: Jump},
 
-            Jump: {STOP: Walk,  Right_Move_Down: Jump, Left_Move_Down: Jump, Right_Move_Up: Jump, Left_Move_Up: Jump,},
+            Jump: {STOP: Walk,  Right_Move_Down: Jump, Left_Move_Down: Jump, Right_Move_Up: Jump, Left_Move_Up: Jump,
+                   Upper_Attack_DOWN: Upper_Attack, Drop_Attack_DOWN: Drop_Attack, Falling_Attack_DOWN: Falling_Attack },
 
-#            Fly: {},
+            #Fly: {},
 
 
             Normal_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk},
@@ -534,7 +666,13 @@ class StateMachine:
             Charge_Attack: {Charge_Attack_Up: Charge_Attack, STOP: Walk,
                             Right_Move_Down: Charge_Attack, Left_Move_Down: Charge_Attack, Right_Move_Up: Charge_Attack, Left_Move_Up: Charge_Attack},
 
-            Defense: { Defense_Up: Idle, STOP: Idle, }#STOP: Walk,
+            Upper_Attack: {STOP: Jump, },
+
+            Drop_Attack: { STOP: Idle, },
+
+            Falling_Attack: {STOP: Jump, },
+
+            Defense: { Defense_Up: Idle, STOP: Idle, }
 
 
         }
@@ -589,6 +727,9 @@ class MetaKnight:
         self.walk_image = load_image('resource/Meta_Knight_Walk.png')
         self.run_image = load_image('resource/Meta_Knight_Run.png')
         self.jump_image = load_image('resource/Meta_Knight_Jump.png')
+        self.upper_attack_image = load_image('resource/Meta_Knight_Upper_Attack.png')
+        self.drop_attack_image = load_image('resource/Meta_Knight_Air_Attack.png')
+        self.falling_attack_image = load_image('resource/Meta_Knight_Air_Hard_Attack.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
 
@@ -596,7 +737,15 @@ class MetaKnight:
         self.state_machine.update()
 
     def handle_event(self, event):
-        self.state_machine.handle_event(('INPUT', event))
+        if self.jump_value > 0:
+            self.state_machine.handle_event(('INPUT', event, "Air_Up"))
+            print("command in air")
+        elif self.jump_value < 0:
+            self.state_machine.handle_event(('INPUT', event, "Air_Down"))
+            print("command in air")
+        else:
+            self.state_machine.handle_event(('INPUT', event, "Ground"))
+            print("command on ground")
 
     def draw(self):
         self.state_machine.draw()
