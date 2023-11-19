@@ -65,14 +65,17 @@ def Time_Out(e):
     return e[0] == 'TIME_OUT'
 
 
-def Normal_Attack_Down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_f or e[1].key == SDLK_PERIOD)
+def Get_Damage(e):
+    return e[0] == 'Damaged'
 
 def RUN(e):
     return e[0] == 'RUN'
 
 def STOP(e):
     return e[0] == 'STOP'
+
+def Normal_Attack_Down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_f or e[1].key == SDLK_PERIOD)
 
 def Defense_Down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_s or e[1].key == SDLK_DOWN)
@@ -112,7 +115,7 @@ Walk_focus = [[2,39], [51,36], [100, 34], [149, 37], [203, 36], [258, 40], [316,
 Run_focus = [[7,25], [59,23], [100, 34], [147, 23], [189, 23] ]
 Fly_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 Jump_focus = [[9, 32],[57, 27], [101, 28], [143, 26], [187, 26], [230, 26], [274, 27], [315, 27], [357, 28], [401, 32]]
-Upper_attack_focus = [[130, 29], [178, 48], [240, 33], [291, 25], [337, 29] ]
+Upper_attack_focus = [[130, 29], [178, 48], [240, 33], [291, 25], [337, 29]]
 
 
 
@@ -339,6 +342,55 @@ class Jump:
             p1.jump_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2, p_height * 2)
 
 
+class Hurt:
+
+    @staticmethod
+    def enter(p1, e):
+        p1.damaged_amount = e[2]
+        p1.Life -= p1.damaged_amount
+        p1.frame = 0
+        p1.jump_value = 5
+        p1.damaged_time = get_time()
+
+    @staticmethod
+    def exit(p1, e):
+        p1.jump_value = 0
+        p1.damaged_amount = 0
+        p1.Left_Move = False
+        p1.Right_Move = False
+
+
+    @staticmethod
+    def do(p1):
+        if int(p1.frame) != 1:
+            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+
+        p1.damaged_motion += 1
+        p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time * (p1.damaged_amount * 0.5)
+        p1.x = clamp(25, p1.x, 1000 - 25)
+
+        if p1.y > 150:
+            p1.y += p1.jump_value
+            p1.jump_value -= 1
+            p1.y = clamp(150, p1.y, 1000 - 25)
+
+        if get_time() - p1.damaged_time >= 0.5:
+            p1.state_machine.handle_event(('TIME_OUT', 0))
+
+
+    @staticmethod
+    def draw(p1):
+        frame = int(p1.frame)
+        p_size_x = damaged_focus[frame][1]
+        p_size_y = 42
+        if p1.damaged_motion % 2 == 0:
+            if p1.dir == -1:
+                p1.damaged_image.clip_draw(damaged_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
+            elif p1.dir == 1:
+                p1.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
+damaged_focus = [[0, 29], [56, 52]]
 
 
 class Normal_Attack:
@@ -451,7 +503,7 @@ class Charge_Attack:
             p1.frame = (p1.frame + FRAMES_PER_CHARGE_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
 
         if int (p1.frame) == 5: # 투사체 발사
-            if p1.Charging_Point >= 2:
+            if p1.Charging_Point >= 1:
                 p1.SwordStrike()
                 p1.Charging_Point = 0
 
@@ -674,36 +726,37 @@ class StateMachine:
         self.transitions = {
             Idle: { Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk,
                    Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
-                   Defense_Down: Defense, Jump_Button_Down: Jump},
+                   Defense_Down: Defense, Jump_Button_Down: Jump, Get_Damage: Hurt, },
 
             Walk: { Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
                    Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
-                   Defense_Down: Defense, STOP: Idle, RUN: Run, Jump_Button_Down: Jump, },
+                   Defense_Down: Defense, STOP: Idle, RUN: Run, Jump_Button_Down: Jump, Get_Damage: Hurt,},
 
             Run: {Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
                   Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
-                  Defense_Down: Defense, STOP: Idle, Jump_Button_Down: Jump},
+                  Defense_Down: Defense, STOP: Idle, Jump_Button_Down: Jump, Get_Damage: Hurt,},
 
             Jump: {STOP: Walk,  Right_Move_Down: Jump, Left_Move_Down: Jump, Right_Move_Up: Jump, Left_Move_Up: Jump,
-                   Upper_Attack_DOWN: Upper_Attack, Drop_Attack_DOWN: Drop_Attack, Falling_Attack_DOWN: Falling_Attack },
+                   Upper_Attack_DOWN: Upper_Attack, Drop_Attack_DOWN: Drop_Attack, Falling_Attack_DOWN: Falling_Attack ,
+                   Get_Damage: Hurt, },
 
-            #Hurt: {},
+            Hurt: {Time_Out: Idle, },
             #Fly: {},
 
 
-            Normal_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk},
+            Normal_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk, Get_Damage: Hurt},
 
-            Speed_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk},
+            Speed_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk, Get_Damage: Hurt},
 
             Charge_Attack: {Charge_Attack_Up: Charge_Attack, STOP: Walk,
-                            Right_Move_Down: Charge_Attack, Left_Move_Down: Charge_Attack, Right_Move_Up: Charge_Attack, Left_Move_Up: Charge_Attack},
+                            Right_Move_Down: Charge_Attack, Left_Move_Down: Charge_Attack, Right_Move_Up: Charge_Attack, Left_Move_Up: Charge_Attack, Get_Damage: Hurt},
 
-            Upper_Attack: {STOP: Jump, },
+            Upper_Attack: {STOP: Jump, Get_Damage: Hurt, },
 
-            Drop_Attack: { STOP: Idle, },
+            Drop_Attack: {STOP: Idle, Get_Damage: Hurt, },
 
             Falling_Attack: {STOP: Jump,  Right_Move_Down: Falling_Attack, Left_Move_Down: Falling_Attack,
-                             Right_Move_Up: Falling_Attack, Left_Move_Up: Falling_Attack, },
+                             Right_Move_Up: Falling_Attack, Left_Move_Up: Falling_Attack, Get_Damage: Hurt},
 
             Defense: { Defense_Up: Idle, STOP: Idle, }
 
@@ -715,7 +768,7 @@ class StateMachine:
 
     def update(self):
         self.cur_state.do(self.player)
-        self.player.attack_area.update(self.cur_state, self.player.dir)
+        self.player.attack_area.update(self.cur_state, self.player.dir, self.player.Charging_Point)
 
         #print(self.cur_state)
 
@@ -733,12 +786,16 @@ class StateMachine:
     def draw(self):
         self.cur_state.draw(self.player)
         self.player.attack_area.draw()
+        self.player.font.draw(self.player.x - 10, self.player.y + 60, f'{self.player.Life:02d}', (255, 0, 0))
+        print(f"{self.player.Picked_Player}'s HP: {self.player.Life}")
 
 
 class MetaKnight:
 
     def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
+        self.Life = 20
+        self.damaged_amount = 0
         self.Picked_Player = Player
         if Player == "p1":
             self.dir = 1
@@ -759,6 +816,9 @@ class MetaKnight:
         self.Charging_Point = 0
         self.Charging_Time = 0
 
+        self.damaged_time = None # 맞은 시점
+        self.damaged_motion = 1
+
 
         self.font = load_font('resource/ENCR10B.TTF', 16)
         self.Left_Move = False
@@ -770,6 +830,7 @@ class MetaKnight:
         self.upper_attack_image = load_image('resource/Meta_Knight_Upper_Attack.png')
         self.drop_attack_image = load_image('resource/Meta_Knight_Air_Attack.png')
         self.falling_attack_image = load_image('resource/Meta_Knight_Air_Hard_Attack.png')
+        self.damaged_image = load_image('resource/Meta_Knight_Damaged.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
 
@@ -797,9 +858,22 @@ class MetaKnight:
         if self.dir == 1:
             S_S = Sword_Strike(self.x, self.y, self.Charging_Point)
             World.add_object(S_S, 2)
+            if self.Picked_Player == 'p1':
+                World.add_collision_pair('p2 : p1_Sword_Skill', None, S_S)
+                World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', S_S, None)
+            elif self.Picked_Player == 'p2':
+                World.add_collision_pair('p1 : p2_Sword_Skill', None, S_S)
+                World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, S_S)
+
         elif self.dir == -1:
             S_S = Sword_Strike(self.x, self.y, -self.Charging_Point)
             World.add_object(S_S, 2)
+            if self.Picked_Player == 'p1':
+                World.add_collision_pair('p2 : p1_Sword_Skill', None, S_S)
+                World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', S_S, None)
+            elif self.Picked_Player == 'p2':
+                World.add_collision_pair('p1 : p2_Sword_Skill', None, S_S)
+                World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, S_S)
 
     def get_bb(self):
 
@@ -892,17 +966,24 @@ class MetaKnight:
 
 
         else:
-            return self.x,self.y,self.x,self.y
+            return self.x, self.y, self.x, self.y
 
 
     def handle_collision(self, group, other):
         if self.Picked_Player == "p1":
-            if group == 'p1 : p2_attack_range':
+            if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
                 print("p1 is damaged")
-                print(self.get_bb())
-                print("p2 area")
-                print(other.get_bb())
-        else:
-            if group == 'p2 : p1_attack_range':
-                print("p2 is damaged")
+                self.state_machine.handle_event(('Damaged', 0, other.power))
+                self.dir = other.p_dir
 
+        else:
+            if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
+                print("p2 is damaged")
+                self.state_machine.handle_event(('Damaged', 0, other.power))
+                self.dir = other.p_dir
+
+
+        # if group == 'p1_Sword_Skill:p2_Sword_Skill':
+        #     World.remove_collision_object(self)
+        # elif group == 'p1 : p2_Sword_Skill' or group == 'p2 : p1_Sword_Skill':
+        #     World.remove_collision_object(self)

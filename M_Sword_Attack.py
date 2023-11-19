@@ -17,6 +17,8 @@ class Meta_Knight_Sword_Strike:
         self.x_size = abs(velocity) * 25
         self.y_size = abs(velocity) * 25
         self.frame = 0
+        self.power = abs(velocity)
+        self.p_dir = velocity / abs(velocity)
 
 
     def draw(self):
@@ -38,5 +40,7 @@ class Meta_Knight_Sword_Strike:
 
 
     def handle_collision(self, group, other):
-        World.remove_object(self)
-        pass
+        if group == 'p1_Sword_Skill:p2_Sword_Skill':
+            World.remove_collision_object(self)
+        elif group == 'p1 : p2_Sword_Skill' or group == 'p2 : p1_Sword_Skill':
+            World.remove_collision_object(self)

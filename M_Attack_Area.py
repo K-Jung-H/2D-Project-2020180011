@@ -28,7 +28,7 @@ class Meta_Attack_Area:
 
 
 
-    def update(self, state_machine_cur_state, player_dir):
+    def update(self, state_machine_cur_state, player_dir, player_power):
         self.x, self.y = self.p.x, self.p.y
         self.player_cur_state = state_machine_cur_state
         self.p_dir = player_dir
@@ -38,16 +38,22 @@ class Meta_Attack_Area:
         else:
             if self.player_cur_state == player_MetaKnight.Normal_Attack:
                 self.x_range, self.y_range = 50, 50
+                self.power = 2
             elif self.player_cur_state == player_MetaKnight.Speed_Attack:
                 self.x_range, self.y_range = 50, 50
+                self.power = 1
             elif self.player_cur_state == player_MetaKnight.Charge_Attack:
                 self.x_range, self.y_range = 50, 50
+                self.power = player_power
             elif self.player_cur_state == player_MetaKnight.Upper_Attack:
                 self.x_range, self.y_range = 40, 60
+                self.power = 2
             elif self.player_cur_state == player_MetaKnight.Drop_Attack:
                 self.x_range, self.y_range = 40, 60
+                self.power = 2
             elif self.player_cur_state == player_MetaKnight.Falling_Attack:
                 self.x_range, self.y_range = 50, 50
+                self.power = 3
 
             pass #상태에 따라서 데미지 변경
 
