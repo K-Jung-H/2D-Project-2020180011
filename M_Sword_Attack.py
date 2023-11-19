@@ -34,8 +34,8 @@ class Meta_Knight_Sword_Strike:
 
 
     def get_bb(self):
-        x_range = self.x_size//2
-        y_range = self.y_size//2
+        x_range = self.x_size// 2
+        y_range = self.y_size// 2
         return self.x - x_range, self.y - y_range, self.x + x_range, self.y + y_range
 
 
