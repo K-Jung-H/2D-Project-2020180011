@@ -38,6 +38,7 @@ def handle_events():
 def init():
     global background
     global p1, p2
+    global Check_Victory
 
     picked_p1 = Character_Select_mode.P1
     picked_p2 = Character_Select_mode.P2
@@ -67,6 +68,8 @@ def init():
     background = BackGround()
     World.add_object(background, 0)
 
+    Check_Victory = KO()
+
 
 def finish():
     World.clear()
@@ -76,6 +79,7 @@ def finish():
 def update():
     World.update()
     World.handle_collisions()
+    Check_Victory.update()
 
     # delay(0.01)
 
@@ -83,6 +87,7 @@ def update():
 def draw():
     clear_canvas()
     World.render()
+    Check_Victory.draw()
     update_canvas()
 
 def pause():
@@ -90,4 +95,24 @@ def pause():
 
 def resume():
     pass
+
+
+class KO:
+    KO_image = None
+    def __init__(self):
+        if KO.KO_image == None:
+            KO.KO_image = load_image('resource/KO.png')
+
+        self.drawing = False
+
+    def update(self):
+        if p1.Life <= 0 or p2.Life <= 0:
+            print("KO")
+            self.drawing = True
+
+    def draw(self):
+        if self.drawing:
+            self.KO_image.clip_draw(0, 0, 473, 228, 500, 300, 300, 150)
+
+
 

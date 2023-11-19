@@ -267,7 +267,7 @@ class Run:
 class Jump:
     @staticmethod
     def enter(p1, e):
-        if  p1.state_machine.last_state != Jump and p1.state_machine.last_state != Falling_Attack:
+        if p1.state_machine.last_state != Jump and p1.state_machine.last_state != Falling_Attack:
             p1.jump_value = 20
             p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7 #10
         else: # 점프 도중에 새로운 입력을 받는 경우
@@ -566,7 +566,27 @@ class Upper_Attack:
 class Drop_Attack:
     @staticmethod
     def enter(p1, e):
-        p1.frame = 0
+        if Drop_Attack_DOWN(e):
+            p1.frame = 0
+        else: # 점프 도중에 새로운 입력을 받는 경우
+            if Right_Move_Down(e):
+                p1.Right_Move, p1.dir = True, 1
+
+            if Left_Move_Down(e):
+                p1.Left_Move, p1.dir = True, -1
+
+            if Right_Move_Up(e):
+                p1.Right_Move = False
+
+            if Left_Move_Up(e):
+                p1.Left_Move = False
+
+            if p1.Right_Move:
+                p1.dir = 1
+            elif p1.Left_Move:
+                p1.dir = -1
+
+            p1.Last_Input_Direction = p1.dir
 
     @staticmethod
     def exit(p1, e):
@@ -754,7 +774,8 @@ class StateMachine:
 
             Upper_Attack: {STOP: Jump, Get_Damage: Hurt, },
 
-            Drop_Attack: {STOP: Idle, Get_Damage: Hurt, },
+            Drop_Attack: {STOP: Walk, Right_Move_Down: Drop_Attack, Left_Move_Down: Drop_Attack,
+                             Right_Move_Up: Drop_Attack, Left_Move_Up: Drop_Attack, Get_Damage: Hurt, },
 
             Falling_Attack: {STOP: Jump,  Right_Move_Down: Falling_Attack, Left_Move_Down: Falling_Attack,
                              Right_Move_Up: Falling_Attack, Left_Move_Up: Falling_Attack, Get_Damage: Hurt},
