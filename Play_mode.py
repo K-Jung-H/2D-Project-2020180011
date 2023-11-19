@@ -38,22 +38,26 @@ def handle_events():
 def init():
     global background
     global p1, p2
-    Picked_p1 = Character_Select_mode.P1
-    Picked_p2 = Character_Select_mode.P2
-    if Picked_p1 == 0:
+
+    picked_p1 = Character_Select_mode.P1
+    picked_p2 = Character_Select_mode.P2
+
+    if picked_p1 == 0:
         p1 = Kirby("p1")
-    elif Picked_p1 == 1:
+    elif picked_p1 == 1:
         p1 = MetaKnight("p1")
 
-    if Picked_p2 == 0:
+    if picked_p2 == 0:
         p2 = Kirby("p2")
-    elif Picked_p2 == 1:
+    elif picked_p2 == 1:
         p2 = MetaKnight("p2")
-
-
 
     World.add_object(p1, 1)
     World.add_object(p2, 1)
+
+    World.add_collision_pair('p1 : p2_attack_range', p1, None)
+    World.add_collision_pair('p2 : p1_attack_range', p2, None)
+
     background = BackGround()
     World.add_object(background, 0)
 
@@ -65,7 +69,7 @@ def finish():
 
 def update():
     World.update()
-    print("???????????????")
+    World.handle_collisions()
 
     # delay(0.01)
 

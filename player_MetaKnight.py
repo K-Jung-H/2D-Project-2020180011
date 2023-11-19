@@ -4,6 +4,7 @@
 import World
 import game_framework
 from M_Sword_Attack import Meta_Knight_Sword_Strike as Sword_Strike
+import M_Attack_Area
 
 PIXEL_PER_METER = (10.0 / 0.3) # 10 pixel 30 cm
 RUN_SPEED_KMPH = 20.0 # Km / Hour
@@ -615,9 +616,6 @@ class Falling_Attack:
             p1.falling_attack_image.clip_composite_draw(Falling_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
                                                         p_x, p_y, p_size_x * 2, p_size_y * 2)
 
-
-
-
 class Defense:
 
     @staticmethod
@@ -688,6 +686,7 @@ class StateMachine:
             Jump: {STOP: Walk,  Right_Move_Down: Jump, Left_Move_Down: Jump, Right_Move_Up: Jump, Left_Move_Up: Jump,
                    Upper_Attack_DOWN: Upper_Attack, Drop_Attack_DOWN: Drop_Attack, Falling_Attack_DOWN: Falling_Attack },
 
+            #Hurt: {},
             #Fly: {},
 
 
@@ -715,6 +714,8 @@ class StateMachine:
 
     def update(self):
         self.cur_state.do(self.player)
+        self.player.attack_area.update()
+
         #print(self.cur_state)
 
     def handle_event(self, e):
@@ -749,10 +750,14 @@ class MetaKnight:
         self.jump_value = 0 #점프 구현
         self.Defense_time = None # 방어 지속 시간 체크
         self.Defense_cooltime = 0  # 방어 재사용 대기시간
-        self.charging = False
+
+        self.attack_area = Attack_Area()
         self.Attacking = False
+        self.charging = False
         self.Charging_Point = 0
         self.Charging_Time = 0
+
+
         self.font = load_font('resource/ENCR10B.TTF', 16)
         self.Left_Move = False
         self.Right_Move = False
