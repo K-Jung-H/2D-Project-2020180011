@@ -17,6 +17,7 @@ class Master_Kirby_Sword_Strike:
         self.x_size = abs(velocity) * 25 # 이미지 프래임 크기 50, 70 으로 되어 있음
         self.y_size = abs(velocity) * 25
         self.frame = 0
+        self.Attacking = True
 
 
     def draw(self):

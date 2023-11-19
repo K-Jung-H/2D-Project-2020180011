@@ -21,6 +21,7 @@ class Meta_Attack_Area:
         self.x_range = 0
         self.y_range = 0
         self.power = 0
+        self.Attacking = False
 
 
     def draw(self):
@@ -28,14 +29,18 @@ class Meta_Attack_Area:
 
 
 
-    def update(self, state_machine_cur_state, player_dir, player_power):
+    def update(self, state_machine_cur_state):
         self.x, self.y = self.p.x, self.p.y
         self.player_cur_state = state_machine_cur_state
-        self.p_dir = player_dir
+        self.p_dir = self.p.dir
+        self.Attacking = self.p.Attacking
+
         if not self.p.Attacking:
+            print(self.player_cur_state)
             self.x_range, self.y_range, self.power = 0, 0, 0
 
-        else:
+        else: # 공격 상태일 때
+            print(self.player_cur_state)
             if self.player_cur_state == player_MetaKnight.Normal_Attack:
                 self.x_range, self.y_range = 50, 50
                 self.power = 2
@@ -44,7 +49,7 @@ class Meta_Attack_Area:
                 self.power = 1
             elif self.player_cur_state == player_MetaKnight.Charge_Attack:
                 self.x_range, self.y_range = 50, 50
-                self.power = player_power
+                self.power = self.p.Charging_Point
             elif self.player_cur_state == player_MetaKnight.Upper_Attack:
                 self.x_range, self.y_range = 40, 60
                 self.power = 2
@@ -55,7 +60,6 @@ class Meta_Attack_Area:
                 self.x_range, self.y_range = 50, 50
                 self.power = 3
 
-            pass #상태에 따라서 데미지 변경
 
 
     def get_bb(self):

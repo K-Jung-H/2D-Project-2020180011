@@ -19,6 +19,7 @@ class Meta_Knight_Sword_Strike:
         self.frame = 0
         self.power = abs(velocity)
         self.p_dir = velocity / abs(velocity)
+        self.Attacking = True
 
 
     def draw(self):

@@ -463,8 +463,9 @@ class Charge_Attack:
 
     @staticmethod
     def enter(p1, e):
-        p1.frame = 0
+
         if Charge_Attack_Down(e):
+            p1.frame = 0
             p1.charging = True
             p1.Charging_Time = get_time()
 
@@ -472,16 +473,16 @@ class Charge_Attack:
             p1.charging = False
             p1.Attacking = True
 
-        if Right_Move_Down(e):
+        if Right_Move_Down(e) and p1.charging:
             p1.Right_Move, p1.dir = True, 1
 
-        if Left_Move_Down(e):
+        if Left_Move_Down(e) and p1.charging:
             p1.Left_Move, p1.dir = True, -1
 
-        if Right_Move_Up(e):
+        if Right_Move_Up(e) and p1.charging:
             p1.Right_Move = False
 
-        if Left_Move_Up(e):
+        if Left_Move_Up(e) and p1.charging:
             p1.Left_Move = False
 
         if p1.Right_Move:
@@ -768,7 +769,7 @@ class StateMachine:
 
     def update(self):
         self.cur_state.do(self.player)
-        self.player.attack_area.update(self.cur_state, self.player.dir, self.player.Charging_Point)
+        self.player.attack_area.update(self.cur_state)
 
         #print(self.cur_state)
 
@@ -972,15 +973,17 @@ class MetaKnight:
     def handle_collision(self, group, other):
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
-                print("p1 is damaged")
-                self.state_machine.handle_event(('Damaged', 0, other.power))
-                self.dir = other.p_dir
+                if other.Attacking:
+                    print("p1 is damaged")
+                    self.state_machine.handle_event(('Damaged', 0, other.power))
+                    self.dir = other.p_dir
 
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
-                print("p2 is damaged")
-                self.state_machine.handle_event(('Damaged', 0, other.power))
-                self.dir = other.p_dir
+                if other.Attacking:
+                    print("p2 is damaged")
+                    self.state_machine.handle_event(('Damaged', 0, other.power))
+                    self.dir = other.p_dir
 
 
         # if group == 'p1_Sword_Skill:p2_Sword_Skill':
