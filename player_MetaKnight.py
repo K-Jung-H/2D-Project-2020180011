@@ -116,7 +116,7 @@ Run_focus = [[7,25], [59,23], [100, 34], [147, 23], [189, 23] ]
 Fly_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 Jump_focus = [[9, 32],[57, 27], [101, 28], [143, 26], [187, 26], [230, 26], [274, 27], [315, 27], [357, 28], [401, 32]]
 Upper_attack_focus = [[130, 29], [178, 48], [240, 33], [291, 25], [337, 29]]
-
+damaged_focus = [[0, 29], [56, 52]]
 
 
 class Idle:
@@ -228,8 +228,6 @@ class Run:
     def enter(p1, e):
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         p1.Last_Input_Direction = None
-
-
 
 
     @staticmethod
@@ -390,7 +388,7 @@ class Hurt:
             elif p1.dir == 1:
                 p1.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
-damaged_focus = [[0, 29], [56, 52]]
+
 
 
 class Normal_Attack:
@@ -762,8 +760,6 @@ class StateMachine:
                    Get_Damage: Hurt, },
 
             Hurt: {Time_Out: Idle, },
-            #Fly: {},
-
 
             Normal_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk, Get_Damage: Hurt},
 
@@ -809,7 +805,7 @@ class StateMachine:
         self.cur_state.draw(self.player)
         self.player.attack_area.draw()
         self.player.font.draw(self.player.x - 10, self.player.y + 60, f'{self.player.Life:02d}', (255, 0, 0))
-        print(f"{self.player.Picked_Player}'s HP: {self.player.Life}")
+        #print(f"{self.player.Picked_Player}'s HP: {self.player.Life}")
 
 
 class MetaKnight:
