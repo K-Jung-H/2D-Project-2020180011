@@ -70,5 +70,6 @@ def remove_object(o):
         if o in layer:
             layer.remove(o)
             remove_collision_object(o)
+            del o
             return
     raise ValueError("왜 존재하지도 않는 걸 지우려 하나요?")

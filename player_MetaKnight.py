@@ -873,25 +873,14 @@ class MetaKnight:
         draw_rectangle(*self.get_bb())
 
     def SwordStrike(self):
-        if self.dir == 1:
-            S_S = Sword_Strike(self.x, self.y, self.Charging_Point)
-            World.add_object(S_S, 2)
-            if self.Picked_Player == 'p1':
-                World.add_collision_pair('p2 : p1_Sword_Skill', None, S_S)
-                World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', S_S, None)
-            elif self.Picked_Player == 'p2':
-                World.add_collision_pair('p1 : p2_Sword_Skill', None, S_S)
-                World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, S_S)
-
-        elif self.dir == -1:
-            S_S = Sword_Strike(self.x, self.y, -self.Charging_Point)
-            World.add_object(S_S, 2)
-            if self.Picked_Player == 'p1':
-                World.add_collision_pair('p2 : p1_Sword_Skill', None, S_S)
-                World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', S_S, None)
-            elif self.Picked_Player == 'p2':
-                World.add_collision_pair('p1 : p2_Sword_Skill', None, S_S)
-                World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, S_S)
+        M_S_S = Sword_Strike(self.x, self.y, self.Charging_Point * self.dir)
+        World.add_object(M_S_S, 2)
+        if self.Picked_Player == 'p1':
+            World.add_collision_pair('p2 : p1_Sword_Skill', None, M_S_S)
+            World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', M_S_S, None)
+        elif self.Picked_Player == 'p2':
+            World.add_collision_pair('p1 : p2_Sword_Skill', None, M_S_S)
+            World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, M_S_S)
 
     def get_bb(self):
 

@@ -5,6 +5,7 @@ from pico2d import (get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SP
 
 import World
 import game_framework
+from K_Sword_Attack import Master_Kirby_Sword_Strike as Sword_Strike
 from K_Attack_Area import Kirby_Attack_Area
 
 PIXEL_PER_METER = (10.0 / 0.3) # 10 pixel 30 cm
@@ -499,13 +500,34 @@ class Charge_Attack:
     def enter(p1, e):
         if Charge_Attack_Down(e):
             p1.frame = 0
-            p1.Time_Stamp = get_time()
+            p1.charging = True
+            p1.Charging_Time = get_time()
+
         elif Charge_Attack_Up(e):
             p1.charging = False
             p1.Attacking = True
-            p1.Charging_Point = 0
+
+        if Right_Move_Down(e) and p1.charging:
+            p1.Right_Move, p1.dir = True, 1
+
+        if Left_Move_Down(e) and p1.charging:
+            p1.Left_Move, p1.dir = True, -1
+
+        if Right_Move_Up(e) and p1.charging:
+            p1.Right_Move = False
+
+        if Left_Move_Up(e) and p1.charging:
+            p1.Left_Move = False
+
+        if p1.Right_Move:
+            p1.dir = 1
+        elif p1.Left_Move:
+            p1.dir = -1
             
-            여기부터 시작#여기에 방향 조정 입력 받게 해야 햄
+            #여기부터 시작
+            #투사체 발사
+            # 히트박스 생성 
+            # 그러면 커비 끝
             
     @staticmethod
     def exit(p1, e):
@@ -523,22 +545,25 @@ class Charge_Attack:
             p1.frame = max(3, p1.frame)
             p1.frame = (p1.frame + frame_increment) % 7
             p1.frame = max(3, p1.frame)
-            p1.Charging_Point = int(get_time() - p1.Time_Stamp)
+            p1.Charging_Point = int(get_time() - p1.Charging_Time)
         elif not p1.charging:
             p1.frame = max(p1.frame, 7)
             p1.frame = (p1.frame + frame_increment) % 12
         if int(p1.frame) == 11:
             p1.Attacking = False
+            if p1.Charging_Point >= 1:
+                p1.SwordStrike()
+                p1.Charging_Point = 0
             p1.state_machine.handle_event(('STOP', 0))
 
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-
         p_size_x = charge_focus[frame][1]
         p_size_y = 60
         if p1.dir == 1:
-            p1.charge_attack_image.clip_draw(charge_focus[frame][0], 0, p_size_x, p_size_y, p1.x + charge_location[frame][0], p1.y + charge_location[frame][1], p_size_x * 2, p_size_y * 2)
+            p1.charge_attack_image.clip_draw(charge_focus[frame][0], 0, p_size_x, p_size_y, p1.x + charge_location[frame][0],
+                                             p1.y, p_size_x * 2, p_size_y * 2)
 
         elif p1.dir == -1:
             p1.charge_attack_image.clip_composite_draw(charge_focus[frame][0], 0, p_size_x, p_size_y,
@@ -916,6 +941,20 @@ class Kirby:
         #체력 표기
         #self.font.draw(self.x - 10, self.y + 50, f'{self.Charging_Point:02d}', (255, 255, 0))
         draw_rectangle(*self.get_bb())
+
+
+    def SwordStrike(self):
+        K_S_S = Sword_Strike(self.x, self.y, self.Charging_Point * self.dir)
+        World.add_object(K_S_S, 2)
+        if self.Picked_Player == 'p1':
+            World.add_collision_pair('p2 : p1_Sword_Skill', None, K_S_S)
+            World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', K_S_S, None)
+        elif self.Picked_Player == 'p2':
+            World.add_collision_pair('p1 : p2_Sword_Skill', None, K_S_S)
+            World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, K_S_S)
+
+
+
 
     def get_bb(self):
         print(self.state_machine.cur_state)

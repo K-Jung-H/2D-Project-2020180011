@@ -29,19 +29,23 @@ class Meta_Knight_Sword_Strike:
     def update(self):
         self.x += self.velocity * 100 * game_framework.frame_time
         self.frame = (self.frame + FRAMES_PER_SKILL_EFFECT * ATTACK_PER_TIME * game_framework.frame_time) % 5
-
+        self.x_size = self.power * 25
+        self.y_size = self.power * 25
         if self.x < 25 or self.x > 1600 - 25:
             World.remove_object(self)
 
 
     def get_bb(self):
-        x_range = self.x_size// 2
-        y_range = self.y_size// 2
+        x_range = self.x_size // 2
+        y_range = self.y_size // 2
         return self.x - x_range, self.y - y_range, self.x + x_range, self.y + y_range
 
 
     def handle_collision(self, group, other):
-        if group == 'p1_Sword_Skill:p2_Sword_Skill':
-            World.remove_collision_object(self)
+        if group == 'p1_Sword_Skill : p2_Sword_Skill':
+            if self.power > other.power:
+                self.power -= other.power
+            else:
+                World.remove_object(self)
         elif group == 'p1 : p2_Sword_Skill' or group == 'p2 : p1_Sword_Skill':
-            World.remove_collision_object(self)
+            World.remove_object(self)
