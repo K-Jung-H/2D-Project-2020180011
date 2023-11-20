@@ -14,11 +14,13 @@ RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 FAST_RUN_SPEED_PPS = RUN_SPEED_PPS * 1.8
 
+
 # Boy Action Speed
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 10
 FRAMES_PER_JUMP_ACTION = 15
+FRAMES_PER_FALLING_ATTACK = 10
 
 TIME_PER_ATTACK = 0.5
 ATTACK_PER_TIME = 1.0 / TIME_PER_ATTACK
@@ -26,7 +28,7 @@ FRAMES_PER_ATTACK = 10      # 일반 공격 동작 속도
 FRAMES_PER_FAST_ATTACK = 15 # 빠른 공격 동작 속도 더 빠르게
 FRAMES_PER_CHARGE_ATTACK = 8
 FRAMES_PER_UPPER_ATTACK = 15
-FRAMES_PER_DROP_ATTACK = 15
+FRAMES_PER_DROP_ATTACK = 20
 
 
 
@@ -104,12 +106,6 @@ Standing_focus = [[223,1195],[268,1195],[315,1195], [362,1195]]
 walking_focus = [[25, 1070], [70, 1070], [111, 1070], [152, 1070], [197, 1070], [240, 1070], ]
 Normal_Attack_focus = [[45, 800, 45, 50],[97,800, 60, 50],[160, 800, 60, 50],[227, 800, 45, 50], [290, 800, 55, 50], [362, 785, 90, 50], [455, 785, 95, 50],[555, 785, 70, 50] ]
 Speed_Attack_focus = [[40, 700, 55, 50], [105, 700, 55, 50], [165, 700, 55, 50], [230, 700, 75, 50], [310, 695, 65, 50],  [390, 690, 85, 50], [570,616,85,50], [670,616,70,50], ]
-Charge_Attack_focus = [
-    (140, 566, 60, 40, -10, 5), (205, 560, 65, 40, -15, 0), (275, 560, 75, 40, -18, 0),
-    (355, 560, 45, 40, 2, -5), (405, 560, 45, 40, 1, -5), (460, 560, 45, 40, 2, -8),
-    (510, 560, 45, 40, 0, -7), (30, 480, 65, 60, 18, 0), (110, 470, 75, 60, 15, -25),
-    (210, 470, 80, 60, 0, 0), (315, 460, 100, 60, 0, 0)
-]
 Defense_focus = [(35, 940, 40, 40,0 ,0), (75, 940, 40, 40, 0 ,0), (125, 940, 40, 40, 0 ,0), (175, 940, 50, 40, 0 ,0), (235, 930, 40, 65, 0 ,0),
                  (280, 930, 40, 65, 0 ,0), (325, 930, 40, 65, 0 ,0), (375, 930, 40, 65, 0 ,0), (420, 930, 40, 65, 0 ,0), (470, 930, 40, 65, 0 ,0),
                  (510, 940, 65, 40, 0, 0), (585, 940, 65, 40, 0, 0), (665, 940, 70, 40, 0, 0), (750, 940, 65, 40, 0, 0),]
@@ -126,6 +122,9 @@ Jump_focus = [[0, 32], [47, 35], [97, 30], [138, 21], [177, 22], [218, 20], [253
 damaged_focus = [[0, 34], [42, 39]]
 Upper_attack_focus = [[0, 24], [42, 24], [92, 24], [144, 28], [210, 50], [299, 56], [387, 76], [489, 80], [606, 92], [739, 20], [804, 26], [867, 28]]
 Drop_attack_focus = [[0, 39], [66, 44], [141, 56], [249, 76], [354, 28]] #jump 2,3,4,5,6 이미지 후 연결
+Falling_attack_focus = [[0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53] , [0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53], [0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53]] #점프의 12, 13, 14번째 이미지를 쓰고 하기
+charge_focus = [[0, 56], [68, 58], [139, 65], [215, 41], [267, 41], [320, 40], [370, 40], [440, 62], [528, 70], [629, 70], [733, 92]]
+charge_location = [[-33, -9], [- 35, -9], [-42, -9], [- 18, -9], [ -18, -9], [-17, -9], [-17, -9], [- 16, -9], [- 17 ,-9], [-21, -9], [-21,-9]]
 
 class Idle:
 
@@ -303,6 +302,7 @@ class Jump:
                 p1.dir = -1
 
             p1.Last_Input_Direction = p1.dir
+        p1.frame = int(p1.frame) % 17
 
 
 
@@ -497,7 +497,6 @@ class Charge_Attack:
 
     @staticmethod
     def enter(p1, e):
-        p1.frame = 0
         if Charge_Attack_Down(e):
             p1.frame = 0
             p1.Time_Stamp = get_time()
@@ -505,7 +504,9 @@ class Charge_Attack:
             p1.charging = False
             p1.Attacking = True
             p1.Charging_Point = 0
-
+            
+            여기부터 시작#여기에 방향 조정 입력 받게 해야 햄
+            
     @staticmethod
     def exit(p1, e):
         pass
@@ -534,17 +535,19 @@ class Charge_Attack:
     def draw(p1):
         frame = int(p1.frame)
 
-        p_size_x = Charge_Attack_focus[frame][2]
-        p_size_y = Charge_Attack_focus[frame][3]
-        if p1.Picked_Player == 'p1':
-            p1.image.clip_draw(Charge_Attack_focus[frame][0], Charge_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + Charge_Attack_focus[frame][4], p1.y + Charge_Attack_focus[frame][5], p_size_x * 2, p_size_y * 2)
+        p_size_x = charge_focus[frame][1]
+        p_size_y = 60
+        if p1.dir == 1:
+            p1.charge_attack_image.clip_draw(charge_focus[frame][0], 0, p_size_x, p_size_y, p1.x + charge_location[frame][0], p1.y + charge_location[frame][1], p_size_x * 2, p_size_y * 2)
 
-        elif p1.Picked_Player == 'p2':
-            p1.image.clip_composite_draw(Charge_Attack_focus[frame][0], Charge_Attack_focus[frame][1], p_size_x, p_size_y,
-                                         0, 'h', p1.x - Charge_Attack_focus[frame][4], p1.y + Charge_Attack_focus[frame][5], p_size_x * 2, p_size_y * 2)
+        elif p1.dir == -1:
+            p1.charge_attack_image.clip_composite_draw(charge_focus[frame][0], 0, p_size_x, p_size_y,
+                                         0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
         if p1.charging == True:
             p1.font.draw(p1.x - 10, p1.y + 50, f'{p1.Charging_Point:02d}', (255, 255, 0))
+
+
 
 
 class Defense:
@@ -741,10 +744,10 @@ class Falling_Attack:
         p1.x = clamp(25, p1.x, 1000 - 25)
 
         p1.Attacking = True
-        if int(p1.frame) != 9:
+        if int(p1.frame) != 26:
             p1.y += p1.jump_value/10
             p1.jump_value -= 0.1
-            p1.frame = (p1.frame + FRAMES_PER_FALLING_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
+            p1.frame = (p1.frame + 50 * ACTION_PER_TIME * game_framework.frame_time) % 27
         else:
             p1.state_machine.handle_event(('STOP', 0))
 
@@ -756,18 +759,27 @@ class Falling_Attack:
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_size_x = Falling_attack_focus[frame][1]
-        p_size_y = 40
-        p_x = p1.x + Faf_player_location[frame][0] * p1.dir
-        p_y = p1.y + Faf_player_location[frame][1]
-        if p1.dir == 1:
-            p1.falling_attack_image.clip_draw(Falling_attack_focus[frame][0], 0, p_size_x, p_size_y, p_x, p_y,
-                                            p_size_x * 2, p_size_y * 2)
-        elif p1.dir == -1:
-            p1.falling_attack_image.clip_composite_draw(Falling_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
-                                                        p_x, p_y, p_size_x * 2, p_size_y * 2)
+        if frame <= 2:
+            p_start_x = Jump_focus[frame][0]
+            p_start_y = 0
+            p_width = Jump_focus[frame][1]
+            p_height = 54
+            if p1.dir == 1:
+                p1.jump_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
 
-
+            elif p1.dir == -1:
+                p1.jump_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y,
+                                                  p_width * 2, p_height * 2)
+        else:
+            frame = frame - 3
+            p_size_x = Falling_attack_focus[frame][1]
+            p_size_y = 53
+            if p1.dir == 1:
+                p1.falling_attack_image.clip_draw(Falling_attack_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y,
+                                                p_size_x * 2, p_size_y * 2)
+            elif p1.dir == -1:
+                p1.falling_attack_image.clip_composite_draw(Falling_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
+                                                            p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
 
 
@@ -877,6 +889,7 @@ class Kirby:
         self.run_image = load_image('resource/Kirby_Run.png')
         self.jump_image = load_image('resource/Kirby_Jump.png')
         self.damaged_image = load_image('resource/Kirby_Damaged.png')
+        self.charge_attack_image = load_image('resource/Kirby_Charge_Attack.png')
         self.upper_attack_image = load_image('resource/Kirby_Upper_Attack.png')
         self.drop_attack_image = load_image('resource/Kirby_Drop_Attack.png')
         self.falling_attack_image = load_image('resource/Kirby_Falling_Attack.png')
