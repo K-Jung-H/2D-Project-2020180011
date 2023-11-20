@@ -103,8 +103,7 @@ def Falling_Attack_DOWN(e):
             and (e[2] == "Air_Up" or e[2] == "Air_Down"))
 
 
-Standing_focus = [[223,1195],[268,1195],[315,1195], [362,1195]]
-walking_focus = [[25, 1070], [70, 1070], [111, 1070], [152, 1070], [197, 1070], [240, 1070], ]
+
 Normal_Attack_focus = [[45, 800, 45, 50],[97,800, 60, 50],[160, 800, 60, 50],[227, 800, 45, 50], [290, 800, 55, 50], [362, 785, 90, 50], [455, 785, 95, 50],[555, 785, 70, 50] ]
 Speed_Attack_focus = [[40, 700, 55, 50], [105, 700, 55, 50], [165, 700, 55, 50], [230, 700, 75, 50], [310, 695, 65, 50],  [390, 690, 85, 50], [570,616,85,50], [670,616,70,50], ]
 Defense_focus = [(35, 940, 40, 40,0 ,0), (75, 940, 40, 40, 0 ,0), (125, 940, 40, 40, 0 ,0), (175, 940, 50, 40, 0 ,0), (235, 930, 40, 65, 0 ,0),
@@ -117,6 +116,7 @@ Defense_focus = [(35, 940, 40, 40,0 ,0), (75, 940, 40, 40, 0 ,0), (125, 940, 40,
 #
 
 #reforged
+stand_focus = [[0, 32], [44, 33], [92, 30], [139, 31]]
 walk_focus = [[0, 22], [39, 27], [80, 30], [120, 37], [167, 37], [214, 32], [259, 29], [299, 20]]
 Run_focus = [[0, 34], [41, 30], [83, 29], [122, 34], [165, 30], [210, 34]]
 Jump_focus = [[0, 32], [47, 35], [97, 30], [138, 21], [177, 22], [218, 20], [253, 21], [290, 20], [318, 22], [352, 24], [386, 33], [437, 39], [500, 34], [564, 30], [614, 30], [666, 30], [717, 28]]
@@ -154,16 +154,15 @@ class Idle:
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_size_x = 35
+        p_size_x = stand_focus[frame][1]
         p_size_y = 45
         if p1.dir == 1:
-            p1.image.clip_draw(Standing_focus[frame][0], Standing_focus[frame][1], p_size_x, p_size_y,
-                               p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+            p1.stand_image.clip_draw(stand_focus[frame][0], 0, p_size_x, p_size_y,
+                               p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
 
         if p1.dir == -1:
-            p1.image.clip_composite_draw(Standing_focus[frame][0], Standing_focus[frame][1], p_size_x, p_size_y,
-                                         0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
-
+            p1.stand_image.clip_composite_draw(stand_focus[frame][0], 0, p_size_x, p_size_y,
+                                         0, 'h', p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
 
 
 
@@ -229,11 +228,11 @@ class Walk:
         p_size_y = 49
 
         if p1.dir == 1:
-            p1.walk_image.clip_draw(walk_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+            p1.walk_image.clip_draw(walk_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
 
         elif p1.dir == -1:
             p1.walk_image.clip_composite_draw(walk_focus[frame][0], 0, p_size_x, p_size_y,
-                                         0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+                                         0, 'h', p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
 
 
 
@@ -269,10 +268,10 @@ class Run:
         p_size_x = Run_focus[frame][1]
         p_size_y = 44
         if p1.dir == 1:
-            p1.run_image.clip_composite_draw(Run_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h', p1.x, p1.y,
+            p1.run_image.clip_composite_draw(Run_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h', p1.x, p1.y + 10,
                                              p_size_x * 2, p_size_y * 2)
         elif p1.dir == -1:
-            p1.run_image.clip_draw(Run_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+            p1.run_image.clip_draw(Run_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
 
 
 
@@ -349,10 +348,10 @@ class Jump:
         p_width = Jump_focus[frame][1]
         p_height = 54
         if p1.dir == 1:
-            p1.jump_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
+            p1.jump_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y + 10, p_width * 2, p_height * 2)
 
         elif p1.dir == -1:
-            p1.jump_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2, p_height * 2)
+            p1.jump_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y + 10, p_width * 2, p_height * 2)
 
 
 class Hurt:
@@ -363,6 +362,7 @@ class Hurt:
         p1.Life -= p1.damaged_amount
         p1.frame = 0
         p1.jump_value = 5
+        p1.y += p1.jump_value
         p1.damaged_time = get_time()
 
     @staticmethod
@@ -387,8 +387,9 @@ class Hurt:
             p1.jump_value -= 1
             p1.y = clamp(150, p1.y, 1000 - 25)
 
-        if get_time() - p1.damaged_time >= 0.5:
-            p1.state_machine.handle_event(('TIME_OUT', 0))
+        if get_time() - p1.damaged_time >= 0.2 * p1.damaged_amount:
+            if p1.y == 150:
+                p1.state_machine.handle_event(('TIME_OUT', 0))
 
 
     @staticmethod
@@ -398,10 +399,10 @@ class Hurt:
         p_size_y = 35
         if p1.damaged_motion % 2 == 0:
             if p1.dir == -1:
-                p1.damaged_image.clip_draw(damaged_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+                p1.damaged_image.clip_draw(damaged_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
 
             elif p1.dir == 1:
-                p1.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+                p1.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h', p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
 
 
 
@@ -431,13 +432,13 @@ class Normal_Attack:
         frame = int(p1.frame)
         p_size_x = Normal_Attack_focus[frame][2]
         p_size_y = Normal_Attack_focus[frame][3]
-        if p1.Picked_Player == 'p1':
+        if p1.dir == 1:
             if  frame <= 4:
                 p1.image.clip_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
             elif frame > 4:
                 p1.image.clip_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + 5*frame, p1.y -5, p_size_x * 2, p_size_y * 2)
 
-        elif p1.Picked_Player == 'p2':
+        elif p1.dir == -1:
             if  frame <= 4:
                 p1.image.clip_composite_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y,
                                              0, 'h', p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
@@ -473,15 +474,15 @@ class Speed_Attack:
         p_size_x = Speed_Attack_focus[frame][2]
         p_size_y = Speed_Attack_focus[frame][3]
 
-        if p1.Picked_Player == 'p1':
+        if p1.dir == 1:
             if frame < 3:
-                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
             elif 3 <= frame < 6:
-                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + 10 * frame, p1.y , p_size_x * 2, p_size_y * 2)
+                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + 10 * frame, p1.y + 10 , p_size_x * 2, p_size_y * 2)
             else:
-                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x+ 40, p1.y - 10, p_size_x * 2, p_size_y * 2)
+                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x+ 40, p1.y, p_size_x * 2, p_size_y * 2)
             draw_rectangle(p1.x - 5, p1.y - 45, p1.x + 35, p1.y - 5)
-        elif p1.Picked_Player == 'p2':
+        elif p1.dir == -1:
             if frame < 3:
                 p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y,
                                              0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
@@ -563,11 +564,11 @@ class Charge_Attack:
         p_size_y = 60
         if p1.dir == 1:
             p1.charge_attack_image.clip_draw(charge_focus[frame][0], 0, p_size_x, p_size_y, p1.x + charge_location[frame][0],
-                                             p1.y, p_size_x * 2, p_size_y * 2)
+                                             p1.y + 10, p_size_x * 2, p_size_y * 2)
 
         elif p1.dir == -1:
             p1.charge_attack_image.clip_composite_draw(charge_focus[frame][0], 0, p_size_x, p_size_y,
-                                         0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+                                         0, 'h', p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
 
         if p1.charging == True:
             p1.font.draw(p1.x - 10, p1.y + 50, f'{p1.Charging_Point:02d}', (255, 255, 0))
@@ -602,10 +603,10 @@ class Defense:
         p_size_y = Defense_focus[frame][3]
         p_x = p1.x + Defense_focus[frame][4]
         p_y = p1.y + Defense_focus[frame][5]
-        if p1.Picked_Player == 'p1':
+        if p1.dir == 1:
             p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y, p_x , p_y, p_size_x * 2, p_size_y * 2)
-            draw_rectangle(p1.x - 25, p1.y - 45, p1.x + 35, p1.y + 25)
-        elif p1.Picked_Player == 'p2':
+
+        elif p1.dir == -1:
             p1.image.clip_composite_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y,
                                          0, 'h', p_x , p_y, p_size_x * 2, p_size_y * 2)
 
@@ -859,6 +860,7 @@ class StateMachine:
 
     def update(self):
         self.cur_state.do(self.player)
+        self.player.attack_area.update(self.cur_state)
 
     def handle_event(self, e):
         for check_event, next_state in self.transitions[self.cur_state].items():
@@ -898,7 +900,7 @@ class Kirby:
         self.Defense_time = None # 방어 지속 시간 체크
         self.Defense_cooltime = 0  # 방어 재사용 대기시간
 
-        self.attack_area = Kirby_Attack_Area(self) ##################### 커비걸로 바꾸기
+        self.attack_area = Kirby_Attack_Area(self)
         self.Attacking = False
         self.charging = False
         self.Charging_Point = 0
@@ -910,6 +912,7 @@ class Kirby:
         self.Left_Move = False
         self.Right_Move = False
         self.image = load_image('resource/Master_Kirby.png')
+        self.stand_image = load_image('resource/Kirby_Stand.png')
         self.walk_image = load_image('resource/Kirby_Walk.png')
         self.run_image = load_image('resource/Kirby_Run.png')
         self.jump_image = load_image('resource/Kirby_Jump.png')
@@ -958,31 +961,63 @@ class Kirby:
 
     def get_bb(self):
         print(self.state_machine.cur_state)
-        if self.state_machine.cur_state == Idle or self.state_machine.cur_state == Speed_Attack:
-            if self.Picked_Player == 'p1':
-                return self.x - 5, self.y - 45, self.x + 35, self.y - 5
-            elif self.Picked_Player == 'p2':
-                return self.x - 35, self.y - 45, self.x + 5, self.y - 5
-
-        elif self.state_machine.cur_state == Run:
+        if self.state_machine.cur_state == Idle:
             if self.dir == 1:
-                return self.x - 5, self.y - 45, self.x + 35, self.y - 5
+                return self.x - 12, self.y - 35, self.x + 32, self.y + 5
             elif self.dir == -1:
-                return self.x - 35, self.y - 45, self.x + 5, self.y - 5
-            else:
-                if self.Picked_Player == 'p1':
-                    return self.x - 5, self.y - 45, self.x + 35, self.y - 5
-                elif self.Picked_Player == 'p2':
-                    return self.x - 35, self.y - 45, self.x + 5, self.y - 5
+                return self.x - 32, self.y - 35, self.x + 12, self.y + 5
 
-        elif self.state_machine.cur_state == Normal_Attack or self.state_machine.cur_state == Charge_Attack:
-            return self.x - 35, self.y - 45, self.x + 35, self.y - 5
+        elif self.state_machine.cur_state == Walk or self.state_machine.cur_state == Run:
+            if self.dir == 1:
+                return self.x - 12, self.y - 35, self.x + 32, self.y + 5
+            elif self.dir == -1:
+                return self.x - 32, self.y - 35, self.x + 12, self.y + 5
+            else:
+                if self.Last_Input_Direction == 1:
+                    return self.x - 12, self.y - 35, self.x + 32, self.y + 5
+                elif self.Last_Input_Direction == -1:
+                    return self.x - 32, self.y - 35, self.x + 12, self.y + 5
+
+
+        elif self.state_machine.cur_state == Jump: # 점프 상황에서 피격 범위만 정하면 끝
+            if self.dir == 1:
+                return self.x - 12, self.y - 35, self.x + 32, self.y + 5
+            elif self.dir == -1:
+                return self.x - 32, self.y - 25, self.x + 12, self.y + 45
+            else:
+                if self.Last_Input_Direction == 1:
+                    return self.x - 12, self.y - 35, self.x + 32, self.y + 5
+                elif self.Last_Input_Direction == -1:
+                    return self.x - 32, self.y - 35, self.x + 12, self.y + 5
+
+
+        elif self.state_machine.cur_state == Normal_Attack:
+            if self.dir == 1:
+                return self.x - 35, self.y - 45, self.x + 35, self.y + 15
+            elif self.dir == -1:
+                return self.x - 45, self.y - 45, self.x + 25, self.y + 15
+
+        elif self.state_machine.cur_state == Charge_Attack:
+            if self.dir == 1:
+                return self.x - 35, self.y - 45, self.x + 25, self.y + 15
+            elif self.dir == -1:
+                return self.x - 35, self.y - 45, self.x + 25, self.y + 15
 
         elif self.state_machine.cur_state == Defense:
-            if self.Picked_Player == 'p1':
-                return self.x - 25, self.y - 45, self.x + 35, self.y + 25
-            elif self.Picked_Player == 'p2':
-                return self.x - 30, self.y - 45, self.x + 30, self.y + 25
+            if self.dir == 1:
+                return self.x - 25, self.y - 40, self.x + 35, self.y + 20
+            elif self.dir == -1:
+                return self.x - 30, self.y - 40, self.x + 30, self.y + 20
+
+        elif self. state_machine.cur_state == Upper_Attack:
+            return self.x - 20, self.y - 60, self.x + 20, self.y - 20
+
+        elif self.state_machine.cur_state == Drop_Attack:
+            return self.x - 20, self.y - 40, self.x + 20, self.y + 10
+
+        elif self.state_machine.cur_state == Falling_Attack:
+            return self.x - 20, self.y - 20, self.x + 20, self.y + 20
+
 
         else:
             return 0, 0, 0, 0

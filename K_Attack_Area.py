@@ -7,7 +7,6 @@ TIME_PER_ATTACK = 0.5
 ATTACK_PER_TIME = 1.0 / TIME_PER_ATTACK
 FRAMES_PER_SKILL_EFFECT = 10
 
-#스킬 영역은 캐릭터를 따라다니며 적용되게 할 것, 스킬 한 사용하고 영역 만들고 지우고는 힘듦
 
 
 
@@ -42,19 +41,20 @@ class Kirby_Attack_Area:
         else: # 공격 상태일 때
             print(self.player_cur_state)
             if self.player_cur_state == player_Kirby.Normal_Attack:
+
                 self.x_range, self.y_range = 50, 50
                 self.power = 2
             elif self.player_cur_state == player_Kirby.Speed_Attack:
-                self.x_range, self.y_range = 50, 50
+                self.x_range, self.y_range = 60, 50
                 self.power = 1
             elif self.player_cur_state == player_Kirby.Charge_Attack:
-                self.x_range, self.y_range = 50, 50
+                self.x_range, self.y_range = 30, 50
                 self.power = self.p.Charging_Point
             elif self.player_cur_state == player_Kirby.Upper_Attack:
-                self.x_range, self.y_range = 40, 60
+                self.x_range, self.y_range = 30, 40
                 self.power = 2
             elif self.player_cur_state == player_Kirby.Drop_Attack:
-                self.x_range, self.y_range = 40, 60
+                self.x_range, self.y_range = 40, 70
                 self.power = 2
             elif self.player_cur_state == player_Kirby.Falling_Attack:
                 self.x_range, self.y_range = 50, 50
@@ -84,7 +84,8 @@ class Kirby_Attack_Area:
             return p_L, p_B - 30, p_R, p_T - 80
 
         elif self.player_cur_state == player_Kirby.Falling_Attack:
-            return p_L - self.p_dir * 10, p_B - 5, p_R - self.p_dir * 10, p_T - 5
+            return p_L, p_B - 5, p_R, p_T - 5
+
         else:
             return 0, 0, 0, 0
 

@@ -348,6 +348,7 @@ class Hurt:
         p1.Life -= p1.damaged_amount
         p1.frame = 0
         p1.jump_value = 5
+        p1.y += p1.jump_value
         p1.damaged_time = get_time()
 
     @staticmethod
@@ -372,8 +373,9 @@ class Hurt:
             p1.jump_value -= 1
             p1.y = clamp(150, p1.y, 1000 - 25)
 
-        if get_time() - p1.damaged_time >= 0.5:
-            p1.state_machine.handle_event(('TIME_OUT', 0))
+        if get_time() - p1.damaged_time >= 0.2 * p1.damaged_amount:
+            if p1.y == 150:
+                p1.state_machine.handle_event(('TIME_OUT', 0))
 
 
     @staticmethod
