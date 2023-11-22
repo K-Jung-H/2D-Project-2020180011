@@ -525,10 +525,7 @@ class Charge_Attack:
         elif p1.Left_Move:
             p1.dir = -1
             
-            #여기부터 시작
-            #투사체 발사
-            # 히트박스 생성 
-            # 그러면 커비 끝
+
             
     @staticmethod
     def exit(p1, e):
