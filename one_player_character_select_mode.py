@@ -3,7 +3,7 @@ from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDLK_UP, SDLK_D
 
 
 import game_framework
-import two_player_mode
+import one_player_mode
 import Mode_Select_mode
 
 K_walk_focus = [[0, 22], [39, 27], [80, 30], [120, 37], [167, 37], [214, 32], [259, 29], [299, 20]]
@@ -16,6 +16,7 @@ FRAMES_PER_ACTION = 10
 
 Player = 0
 Player_side = None
+
 class P1_Controller:
     def __init__(self):
         self.x, self.y = 500, 150
@@ -84,7 +85,7 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_RIGHT: # 우측 키세팅 선택
             Controller.P_side = 'Right'
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
-            game_framework.change_mode(two_player_mode)
+            game_framework.change_mode(one_player_mode)
 
 
 
