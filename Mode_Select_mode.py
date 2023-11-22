@@ -3,7 +3,7 @@ from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDL_MOUSEBUTTON
 
 import game_framework
 import Play_mode
-import Character_Select_mode
+import two_player_character_select_mode
 
 class Player_Button:
     def __init__(self):
@@ -49,7 +49,7 @@ def handle_events():
                 #game_framework.change_mode(Character_Select_mode)
                 print("Sorry, Not_Yet")
             elif 582 <= P_B.mx <= 1000 and 115 <= P_B.my <= 488: # 2인 모드
-                game_framework.change_mode(Character_Select_mode)
+                game_framework.change_mode(two_player_character_select_mode)
             else:
                 print(P_B.mx, P_B.my)
 
