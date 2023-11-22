@@ -82,8 +82,9 @@ def update():
     World.update()
     World.handle_collisions()
     Check_Victory.update()
-
-    # delay(0.01)
+    if Check_Victory.KO_time is not None:
+        pass
+        #delay(0.1)
 
 
 def draw():
@@ -98,7 +99,7 @@ def pause():
 def resume():
     pass
 
-#game_framework.change_mode(Play_mode)
+
 class KO:
     KO_image = None
     def __init__(self):
@@ -106,22 +107,32 @@ class KO:
             KO.KO_image = load_image('resource/KO.png')
         self.KO_time = None
         self.drawing = False
+        self.pos_x = 0
+        self.spotlight = 0
 
     def update(self):
         if p1.Life <= 0 or p2.Life <= 0:
             print("KO")
             self.drawing = True
-            if self.KO_time is None:
-                self.KO_time = get_time()
+            if self.pos_x < 500:
+                self.pos_x += 10
             else:
+                max(self.pos_x, 500)
+                if self.KO_time is None:
+                    self.KO_time = get_time()
+
+            if self.KO_time is not None:
+                self.spotlight += 1
                 if get_time() - self.KO_time >= 3:
                     self.KO_time = None
+                    self.spotlight = 0
                     game_framework.change_mode(Title_mode)
 
 
     def draw(self):
         if self.drawing:
-            self.KO_image.clip_draw(0, 0, 473, 228, 500, 300, 300, 150)
+            if self.spotlight % 2 == 0 or self.spotlight > 100:
+                self.KO_image.clip_draw(0, 0, 473, 228, self.pos_x, 300, 300, 150)
 
 
 
