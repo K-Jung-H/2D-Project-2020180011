@@ -2,7 +2,7 @@ from pico2d import *
 import game_framework
 
 import World
-import Character_Select_mode
+import two_player_character_select_mode
 import Title_mode
 from Background import BackGround
 from player_MetaKnight import MetaKnight
@@ -42,8 +42,8 @@ def init():
     global p1, p2
     global Check_Victory
 
-    picked_p1 = Character_Select_mode.P1
-    picked_p2 = Character_Select_mode.P2
+    picked_p1 = two_player_character_select_mode.P1
+    picked_p2 = two_player_character_select_mode.P2
 
     if picked_p1 == 0:
         p1 = Kirby("p1")

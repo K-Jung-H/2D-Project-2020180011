@@ -3,8 +3,8 @@ from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDLK_a, SDLK_d,
 
 
 import game_framework
-import Play_mode
-import Character_Select_mode
+import two_player_mode
+#import two_player_character_select_mode
 
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
@@ -105,7 +105,7 @@ def handle_events():
 
 
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
-            game_framework.change_mode(Play_mode)
+            game_framework.change_mode(two_player_mode)
 
     print(f"P1: {Controller.P1}, P2: {Controller.P2}")
 
