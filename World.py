@@ -73,3 +73,7 @@ def remove_object(o):
             del o
             return
     raise ValueError("왜 존재하지도 않는 걸 지우려 하나요?")
+
+def clear():
+    for layer in world:
+        layer.clear()

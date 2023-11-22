@@ -3,9 +3,11 @@ import game_framework
 
 import World
 import Character_Select_mode
+import Title_mode
 from Background import BackGround
 from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
+
 
 def P1_handle(event):
     if (event.key == SDLK_q or event.key == SDLK_w or event.key == SDLK_a or event.key == SDLK_s
@@ -96,19 +98,26 @@ def pause():
 def resume():
     pass
 
-
+#game_framework.change_mode(Play_mode)
 class KO:
     KO_image = None
     def __init__(self):
         if KO.KO_image == None:
             KO.KO_image = load_image('resource/KO.png')
-
+        self.KO_time = None
         self.drawing = False
 
     def update(self):
         if p1.Life <= 0 or p2.Life <= 0:
             print("KO")
             self.drawing = True
+            if self.KO_time is None:
+                self.KO_time = get_time()
+            else:
+                if get_time() - self.KO_time >= 3:
+                    self.KO_time = None
+                    game_framework.change_mode(Title_mode)
+
 
     def draw(self):
         if self.drawing:
