@@ -958,7 +958,6 @@ class Kirby:
 
 
     def get_bb(self):
-        print(self.state_machine.cur_state)
         if self.state_machine.cur_state == Idle:
             if self.dir == 1:
                 return self.x - 12, self.y - 35, self.x + 32, self.y + 5

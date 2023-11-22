@@ -2,7 +2,6 @@ from pico2d import load_image, get_events, clear_canvas, update_canvas, get_time
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDL_MOUSEBUTTONDOWN
 
 import game_framework
-#import Play_mode
 import two_player_character_select_mode
 import one_player_character_select_mode
 

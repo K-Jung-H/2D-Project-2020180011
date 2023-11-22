@@ -1,4 +1,8 @@
 from pico2d import *
+import sys, os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 import game_framework
 
 import World

@@ -35,11 +35,9 @@ class Kirby_Attack_Area:
         self.Attacking = self.p.Attacking
 
         if not self.p.Attacking:
-            print(self.player_cur_state)
             self.x_range, self.y_range, self.power = 0, 0, 0
 
         else: # 공격 상태일 때
-            print(self.player_cur_state)
             if self.player_cur_state == player_Kirby.Normal_Attack:
 
                 self.x_range, self.y_range = 50, 50

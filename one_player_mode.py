@@ -34,7 +34,7 @@ def handle_events():
             if P_handle_L(event) and one_player_character_select_mode.Player_side == 'Left':
                 Player.handle_event(event)
             elif P_handle_R(event) and one_player_character_select_mode.Player_side == 'Right':
-                Com.handle_event(event)
+                Player.handle_event(event)
 
 
 def init():
@@ -53,6 +53,8 @@ def init():
         picked_side, computer_side = 'p1', 'p2'
     elif one_player_character_select_mode.Player_side == 'Right':
         picked_side, computer_side = 'p2', 'p1'
+
+    print(picked_side, picked_character)
 
     if picked_character == 0:
         Player = Kirby(picked_side)

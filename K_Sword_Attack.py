@@ -58,6 +58,5 @@ class Master_Kirby_Sword_Strike:
                 self.power -= other.power
             else:
                 World.remove_object(self)
-            print("?????????????????????????????")
         elif group == 'p1 : p2_Sword_Skill' or group == 'p2 : p1_Sword_Skill':
             World.remove_object(self)
