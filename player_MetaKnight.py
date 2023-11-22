@@ -357,6 +357,7 @@ class Hurt:
         p1.damaged_amount = 0
         p1.Left_Move = False
         p1.Right_Move = False
+        p1.dir *= -1
 
 
     @staticmethod

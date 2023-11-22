@@ -369,6 +369,7 @@ class Hurt:
     def exit(p1, e):
         p1.jump_value = 0
         p1.damaged_amount = 0
+        p1.dir *= -1
         p1.Left_Move = False
         p1.Right_Move = False
 
