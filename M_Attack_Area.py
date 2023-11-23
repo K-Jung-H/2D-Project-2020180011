@@ -90,17 +90,5 @@ class Meta_Attack_Area:
     def handle_collision(self, group, other):
         pass
 
-
-    # Normal_Attack:
-    #
-    # Speed_Attack:
-    #
-    # Charge_Attack:
-    #
-    # Upper_Attack:
-    #
-    # Drop_Attack:
-    #
-    # Falling_Attack:
-    #
-    # Defense:
+    def remove(self):
+        del self

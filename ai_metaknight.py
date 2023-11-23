@@ -58,7 +58,6 @@ class Attack_Area:
         self.power = 0
         self.Attacking = False
 
-
     def draw(self):
         draw_rectangle(*self.get_bb())
 
@@ -66,28 +65,24 @@ class Attack_Area:
 
     def update(self):
         self.x, self.y = self.p.x, self.p.y
-        self.player_cur_state = state_machine_cur_state
-        self.p_dir = self.p.dir
         self.Attacking = self.p.Attacking
 
-        if not self.p.Attacking:
+        if not self.Attacking:
             self.x_range, self.y_range, self.power = 0, 0, 0
 
-        else: # 공격 상태일 때
-            if self.player_cur_state == player_MetaKnight.Normal_Attack:
+        elif self.Attacking:
+            if self.p.state == 'Normal_attack':
                 self.x_range, self.y_range = 50, 50
                 self.power = 2
-            else:
-                self.x_range, self.y_range = 50, 50
-                self.power = 2
-
-
 
     def get_bb(self):
         p_L = self.x - self.x_range
         p_B = self.y - self.y_range
         p_R = self.x + self.x_range
         p_T = self.y + self.y_range
+
+        if self.p.state =='Normal_attack':
+            return p_L + self.p_dir * 50, p_B, p_R + self.p_dir * 50, p_T
 
         return p_L, p_B, p_R, p_T
 
@@ -98,12 +93,14 @@ class MetaKnight:
 
     def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
-        self.Life = 2
+        self.Life = 10
         self.Picked_Player = Player
         if Player == "p1":
             self.dir = 1
+            self.x = 100
         else:
             self.dir = -1
+            self.x = 900
         self.frame = 0
 
         self.state = 'Idle'
@@ -114,9 +111,11 @@ class MetaKnight:
         self.Attack_cool_time = 0
         self.Attack_called = False
 
+
         self.damaged_time = None # 맞은 시점
         self.damaged_motion = 1
         self.damaged_amount = 0
+        self.Damage_called = False
 
         self.font = load_font('resource/ENCR10B.TTF', 16)
         self.image = load_image('resource/Meta_Knight_3.png')
@@ -135,12 +134,16 @@ class MetaKnight:
 
     def update(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
-
-
-        self.bt.run()
+        self.attack_area.update()
+        if self.Life <= 0:
+            self.state = 'Hurt'
+            self.frame = 0
+            self.damaged_motion += 1
+        else:
+            self.bt.run()
 
     def draw(self):
-        print(self.state)
+        self.font.draw(self.x - 10, self.y + 60, f'{self.Life:02d}', (255, 0, 0))
         if self.state == 'Walk':
             self.frame = self.frame % 7
             frame = int(self.frame)
@@ -164,7 +167,6 @@ class MetaKnight:
 
         elif self.state == 'Normal_attack':
             self.frame = self.frame % 6     # 안해도 되지만 혹시 모를 방지
-            print(int(self.frame))
             frame = int(self.frame)
             if self.dir == 1:
                 self.image.clip_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60, self.x + 30, self.y,
@@ -180,6 +182,17 @@ class MetaKnight:
 
             elif self.dir == -1:
                 self.walk_image.clip_composite_draw(44 * frame, 0, 44, 36, 0, 'h', self.x, self.y, 44 * 2, 36 * 2)
+
+        elif self.state == 'Hurt':
+
+            frame = 1 if self.damaged_motion >= 50 else 0
+            if self.damaged_motion % 2 == 0:
+                if self.dir == -1:
+                    self.damaged_image.clip_draw(damaged_focus[frame][0], 0, damaged_focus[frame][1], 42, self.x, self.y,
+                                               damaged_focus[frame][1] * 2, 42 * 2)
+                elif self.dir == 1:
+                    self.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, damaged_focus[frame][1], 42,
+                                                         0, 'h', self.x, self.y, damaged_focus[frame][1] * 2, 42 * 2)
         draw_rectangle(*self.get_bb())
 
 
@@ -198,15 +211,22 @@ class MetaKnight:
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
                 if other.Attacking:
                     print("p1 is damaged")
-                    self.state_machine.handle_event(('Damaged', 0, other.power))
+                    #ai damaged
+                    if self.state != 'Hurt':
+                        self.damaged_amount = max(1, other.power)
+                        self.Life -= self.damaged_amount
+                    self.state = 'Hurt'
                     self.dir = other.p_dir
 
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
-                    print("p2 is damaged")
+                    print("p2 is damaged by", group, other.x_range, other.y_range)
                     #ai damaged
-                    self.Life -= 2
+                    if self.state != 'Hurt':
+                        self.damaged_amount = max(1, other.power)
+                        self.Life -= self.damaged_amount
+                    self.state = 'Hurt'
                     self.dir = other.p_dir
 
 #===================================ai======================================================
@@ -267,6 +287,10 @@ class MetaKnight:
 
     def is_attack_possible(self, t):
         if int(get_time() - self.Attack_cool_time) >= t:
+            if self.x > one_player_mode.Player.x:
+                self.dir = -1
+            elif self.x < one_player_mode.Player.x:
+                self.dir = 1
             return BehaviorTree.SUCCESS
         else:
             self.state = 'Idle'
@@ -278,18 +302,51 @@ class MetaKnight:
             self.frame = 0
             self.Attack_called = True
 
-
         self.state = 'Normal_attack'
+
+        if 2 <= int(self.frame):
+            self.Attacking = True
+
         if int(self.frame) == 4:
             self.Attacking = False
             self.Attack_cool_time = get_time()
             self.Attack_called = False
             return BehaviorTree.SUCCESS
         else:
-            if 3 <= int(self.frame) <= 4:
-                self.Attacking = True
             return BehaviorTree.RUNNING
 
+    def is_hurt(self):
+        if self.state == 'Hurt': # 다친 상태가 됬다면 반대 방향으로 이동
+            if self.Damage_called == False:
+                self.Damage_called = True
+                self.damaged_time = get_time()
+                self.jump_value = 5
+                self.y += self.jump_value
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
+
+    def get_hurt(self):
+        if get_time() - self.damaged_time >= 0.2 * self.damaged_amount:
+            if self.y == 150:
+                self.state = 'Idle'
+                self.Damage_called = False
+                self.dir *= -1
+                self.damaged_motion = 0
+                return BehaviorTree.SUCCESS
+            else:
+                return BehaviorTree.RUNNING
+        else:
+            self.damaged_motion += 1
+            self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time * (self.damaged_amount * 0.5)
+            self.x = clamp(25, self.x, 1000 - 25)
+
+            if self.y > 150:
+                self.y += self.jump_value
+                self.jump_value -= 1
+            self.y = clamp(150, self.y, 1000 - 25)
+
+            return BehaviorTree.RUNNING
 
 
     def build_behavior_tree(self):
@@ -298,22 +355,25 @@ class MetaKnight:
         a3 = Action('move to player', self.walk_to_player)
         a4 = Action('run to player', self.run_to_player)
         a5 = Action('attack to player', self.attack_to_player) # 기본 공격
+        a6 = Action('Damaged', self.get_hurt)
+
 
         c1 = Condition('근처에 플레이어가 있는가?', self.is_player_nearby, 10)
         c2 = Condition('멀리에 플레이어가 있는가?', self.is_player_nearby, 15)
 
         c3 = Condition('마지막으로 공격한지 3초가 지났는가?', self.is_attack_possible, 3)
         c4 = Condition('플레이어가 공격범위 내에 있는가?', self.is_player_nearby, 5)
+        c5 = Condition('공격을 받은 상태인가?', self.is_hurt)
 
         SEQ_near_chase = Sequence('Chase_Near_Player', c1, a3)
         SEQ_far_chase = Sequence('Chase_Far_Player', c2, a4)
         SEQ_normal_attack = Sequence('Normal_attack_to_Player', c4, a5)
 
-
-
         SEQ_wander = Sequence('Wander', a1, a2)
-        root = SEQ_temp = Sequence("???", c3, SEQ_far_chase, SEQ_near_chase, SEQ_normal_attack)
-        root = SEQ_temp = Selector("???", SEQ_temp, SEQ_wander)
+        SEQ_hurt = Sequence('HURT', c5, a6)
+
+        SEQ_Chase_and_Normal_attack = Sequence("chase_and_attack", c3, SEQ_far_chase, SEQ_near_chase, SEQ_normal_attack)
+        root = SEQ_1stage = Selector("1 stage: move and normal_attack",SEQ_hurt, SEQ_Chase_and_Normal_attack, SEQ_wander)
 
         self.bt = BehaviorTree(root)
         pass

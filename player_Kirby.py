@@ -503,6 +503,7 @@ class Charge_Attack:
         if Charge_Attack_Down(e):
             p1.frame = 0
             p1.charging = True
+            #p1.Attacking = False
             p1.Charging_Time = get_time()
 
         elif Charge_Attack_Up(e):
@@ -1039,4 +1040,5 @@ class Kirby:
 
 
     def remove(self):
+        self.attack_area = None
         del self

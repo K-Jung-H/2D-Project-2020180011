@@ -18,6 +18,7 @@ class Master_Kirby_Sword_Strike:
         self.x, self.y, self.velocity = x, y, velocity
         self.x_size = abs(velocity)
         self.y_size = abs(velocity)
+        self.x_range, self.y_range = 0, 0
         self.frame = 0
         self.power = abs(velocity)
         self.p_dir = velocity / abs(velocity)
@@ -60,3 +61,4 @@ class Master_Kirby_Sword_Strike:
                 World.remove_object(self)
         elif group == 'p1 : p2_Sword_Skill' or group == 'p2 : p1_Sword_Skill':
             World.remove_object(self)
+

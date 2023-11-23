@@ -14,6 +14,7 @@ def update():
     for layer in world:
         for o in layer:
            o.update()
+    print(collision_pairs)
 
 
 # 게임 월드의 객체들을 전부 그리기
@@ -77,3 +78,4 @@ def remove_object(o):
 def clear():
     for layer in world:
         layer.clear()
+    collision_pairs.clear()

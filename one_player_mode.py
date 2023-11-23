@@ -5,7 +5,8 @@ import World
 import one_player_character_select_mode
 import Title_mode
 from Background import BackGround
-from ai_metaknight import MetaKnight
+from ai_metaknight import MetaKnight as AI_MetaKnight
+from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
 
 
@@ -66,18 +67,28 @@ def init():
     if computer_character == 0:
         Com = Kirby(computer_side)
     elif computer_character == 1:
-        Com = MetaKnight(computer_side)
+        Com = AI_MetaKnight(computer_side)
 
     World.add_object(Player, 1)
     World.add_object(Com, 1)
 
-    World.add_collision_pair('p1 : p2_attack_range', Player, Com.attack_area)
-    World.add_collision_pair('p1 : p2_Sword_Skill', Player, None)
+    if picked_side == 'p1':
+        World.add_collision_pair('p1 : p2_attack_range', Player, Com.attack_area)
+        World.add_collision_pair('p1 : p2_Sword_Skill', Player, None)
 
-    World.add_collision_pair('p2 : p1_attack_range', Com, Player.attack_area)
-    World.add_collision_pair('p2 : p1_Sword_Skill', Com, None)
+        World.add_collision_pair('p2 : p1_attack_range', Com, Player.attack_area)
+        World.add_collision_pair('p2 : p1_Sword_Skill', Com, None)
 
-    World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, None)
+        World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, None)
+
+    elif picked_side == 'p2':
+        World.add_collision_pair('p1 : p2_attack_range', Com, Player.attack_area)
+        World.add_collision_pair('p1 : p2_Sword_Skill', Com, None)
+
+        World.add_collision_pair('p2 : p1_attack_range', Player, Com.attack_area)
+        World.add_collision_pair('p2 : p1_Sword_Skill', Player, None)
+
+        World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, None)
 
 
     background = BackGround()
@@ -125,7 +136,7 @@ class KO:
 
     def update(self):
         if Player.Life <= 0 or Com.Life <= 0:
-            print("KO")
+            #print("KO")
             self.drawing = True
             if self.pos_x < 500:
                 self.pos_x += 10

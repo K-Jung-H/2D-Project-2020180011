@@ -92,16 +92,12 @@ class Kirby_Attack_Area:
         pass
 
 
-    # Normal_Attack:
-    #
-    # Speed_Attack:
-    #
-    # Charge_Attack:
-    #
-    # Upper_Attack:
-    #
-    # Drop_Attack:
-    #
-    # Falling_Attack:
-    #
-    # Defense:
+    def __del__(self):
+        print(f"Object {self.name} is being destroyed")
+        print(f"Object {self.name} is being destroyed")
+        print(f"Object {self.name} is being destroyed")
+        print(f"Object {self.name} is being destroyed")
+        print(f"Object {self.name} is being destroyed")
+
+    def remove(self):
+        del self
