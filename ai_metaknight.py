@@ -1,10 +1,12 @@
-from pico2d import (get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE,
-                    SDLK_LEFT, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_COMMA, SDLK_PERIOD, SDLK_SLASH,
-                    SDLK_w, SDLK_a, SDLK_s, SDLK_d, SDLK_f, SDLK_e, SDLK_q, draw_rectangle, load_font )
+from pico2d import (get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_q, draw_rectangle, load_font )
 import World
 import game_framework
+import random
+import math
+from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
 from M_Sword_Attack import Meta_Knight_Sword_Strike as Sword_Strike
 from M_Attack_Area import Meta_Attack_Area
+import one_player_mode
 
 PIXEL_PER_METER = (10.0 / 0.3) # 10 pixel 30 cm
 RUN_SPEED_KMPH = 20.0 # Km / Hour
@@ -28,84 +30,11 @@ FRAMES_PER_FALLING_ATTACK = 5
 
 
 #walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
+Normal_Attack_focus = [[110, 50], [220, 60], [325, 75], [425, 110], [649, 91]]
 Speed_Attack_focus = [[2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
 Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[540, 100],[540, 100],[540, 100],[645,110]]
-Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340], [592, 42, 330], [636, 42, 340], [0, 50, 210], [50, 50, 210], [113, 50, 210], [163, 50, 210]]
-
-
-
-
-def Right_Move_Down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_RIGHT or e[1].key == SDLK_d)
-
-
-def Right_Move_Up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_RIGHT or e[1].key == SDLK_d)
-
-
-def Left_Move_Down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_LEFT or e[1].key ==  SDLK_a)
-
-
-def Left_Move_Up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_LEFT or e[1].key ==  SDLK_a)
-
-def space_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
-
-
-def Jump_Button_Down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_UP or e[1].key == SDLK_w)
-
-def Time_Out(e):
-    return e[0] == 'TIME_OUT'
-
-
-def Get_Damage(e):
-    return e[0] == 'Damaged'
-
-def RUN(e):
-    return e[0] == 'RUN'
-
-def STOP(e):
-    return e[0] == 'STOP'
-
-def Normal_Attack_Down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_f or e[1].key == SDLK_PERIOD)
-
-def Defense_Down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_s or e[1].key == SDLK_DOWN)
-
-def Defense_Up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_s or e[1].key == SDLK_DOWN)
-
-def Fast_Attack_Down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_e or e[1].key == SDLK_COMMA)
-
-
-def Charge_Attack_Down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_q or e[1].key == SDLK_SLASH)
-
-def Charge_Attack_Up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and (e[1].key == SDLK_q or e[1].key == SDLK_SLASH)
-
-
-#Air Command
-
-def Upper_Attack_DOWN(e):
-    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_f or e[1].key == SDLK_PERIOD)
-            and e[2] == "Air_Up")
-
-def Drop_Attack_DOWN(e):
-    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_f or e[1].key == SDLK_PERIOD)
-            and e[2] == "Air_Down")
-
-def Falling_Attack_DOWN(e):
-    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and (e[1].key == SDLK_q or e[1].key == SDLK_SLASH)
-            and (e[2] == "Air_Up" or e[2] == "Air_Down"))
 
 #reforged_frame
-
 #start_x, width
 Walk_focus = [[2,39], [51,36], [100, 34], [149, 37], [203, 36], [258, 40], [316, 41], [377, 38] ]
 Run_focus = [[7,25], [59,23], [100, 34], [147, 23], [189, 23] ]
@@ -118,704 +47,58 @@ Falling_attack_focus = [[0, 33], [55,32], [112, 34], [166, 37], [227, 33], [284,
 Faf_player_location = [[0,0], [-15, -15], [-25, 0], [0, -5], [-25, -15], [0,0], [-15, -15], [-25, 0], [0,0], [0,0]]
 
 
-class Idle:
 
-    @staticmethod
-    def enter(p1, e):
-        p1.frame = 0
-        if Right_Move_Down(e):
-            p1.Right_Move, p1.dir = True, 1
-        if Left_Move_Down(e):
-            p1.Left_Move, p1.dir = True, -1
-        if Right_Move_Up(e):
-            p1.Right_Move, p1.dir = False, 1
-        if Left_Move_Up(e):
-            p1.Left_Move, p1.dir = False, -1
+class Attack_Area:
+    def __init__(self, player):
+        self.x, self.y = player.x, player.y
+        self.p = player
+        self.p_dir = player.dir
+        self.x_range = 0
+        self.y_range = 0
+        self.power = 0
+        self.Attacking = False
 
-
-    @staticmethod
-    def exit(p1, e):
-        pass
-
-    @staticmethod
-    def do(p1):
-        p1.frame = 0
-
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        if p1.dir == 1:
-            p1.walk_image.clip_draw(44 * frame, 0, 44, 36, p1.x, p1.y, 44 * 2, 36 * 2)
-
-        elif p1.dir == -1:
-            p1.walk_image.clip_composite_draw(44 * frame, 0,44, 36, 0, 'h', p1.x, p1.y, 44 * 2, 36 * 2)
-
-
-class Walk:
-    @staticmethod
-    def enter(p1, e):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
-        if Right_Move_Down(e):
-            p1.Right_Move, p1.dir = True, 1
-
-        if Left_Move_Down(e):
-            p1.Left_Move, p1.dir = True, -1
-
-        if Right_Move_Up(e):
-            p1.Right_Move = False
-
-        if Left_Move_Up(e):
-            p1.Left_Move = False
-
-        if p1.Right_Move:
-            p1.dir = 1
-        elif p1.Left_Move:
-            p1.dir = -1
-
-
-        if Left_Move_Down(e) or Right_Move_Down(e):
-            if p1.Last_Input_time == None:
-                p1.Last_Input_time = get_time()
-                p1.Last_Input_Direction = p1.dir
-            else:
-                Input_time = get_time() - p1.Last_Input_time
-                if Input_time <= 0.5:    # 1초 안에 2번 입력했다면
-                    if p1.Last_Input_Direction == p1.dir:  # 이전과 같은 방향 이동을 시도했다면
-                        p1.state_machine.handle_event(('RUN', 0))
-                        print("Running_Start")
-                p1.Last_Input_time = get_time()
-                p1.Last_Input_Direction = p1.dir
-
-
-
-    @staticmethod
-    def exit(p1, e):
-        pass
-
-
-
-    @staticmethod
-    def do(p1):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
-        if p1.Left_Move and p1.Right_Move:
-            p1.dir = p1.Last_Input_Direction
-
-        elif p1.Left_Move or p1.Right_Move:
-            p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
-            p1.x = clamp(25, p1.x, 1000 - 25)
-
-        elif not(p1.Left_Move and p1.Right_Move):
-            p1.state_machine.handle_event(('STOP', 0))
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        p_start_x = Walk_focus[frame][0]
-        p_start_y = 0
-        p_width = Walk_focus[frame][1]
-        p_height = 36
-        if p1.dir == 1:
-            p1.walk_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
-
-        elif p1.dir == -1:
-            p1.walk_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2, p_height * 2)
-
-
-class Run:
-    @staticmethod
-    def enter(p1, e):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
-        p1.Last_Input_Direction = None
-
-
-    @staticmethod
-    def exit(p1, e):
-        print("Running off")
-        pass
-
-    @staticmethod
-    def do(p1):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
-        if p1.Left_Move and p1.Right_Move:
-            p1.dir = 0
-
-        elif p1.Left_Move or p1.Right_Move:
-            p1.x += p1.dir * FAST_RUN_SPEED_PPS * game_framework.frame_time
-            p1.x = clamp(25, p1.x, 1000 - 25)
-
-        elif not (p1.Left_Move and p1.Right_Move):
-            p1.state_machine.handle_event(('STOP', 0))
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        p_start_x = Run_focus[frame][0]
-        p_start_y = 0
-        p_width = Run_focus[frame][1]
-        p_height = 39
-        if p1.dir == 1:
-            p1.run_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
-
-        elif p1.dir == -1:
-            p1.run_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2,
-                                              p_height * 2)
-
-class Jump:
-    @staticmethod
-    def enter(p1, e):
-        if p1.state_machine.last_state != Jump and p1.state_machine.last_state != Falling_Attack:
-            p1.jump_value = 20
-            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7 #10
-        else: # 점프 도중에 새로운 입력을 받는 경우
-            if Right_Move_Down(e):
-                p1.Right_Move, p1.dir = True, 1
-
-            if Left_Move_Down(e):
-                p1.Left_Move, p1.dir = True, -1
-
-            if Right_Move_Up(e):
-                p1.Right_Move = False
-
-            if Left_Move_Up(e):
-                p1.Left_Move = False
-
-            if p1.Right_Move:
-                p1.dir = 1
-            elif p1.Left_Move:
-                p1.dir = -1
-
-            p1.Last_Input_Direction = p1.dir
-
-
-
-    @staticmethod
-    def exit(p1, e):
-        #p1.jump_value = 0
-        pass
-
-
-
-    @staticmethod
-    def do(p1):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
-
-
-        if p1.Left_Move and p1.Right_Move:
-            p1.dir = p1.Last_Input_Direction
-
-        elif p1.Left_Move or p1.Right_Move:
-            if p1.state_machine.last_state == Walk:
-                p1.x += (p1.dir * RUN_SPEED_PPS * game_framework.frame_time) * 2
-            elif p1.state_machine.last_state == Run:
-                p1.x += (p1.dir * FAST_RUN_SPEED_PPS * game_framework.frame_time) * 2
-            elif p1.state_machine.last_state == Jump:
-                p1.x += (p1.dir * RUN_SPEED_PPS * game_framework.frame_time)
-
-        p1.x = clamp(25, p1.x, 1000 - 25)
-
-        # 점프: y값 변경
-        p1.y += p1.jump_value
-        p1.jump_value -= 1
-        if p1.y <= 150:  # 나중엔 충돌 체크로 바꿀 것
-            p1.y = 150
-            p1.state_machine.handle_event(('STOP', 0))
-
-
-
-
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        p_start_x = Jump_focus[frame][0]
-        p_start_y = 0
-        p_width = Jump_focus[frame][1]
-        p_height = 45
-        if p1.dir == 1:
-            p1.jump_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
-
-        elif p1.dir == -1:
-            p1.jump_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y, p_width * 2, p_height * 2)
-
-
-class Hurt:
-
-    @staticmethod
-    def enter(p1, e):
-        p1.damaged_amount = e[2]
-        p1.Life -= p1.damaged_amount
-        p1.frame = 0
-        p1.jump_value = 5
-        p1.y += p1.jump_value
-        p1.damaged_time = get_time()
-
-    @staticmethod
-    def exit(p1, e):
-        p1.jump_value = 0
-        p1.damaged_amount = 0
-        p1.Left_Move = False
-        p1.Right_Move = False
-        p1.dir *= -1
-
-
-    @staticmethod
-    def do(p1):
-        if int(p1.frame) != 1:
-            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
-
-        p1.damaged_motion += 1
-        p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time * (p1.damaged_amount * 0.5)
-        p1.x = clamp(25, p1.x, 1000 - 25)
-
-        if p1.y > 150:
-            p1.y += p1.jump_value
-            p1.jump_value -= 1
-            p1.y = clamp(150, p1.y, 1000 - 25)
-
-        if get_time() - p1.damaged_time >= 0.2 * p1.damaged_amount:
-            if p1.y == 150:
-                p1.state_machine.handle_event(('TIME_OUT', 0))
-
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        p_size_x = damaged_focus[frame][1]
-        p_size_y = 42
-        if p1.damaged_motion % 2 == 0:
-            if p1.dir == -1:
-                p1.damaged_image.clip_draw(damaged_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y, p_size_x * 2, p_size_y * 2)
-
-            elif p1.dir == 1:
-                p1.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
-
-
-
-
-class Normal_Attack:
-
-    @staticmethod
-    def enter(p1, e):
-        p1.frame = 0
-
-    @staticmethod
-    def exit(p1, e):
-        pass
-
-    @staticmethod
-    def do(p1):
-        p1.Attacking = True
-        p1.frame = (p1.frame + FRAMES_PER_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 5
-        if int(p1.frame) == 4:
-            p1.Attacking = False
-            p1.state_machine.handle_event(('STOP', 0))
-
-
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        p_size_x = Normal_Attack_focus[frame][1]
-        p_size_y = 60
-        if p1.dir == 1:
-            p1.image.clip_draw(Normal_Attack_focus[frame][0], 480, p_size_x, p_size_y, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
-
-        elif p1.dir == -1:
-            p1.image.clip_composite_draw(Normal_Attack_focus[frame][0], 480, p_size_x, p_size_y, 0, 'h', p1.x - 30, p1.y,
-                               p_size_x * 2, p_size_y * 2)
-
-
-class Speed_Attack:
-
-    @staticmethod
-    def enter(p1, e):
-        p1.frame = 0
-
-    @staticmethod
-    def exit(p1, e):
-        pass
-
-    @staticmethod
-    def do(p1):
-        p1.Attacking = True
-        p1.frame = (p1.frame + FRAMES_PER_FAST_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 5
-        if int(p1.frame) == 4:
-            p1.Attacking = False
-            p1.state_machine.handle_event(('STOP', 0))
-
-
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        p_size_x = Speed_Attack_focus[frame][1]
-        p_size_y = 60
-        if p1.dir == 1:
-            p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][2], p_size_x, p_size_y, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
-
-        elif p1.dir == -1:
-            p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][2], p_size_x, p_size_y,
-                               0, 'h', p1.x - 30, p1.y, p_size_x * 2, p_size_y * 2)
-
-
-class Charge_Attack:
-
-    @staticmethod
-    def enter(p1, e):
-
-        if Charge_Attack_Down(e):
-            p1.frame = 0
-            p1.charging = True
-            p1.Charging_Time = get_time()
-
-        elif Charge_Attack_Up(e):
-            p1.charging = False
-            p1.Attacking = True
-
-        if Right_Move_Down(e) and p1.charging:
-            p1.Right_Move, p1.dir = True, 1
-
-        if Left_Move_Down(e) and p1.charging:
-            p1.Left_Move, p1.dir = True, -1
-
-        if Right_Move_Up(e) and p1.charging:
-            p1.Right_Move = False
-
-        if Left_Move_Up(e) and p1.charging:
-            p1.Left_Move = False
-
-        if p1.Right_Move:
-            p1.dir = 1
-        elif p1.Left_Move:
-            p1.dir = -1
-
-    @staticmethod
-    def exit(p1, e):
-        pass
-
-
-    @staticmethod
-    def do(p1):
-        if p1.charging == True:
-            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
-            p1.Charging_Point = int(get_time() - p1.Charging_Time)
-        elif  p1.charging == False:
-            p1.frame = (p1.frame + FRAMES_PER_CHARGE_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
-
-        if int (p1.frame) == 5: # 투사체 발사
-            if p1.Charging_Point >= 1:
-                p1.SwordStrike()
-                p1.Charging_Point = 0
-
-        if int(p1.frame) == 9:
-            p1.Attacking = False
-            p1.state_machine.handle_event(('STOP', 0))
-
-
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        p_size_x = Charge_Attack_focus[frame][1]
-        p_size_y = 60
-        if p1.dir == 1:
-            p1.image.clip_draw(Charge_Attack_focus[frame][0], 480, p_size_x, p_size_y, p1.x + 30, p1.y, p_size_x * 2, p_size_y * 2)
-        elif p1.dir == -1:
-            p1.image.clip_composite_draw(Charge_Attack_focus[frame][0], 480, p_size_x, p_size_y,
-                               0, 'h', p1.x - 30, p1.y, p_size_x * 2, p_size_y * 2)
-
-        if p1.charging == True:
-            p1.font.draw(p1.x - 10, p1.y + 50, f'{p1.Charging_Point:02d}', (255, 255, 0))
-
-
-
-class Upper_Attack:
-    @staticmethod
-    def enter(p1, e):
-        p1.frame = 0
-
-    @staticmethod
-    def exit(p1, e):
-        pass
-
-    @staticmethod
-    def do(p1):
-        p1.y += 3
-        p1.jump_value -= 0.5
-        p1.Attacking = True
-        p1.frame = (p1.frame + FRAMES_PER_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 6
-        if int(p1.frame) == 5:
-            p1.Attacking = False
-            p1.state_machine.handle_event(('STOP', 0))
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        p_size_x = Upper_attack_focus[frame][1]
-        p_size_y = 78
-        if p1.dir == 1:
-            p1.upper_attack_image.clip_draw(Upper_attack_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y,
-                                        p_size_x * 2, p_size_y * 2)
-
-        elif p1.dir == -1:
-            p1.upper_attack_image.clip_composite_draw(Upper_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
-                                        p1.x, p1.y, p_size_x * 2, p_size_y * 2)
-
-
-class Drop_Attack:
-    @staticmethod
-    def enter(p1, e):
-        if Drop_Attack_DOWN(e):
-            p1.frame = 0
-        else: # 점프 도중에 새로운 입력을 받는 경우
-            if Right_Move_Down(e):
-                p1.Right_Move, p1.dir = True, 1
-
-            if Left_Move_Down(e):
-                p1.Left_Move, p1.dir = True, -1
-
-            if Right_Move_Up(e):
-                p1.Right_Move = False
-
-            if Left_Move_Up(e):
-                p1.Left_Move = False
-
-            if p1.Right_Move:
-                p1.dir = 1
-            elif p1.Left_Move:
-                p1.dir = -1
-
-            p1.Last_Input_Direction = p1.dir
-
-    @staticmethod
-    def exit(p1, e):
-        pass
-
-    @staticmethod
-    def do(p1):
-
-        p1.Attacking = True
-        if int(p1.frame) != 8:
-            #p1.y += p1.jump_value
-            #p1.jump_value -= 0.5
-            p1.frame = (p1.frame + FRAMES_PER_DROP_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 9
-        else:
-            p1.y += p1.jump_value
-            p1.jump_value -= 1
-
-        if p1.y <= 150:
-            p1.Attacking = False
-            p1.y = 150
-            p1.state_machine.handle_event(('STOP', 0))
-
-
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        p_size_x = Drop_attack_focus[frame][1]
-        p_size_y = 46
-        if p1.dir == 1:
-            p1.drop_attack_image.clip_draw(Drop_attack_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y,
-                                            p_size_x * 2, p_size_y * 2)
-
-        elif p1.dir == -1:
-            p1.drop_attack_image.clip_composite_draw(Drop_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
-                                                      p1.x, p1.y, p_size_x * 2, p_size_y * 2)
-
-class Falling_Attack:
-    @staticmethod
-    def enter(p1, e):
-        if  p1.state_machine.last_state != Falling_Attack:
-            p1.frame = 0
-        else: # 공격 도중에 새로운 입력을 받는 경우
-            if Right_Move_Down(e):
-                p1.Right_Move, p1.dir = True, 1
-
-            if Left_Move_Down(e):
-                p1.Left_Move, p1.dir = True, -1
-
-            if Right_Move_Up(e):
-                p1.Right_Move = False
-
-            if Left_Move_Up(e):
-                p1.Left_Move = False
-
-            if p1.Right_Move:
-                p1.dir = 1
-            elif p1.Left_Move:
-                p1.dir = -1
-
-            p1.Last_Input_Direction = p1.dir
-
-    @staticmethod
-    def exit(p1, e):
-        pass
-
-    @staticmethod
-    def do(p1):
-
-        if p1.Left_Move and p1.Right_Move:
-            p1.dir = p1.Last_Input_Direction
-
-        elif p1.Left_Move or p1.Right_Move:
-                p1.x += (p1.dir * RUN_SPEED_PPS * game_framework.frame_time)
-        p1.x = clamp(25, p1.x, 1000 - 25)
-
-        p1.Attacking = True
-        if int(p1.frame) != 9:
-            p1.y += p1.jump_value/10
-            p1.jump_value -= 0.1
-            p1.frame = (p1.frame + FRAMES_PER_FALLING_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
-        else:
-            p1.state_machine.handle_event(('STOP', 0))
-
-        if p1.y <= 150:
-            p1.Attacking = False
-            p1.y = 150
-            p1.state_machine.handle_event(('STOP', 0))
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        p_size_x = Falling_attack_focus[frame][1]
-        p_size_y = 40
-        p_x = p1.x + Faf_player_location[frame][0] * p1.dir
-        p_y = p1.y + Faf_player_location[frame][1]
-        if p1.dir == 1:
-            p1.falling_attack_image.clip_draw(Falling_attack_focus[frame][0], 0, p_size_x, p_size_y, p_x, p_y,
-                                            p_size_x * 2, p_size_y * 2)
-        elif p1.dir == -1:
-            p1.falling_attack_image.clip_composite_draw(Falling_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
-                                                        p_x, p_y, p_size_x * 2, p_size_y * 2)
-
-class Defense:
-
-    @staticmethod
-    def enter(p1, e):
-        waiting_time = int(get_time() - p1.Defense_cooltime)
-        print(waiting_time)
-        if p1.Defense_cooltime == 0 or waiting_time > 3: # 첫 사용 또는 재사용 대기시간이 지났을 때
-            p1.frame = 0
-            p1.Defense_time = get_time()
-
-        elif waiting_time <= 3:
-            p1.state_machine.handle_event(('STOP', 0))
-
-
-
-
-
-    @staticmethod
-    def exit(p1, e):
-        p1.Right_Move = False
-        p1.Left_Move = False
-        p1.dir = p1.Last_Input_Direction
-
-        if Defense_Up(e):
-            p1.Defense_cooltime = get_time()
-        pass
-
-    @staticmethod
-    def do(p1):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 9
-        if int(get_time() - p1.Defense_time) == 5:
-            p1.state_machine.handle_event(('STOP', 0))
-            p1.Defense_cooltime = get_time()
-
-
-
-    @staticmethod
-    def draw(p1):
-        frame = int(p1.frame)
-        p_size_x = Defense_focus[frame][1]
-        p_size_y = 70
-
-        if p1.dir == 1:
-            p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][2], p_size_x, p_size_y, p1.x + 20, p1.y, p_size_x * 1.8, p_size_y * 1.8)
-        elif p1.dir == -1:
-            p1.image.clip_composite_draw(Defense_focus[frame][0], Defense_focus[frame][2], p_size_x, p_size_y,
-                               0, 'h', p1.x - 20, p1.y, p_size_x * 1.8, p_size_y * 1.8)
-
-
-class StateMachine:
-    def __init__(self, meta_knight):
-        self.player = meta_knight
-        self.cur_state = Idle
-        self.last_state = None
-        self.transitions = {
-            Idle: { Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk,
-                   Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
-                   Defense_Down: Defense, Jump_Button_Down: Jump, Get_Damage: Hurt, },
-
-            Walk: { Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
-                   Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
-                   Defense_Down: Defense, STOP: Idle, RUN: Run, Jump_Button_Down: Jump, Get_Damage: Hurt,},
-
-            Run: {Right_Move_Down: Idle, Left_Move_Down: Idle, Right_Move_Up: Idle, Left_Move_Up: Idle,
-                  Normal_Attack_Down: Normal_Attack, Fast_Attack_Down: Speed_Attack, Charge_Attack_Down: Charge_Attack,
-                  Defense_Down: Defense, STOP: Idle, Jump_Button_Down: Jump, Get_Damage: Hurt,},
-
-            Jump: {STOP: Walk,  Right_Move_Down: Jump, Left_Move_Down: Jump, Right_Move_Up: Jump, Left_Move_Up: Jump,
-                   Upper_Attack_DOWN: Upper_Attack, Drop_Attack_DOWN: Drop_Attack, Falling_Attack_DOWN: Falling_Attack ,
-                   Get_Damage: Hurt, },
-
-            Hurt: {Time_Out: Idle, },
-
-            Normal_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk, Get_Damage: Hurt},
-
-            Speed_Attack: {STOP: Walk, Right_Move_Down: Walk, Left_Move_Down: Walk, Right_Move_Up: Walk, Left_Move_Up: Walk, Get_Damage: Hurt},
-
-            Charge_Attack: {Charge_Attack_Up: Charge_Attack, STOP: Walk,
-                            Right_Move_Down: Charge_Attack, Left_Move_Down: Charge_Attack, Right_Move_Up: Charge_Attack, Left_Move_Up: Charge_Attack, Get_Damage: Hurt},
-
-            Upper_Attack: {STOP: Jump, Get_Damage: Hurt, },
-
-            Drop_Attack: {STOP: Walk, Right_Move_Down: Drop_Attack, Left_Move_Down: Drop_Attack,
-                             Right_Move_Up: Drop_Attack, Left_Move_Up: Drop_Attack, Get_Damage: Hurt, },
-
-            Falling_Attack: {STOP: Jump,  Right_Move_Down: Falling_Attack, Left_Move_Down: Falling_Attack,
-                             Right_Move_Up: Falling_Attack, Left_Move_Up: Falling_Attack, Get_Damage: Hurt},
-
-            Defense: { Defense_Up: Idle, STOP: Idle, }
-
-
-        }
-
-    def start(self):
-        self.cur_state.enter(self.player, ('NONE', 0))
-
-    def update(self):
-        self.cur_state.do(self.player)
-        self.player.attack_area.update(self.cur_state)
-
-        #print(self.cur_state)
-
-    def handle_event(self, e):
-        for check_event, next_state in self.transitions[self.cur_state].items():
-            if check_event(e):
-                self.cur_state.exit(self.player, e)
-                self.last_state = self.cur_state
-                self.cur_state = next_state
-                self.cur_state.enter(self.player, e)
-                return True
-
-        return False
 
     def draw(self):
-        self.cur_state.draw(self.player)
-        self.player.attack_area.draw()
-        self.player.font.draw(self.player.x - 10, self.player.y + 60, f'{self.player.Life:02d}', (255, 0, 0))
-        #print(f"{self.player.Picked_Player}'s HP: {self.player.Life}")
+        draw_rectangle(*self.get_bb())
 
+
+
+    def update(self):
+        self.x, self.y = self.p.x, self.p.y
+        self.player_cur_state = state_machine_cur_state
+        self.p_dir = self.p.dir
+        self.Attacking = self.p.Attacking
+
+        if not self.p.Attacking:
+            self.x_range, self.y_range, self.power = 0, 0, 0
+
+        else: # 공격 상태일 때
+            if self.player_cur_state == player_MetaKnight.Normal_Attack:
+                self.x_range, self.y_range = 50, 50
+                self.power = 2
+            else:
+                self.x_range, self.y_range = 50, 50
+                self.power = 2
+
+
+
+    def get_bb(self):
+        p_L = self.x - self.x_range
+        p_B = self.y - self.y_range
+        p_R = self.x + self.x_range
+        p_T = self.y + self.y_range
+
+        return p_L, p_B, p_R, p_T
+
+    def handle_collision(self, group, other):
+        pass
 
 class MetaKnight:
 
     def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
-        self.Life = 20
-        self.damaged_amount = 0
+        self.Life = 2
         self.Picked_Player = Player
         if Player == "p1":
             self.dir = 1
@@ -823,26 +106,19 @@ class MetaKnight:
             self.dir = -1
         self.frame = 0
 
-        self.Last_Input_time = None # 대쉬 파악용
-        self.Last_Input_Direction = None  # 대쉬 파악용
-
+        self.state = 'Idle'
         self.jump_value = 0 #점프 구현
-        self.Defense_time = None # 방어 지속 시간 체크
-        self.Defense_cooltime = 0  # 방어 재사용 대기시간
 
-        self.attack_area = Meta_Attack_Area(self)
+        self.attack_area = Attack_Area(self)
         self.Attacking = False
-        self.charging = False
-        self.Charging_Point = 0
-        self.Charging_Time = 0
+        self.Attack_cool_time = 0
+        self.Attack_called = False
 
         self.damaged_time = None # 맞은 시점
         self.damaged_motion = 1
-
+        self.damaged_amount = 0
 
         self.font = load_font('resource/ENCR10B.TTF', 16)
-        self.Left_Move = False
-        self.Right_Move = False
         self.image = load_image('resource/Meta_Knight_3.png')
         self.walk_image = load_image('resource/Meta_Knight_Walk.png')
         self.run_image = load_image('resource/Meta_Knight_Run.png')
@@ -851,129 +127,70 @@ class MetaKnight:
         self.drop_attack_image = load_image('resource/Meta_Knight_Air_Attack.png')
         self.falling_attack_image = load_image('resource/Meta_Knight_Air_Hard_Attack.png')
         self.damaged_image = load_image('resource/Meta_Knight_Damaged.png')
-        self.state_machine = StateMachine(self)
-        self.state_machine.start()
+
+
+        # ai
+        self.tx, self.ty = 0, 0
+        self.build_behavior_tree()
 
     def update(self):
-        self.state_machine.update()
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
 
-    def handle_event(self, event):
-        if self.jump_value > 0:
-            self.state_machine.handle_event(('INPUT', event, "Air_Up"))
-            print("command in air")
-        elif self.jump_value < 0:
-            self.state_machine.handle_event(('INPUT', event, "Air_Down"))
-            print("command in air")
-        else:
-            self.state_machine.handle_event(('INPUT', event, "Ground"))
-            print("command on ground")
+
+        self.bt.run()
 
     def draw(self):
-        self.state_machine.draw()
+        print(self.state)
+        if self.state == 'Walk':
+            self.frame = self.frame % 7
+            frame = int(self.frame)
+            if self.dir == 1:
+                self.walk_image.clip_draw(Walk_focus[frame][0], 0, Walk_focus[frame][1], 36, self.x, self.y, Walk_focus[frame][1] * 2, 36 * 2)
+
+            elif self.dir == -1:
+                self.walk_image.clip_composite_draw(Walk_focus[frame][0], 0, Walk_focus[frame][1], 36, 0, 'h', self.x, self.y,
+                                                  Walk_focus[frame][1] * 2, 36 * 2)
+
+        elif self.state == 'Run':
+            self.frame = self.frame % 4
+            frame = int(self.frame)
+            if self.dir == 1:
+                self.run_image.clip_draw(Run_focus[frame][0], 0, Run_focus[frame][1], 39,
+                                         self.x, self.y, Run_focus[frame][1] * 2, 39 * 2)
+
+            elif self.dir == -1:
+                self.run_image.clip_composite_draw(Run_focus[frame][0], 0, Run_focus[frame][1], 39,
+                                                   0, 'h', self.x, self.y, Run_focus[frame][1] * 2, 39 * 2)
+
+        elif self.state == 'Normal_attack':
+            self.frame = self.frame % 6     # 안해도 되지만 혹시 모를 방지
+            print(int(self.frame))
+            frame = int(self.frame)
+            if self.dir == 1:
+                self.image.clip_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60, self.x + 30, self.y,
+                                   Normal_Attack_focus[frame][1] * 2, 60 * 2)
+
+            elif self.dir == -1:
+                self.image.clip_composite_draw(Normal_Attack_focus[frame][0], 480, Normal_Attack_focus[frame][1], 60,
+                                               0, 'h', self.x - 30, self.y, Normal_Attack_focus[frame][1] * 2, 60 * 2)
+        elif self.state == 'Idle':
+            frame = 0
+            if self.dir == 1:
+                self.walk_image.clip_draw(44 * frame, 0, 44, 36, self.x, self.y, 44 * 2, 36 * 2)
+
+            elif self.dir == -1:
+                self.walk_image.clip_composite_draw(44 * frame, 0, 44, 36, 0, 'h', self.x, self.y, 44 * 2, 36 * 2)
         draw_rectangle(*self.get_bb())
 
-    def SwordStrike(self):
-        M_S_S = Sword_Strike(self.x, self.y, self.Charging_Point * self.dir)
-        World.add_object(M_S_S, 2)
-        if self.Picked_Player == 'p1':
-            World.add_collision_pair('p2 : p1_Sword_Skill', None, M_S_S)
-            World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', M_S_S, None)
-        elif self.Picked_Player == 'p2':
-            World.add_collision_pair('p1 : p2_Sword_Skill', None, M_S_S)
-            World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, M_S_S)
 
     def get_bb(self):
-
-        if self.state_machine.cur_state == Idle:
-            if self.dir == 1:
-                return self.x - 40, self.y - 35, self.x + 20, self.y + 5
-            elif self.dir == -1:
-                return self.x - 20, self.y - 35, self.x + 40, self.y + 5
-
-        elif self.state_machine.cur_state == Walk:
-            if self.dir == 1:
-                return self.x - 40, self.y - 35, self.x + 20, self.y + 5
-            elif self.dir == -1:
-                return self.x - 20, self.y - 35, self.x + 40, self.y + 5
-            else:
-                if self.Last_Input_Direction == 1:
-                    return self.x - 15, self.y - 25, self.x + 25, self.y + 15
-                elif self.Last_Input_Direction == -1:
-                    return self.x - 25, self.y - 25, self.x + 15, self.y + 15
-
-        elif self.state_machine.cur_state == Jump:
-            if self.dir == 1:
-                return self.x - 30, self.y - 35, self.x + 30, self.y + 15
-            elif self.dir == -1:
-                return self.x - 30, self.y - 35, self.x + 30, self.y + 15
-            else:
-                if self.Last_Input_Direction == 1:
-                    return self.x - 30, self.y - 35, self.x + 30, self.y + 15
-                elif self.Last_Input_Direction == -1:
-                    return self.x - 30, self.y - 35, self.x + 30, self.y + 15
-
-
-        if self.state_machine.cur_state == Normal_Attack:
-            if self.dir == 1:
-                return self.x + 25, self.y - 25, self.x + 65, self.y + 20
-            elif self.dir == -1:
-                return self.x - 65, self.y - 20, self.x - 25, self.y + 20
-
-        elif self.state_machine.cur_state == Charge_Attack:
-            if self.dir == 1:
-                return self.x + 5, self.y - 45, self.x + 65, self.y + 25
-            elif self.dir == -1:
-                return self.x - 65, self.y - 45, self.x - 5, self.y + 25
-
-        elif self.state_machine.cur_state == Speed_Attack:
-            if self.dir == 1:
-                return self.x + 25, self.y - 35, self.x + 65, self.y + 10
-            elif self.dir == -1:
-                return self.x - 65, self.y - 35, self.x - 25, self.y + 10
-
-
-        elif self.state_machine.cur_state == Upper_Attack:
-            if self.dir == 1:
-                return self.x - 30, self.y - 85, self.x + 30, self.y -25
-            elif self.dir == -1:
-                return self.x - 30, self.y - 85, self.x + 30, self.y -25
-            else:
-                if self.Last_Input_Direction == 1:
-                    return self.x - 30, self.y - 85, self.x + 30, self.y - 25
-                elif self.Last_Input_Direction == -1:
-                    return self.x - 30, self.y - 85, self.x + 30, self.y - 25
-
-        elif self.state_machine.cur_state == Drop_Attack:
-            if self.dir == 1:
-                return self.x - 30, self.y - 55, self.x + 30, self.y + 15
-            elif self.dir == -1:
-                return self.x - 30, self.y - 55, self.x + 30, self.y + 15
-            else:
-                if self.Last_Input_Direction == 1:
-                    return self.x - 30, self.y - 55, self.x + 30, self.y + 15
-                elif self.Last_Input_Direction == -1:
-                    return self.x - 30, self.y - 55, self.x + 30, self.y + 15
-
-        elif self.state_machine.cur_state == Falling_Attack:
-            if self.dir == 1:
-                return self.x - 35, self.y - 35, self.x + 15, self.y + 15
-            elif self.dir == -1:
-                return self.x - 15, self.y - 35, self.x + 35, self.y + 15
-            else:
-                if self.Last_Input_Direction == 1:
-                    return self.x - 30, self.y - 55, self.x + 30, self.y + 15
-                elif self.Last_Input_Direction == -1:
-                    return self.x - 30, self.y - 55, self.x + 30, self.y + 15
-
-        elif self.state_machine.cur_state == Defense:
-            if self.dir == 1:
-                return self.x - 15, self.y - 45, self.x + 45, self.y + 25
-            elif self.dir == -1:
-                return self.x - 45, self.y - 45, self.x + 15, self.y + 25
-
-
+        if self.dir == 1:
+            return self.x - 40, self.y - 35, self.x + 20, self.y + 5
+        elif self.dir == -1:
+            return self.x - 20, self.y - 35, self.x + 40, self.y + 5
         else:
-            return self.x, self.y, self.x, self.y
+            return self.x - 40, self.y - 35, self.x + 20, self.y + 5
+
 
 
     def handle_collision(self, group, other):
@@ -988,5 +205,115 @@ class MetaKnight:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
                     print("p2 is damaged")
-                    self.state_machine.handle_event(('Damaged', 0, other.power))
+                    #ai damaged
+                    self.Life -= 2
                     self.dir = other.p_dir
+
+#===================================ai======================================================
+
+    def distance_less_than(self, x1, y1, x2, y2, r):
+        distance2 = (x1 - x2) ** 2 + (y1 - y2) ** 2
+        return distance2 < (PIXEL_PER_METER * r) ** 2
+
+    def move_slightly_to(self, tx, ty):
+        speed = RUN_SPEED_PPS
+        if self.x > tx:
+            self.dir = -1
+        elif self.x < tx:
+            self.dir = 1
+        if self.state == 'Walk':
+            speed = RUN_SPEED_PPS
+        elif self.state == 'Run':
+            speed = RUN_SPEED_PPS * 1.5
+        self.x += self.dir * speed * game_framework.frame_time
+
+
+    def set_random_location(self):
+        self.tx, self.ty = random.randint(100, 900), 150
+        return BehaviorTree.SUCCESS
+
+    def move_to(self, r=0.5):
+        self.state = 'Walk'
+        self.move_slightly_to(self.tx, self.ty)
+        if self.distance_less_than(self.tx, self.ty, self.x, self.y, r):
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.RUNNING
+
+    def is_player_nearby(self, distance):
+        if self.distance_less_than(one_player_mode.Player.x, one_player_mode.Player.y, self.x, self.y, distance):
+            return BehaviorTree.SUCCESS
+        else:
+            self.state = 'Idle'
+            return BehaviorTree.FAIL
+
+    def walk_to_player(self, r=0.5):
+        self.state = 'Walk'
+        self.move_slightly_to(one_player_mode.Player.x, one_player_mode.Player.y)
+        if self.distance_less_than(one_player_mode.Player.x, one_player_mode.Player.y, self.x, self.y, r):
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.RUNNING
+
+
+    def run_to_player(self, r=0.5):
+        self.state = 'Run'
+        self.move_slightly_to(one_player_mode.Player.x, one_player_mode.Player.y)
+        if self.distance_less_than(one_player_mode.Player.x, one_player_mode.Player.y, self.x, self.y, r):
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.RUNNING
+
+
+    def is_attack_possible(self, t):
+        if int(get_time() - self.Attack_cool_time) >= t:
+            return BehaviorTree.SUCCESS
+        else:
+            self.state = 'Idle'
+            return BehaviorTree.FAIL
+
+
+    def attack_to_player(self):
+        if not self.Attack_called:
+            self.frame = 0
+            self.Attack_called = True
+
+
+        self.state = 'Normal_attack'
+        if int(self.frame) == 4:
+            self.Attacking = False
+            self.Attack_cool_time = get_time()
+            self.Attack_called = False
+            return BehaviorTree.SUCCESS
+        else:
+            if 3 <= int(self.frame) <= 4:
+                self.Attacking = True
+            return BehaviorTree.RUNNING
+
+
+
+    def build_behavior_tree(self):
+        a1 = Action('Set random location', self.set_random_location)
+        a2 = Action('Move to', self.move_to)
+        a3 = Action('move to player', self.walk_to_player)
+        a4 = Action('run to player', self.run_to_player)
+        a5 = Action('attack to player', self.attack_to_player) # 기본 공격
+
+        c1 = Condition('근처에 플레이어가 있는가?', self.is_player_nearby, 10)
+        c2 = Condition('멀리에 플레이어가 있는가?', self.is_player_nearby, 15)
+        c3 = Condition('플레이어가 공격범위 내에 있는가?', self.is_player_nearby, 5)
+        c4 = Condition('마지막으로 공격한지 3초가 지났는가?', self.is_attack_possible, 3)
+
+        SEQ_near_chase = Sequence('Chase_Near_Player', c1, a3)
+        SEQ_far_chase = Sequence('Chase_Far_Player', c2, a4)
+        root = SEQ_normal_attack = Sequence('Normal_attack_to_Player', c3, c4, a5)
+
+
+
+        SEQ_wander = Sequence('Wander', a1, a2)
+
+        root = SEC_chase_or_wander = Selector('wander or chase',SEQ_normal_attack, SEQ_near_chase,SEQ_far_chase, SEQ_wander )
+
+        self.bt = BehaviorTree(root)
+        pass
+

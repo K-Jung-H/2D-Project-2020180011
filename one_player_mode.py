@@ -5,7 +5,7 @@ import World
 import one_player_character_select_mode
 import Title_mode
 from Background import BackGround
-from player_MetaKnight import MetaKnight
+from ai_metaknight import MetaKnight
 from player_Kirby import Kirby
 
 

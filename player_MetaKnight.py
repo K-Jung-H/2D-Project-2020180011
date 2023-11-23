@@ -28,7 +28,7 @@ FRAMES_PER_FALLING_ATTACK = 5
 
 
 #walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
-Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [425,110]]
+Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [649,91]]
 Speed_Attack_focus = [[2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
 Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[540, 100],[540, 100],[540, 100],[645,110]]
 Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340], [592, 42, 330], [636, 42, 340], [0, 50, 210], [50, 50, 210], [113, 50, 210], [163, 50, 210]]
@@ -407,8 +407,8 @@ class Normal_Attack:
     @staticmethod
     def do(p1):
         p1.Attacking = True
-        p1.frame = (p1.frame + FRAMES_PER_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 5
-        if int(p1.frame) == 4:
+        p1.frame = (p1.frame + FRAMES_PER_ATTACK * ACTION_PER_TIME * game_framework.frame_time)
+        if int(p1.frame) == 5:
             p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
 
@@ -815,13 +815,15 @@ class MetaKnight:
 
     def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
-        self.Life = 20
+        self.Life = 2
         self.damaged_amount = 0
         self.Picked_Player = Player
         if Player == "p1":
             self.dir = 1
+            self.x, self.y = 200, 150
         else:
             self.dir = -1
+            self.x, self.y = 800, 150
         self.frame = 0
 
         self.Last_Input_time = None # 대쉬 파악용

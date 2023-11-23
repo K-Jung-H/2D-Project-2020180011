@@ -887,8 +887,10 @@ class Kirby:
         self.Picked_Player = Player
         if Player == "p1":
             self.dir = 1
+            self.x, self.y = 200, 150
         else:
             self.dir = -1
+            self.x, self.y = 800, 150
         self.frame = 0
 
         self.Last_Input_time = None # 대쉬 파악용
