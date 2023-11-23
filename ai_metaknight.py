@@ -247,7 +247,7 @@ class MetaKnight:
             self.state = 'Idle'
             return BehaviorTree.FAIL
 
-    def walk_to_player(self, r=0.5):
+    def walk_to_player(self, r= 3):
         self.state = 'Walk'
         self.move_slightly_to(one_player_mode.Player.x, one_player_mode.Player.y)
         if self.distance_less_than(one_player_mode.Player.x, one_player_mode.Player.y, self.x, self.y, r):
@@ -256,7 +256,7 @@ class MetaKnight:
             return BehaviorTree.RUNNING
 
 
-    def run_to_player(self, r=0.5):
+    def run_to_player(self, r=3):
         self.state = 'Run'
         self.move_slightly_to(one_player_mode.Player.x, one_player_mode.Player.y)
         if self.distance_less_than(one_player_mode.Player.x, one_player_mode.Player.y, self.x, self.y, r):
@@ -301,18 +301,19 @@ class MetaKnight:
 
         c1 = Condition('근처에 플레이어가 있는가?', self.is_player_nearby, 10)
         c2 = Condition('멀리에 플레이어가 있는가?', self.is_player_nearby, 15)
-        c3 = Condition('플레이어가 공격범위 내에 있는가?', self.is_player_nearby, 5)
-        c4 = Condition('마지막으로 공격한지 3초가 지났는가?', self.is_attack_possible, 3)
+
+        c3 = Condition('마지막으로 공격한지 3초가 지났는가?', self.is_attack_possible, 3)
+        c4 = Condition('플레이어가 공격범위 내에 있는가?', self.is_player_nearby, 5)
 
         SEQ_near_chase = Sequence('Chase_Near_Player', c1, a3)
         SEQ_far_chase = Sequence('Chase_Far_Player', c2, a4)
-        root = SEQ_normal_attack = Sequence('Normal_attack_to_Player', c3, c4, a5)
+        SEQ_normal_attack = Sequence('Normal_attack_to_Player', c4, a5)
 
 
 
         SEQ_wander = Sequence('Wander', a1, a2)
-
-        root = SEC_chase_or_wander = Selector('wander or chase',SEQ_normal_attack, SEQ_near_chase,SEQ_far_chase, SEQ_wander )
+        root = SEQ_temp = Sequence("???", c3, SEQ_far_chase, SEQ_near_chase, SEQ_normal_attack)
+        root = SEQ_temp = Selector("???", SEQ_temp, SEQ_wander)
 
         self.bt = BehaviorTree(root)
         pass
