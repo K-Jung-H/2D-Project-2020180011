@@ -91,13 +91,3 @@ class Kirby_Attack_Area:
     def handle_collision(self, group, other):
         pass
 
-
-    def __del__(self):
-        print(f"Object {self.name} is being destroyed")
-        print(f"Object {self.name} is being destroyed")
-        print(f"Object {self.name} is being destroyed")
-        print(f"Object {self.name} is being destroyed")
-        print(f"Object {self.name} is being destroyed")
-
-    def remove(self):
-        del self

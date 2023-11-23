@@ -44,7 +44,9 @@ def handle_events():
 def init():
     global background
     global p1, p2
+    global picked_p1, picked_p2
     global Check_Victory
+    global HP_gui
 
     picked_p1 = two_player_character_select_mode.P1
     picked_p2 = two_player_character_select_mode.P2
@@ -74,6 +76,7 @@ def init():
     background = BackGround()
     World.add_object(background, 0)
 
+    HP_gui = HP_BAR()
     Check_Victory = KO()
 
 
@@ -86,6 +89,7 @@ def update():
     World.update()
     World.handle_collisions()
     Check_Victory.update()
+    HP_gui.update()
     if Check_Victory.KO_time is not None:
         pass
         #delay(0.1)
@@ -94,6 +98,7 @@ def update():
 def draw():
     clear_canvas()
     World.render()
+    HP_gui.draw()
     Check_Victory.draw()
     update_canvas()
 
@@ -138,14 +143,40 @@ class KO:
             if self.spotlight % 2 == 0 or self.spotlight > 100:
                 self.KO_image.clip_draw(0, 0, 473, 228, self.pos_x, 300, 300, 150)
 
+
+    def __del__(self):
+        print("deleted KO")
+        print("deleted KO")
+        print("deleted KO")
+        print("deleted KO")
+        print("deleted KO")
+
+
 class HP_BAR:
     HP_image = None
     def __init__(self):
         if HP_BAR.HP_image == None:
-            HP_BAR.HP_image = load_image('resource/KO.png')
-        self.p1_bar_x, self.p1_bar_y = 0, 0
-        self.p2_bar_x, self.p2_bar_y = 0, 0
+            HP_BAR.HP_image = load_image('resource/HP_bar.png')
+        self.p1_bar_x, self.p1_bar_y = 230, 550
+        self.p2_bar_x, self.p2_bar_y = 780, 550
+        self.p1_health = 20
+        self.p2_health = 20
+        self.p1_character = None
+        self.p2_character = None
+        self.metaknight_pic = load_image('resource/Meta_Knight_Portrait.png')
+        self.kirby_pic = load_image('resource/Kirby_Portrait.png')
 
 
+    def update(self):
+        self.p1_health = p1.Life
+        self.p2_health = p2.Life
+        self.p1_character = picked_p1
+        self.p2_character = picked_p2
 
+    def draw(self):
+        self.HP_image.clip_draw(2, 72, 560, 80, self.p1_bar_x, self.p1_bar_y, 450, 100)
+        self.HP_image.clip_composite_draw(2, 72, 560, 80, 0, 'h', self.p2_bar_x, self.p2_bar_y, 420, 100)
+        #self.metaknight_pic.clip_draw(0, 0, 375, 352, self.p1_bar_x - 190, self.p1_bar_y, 60, 60) # p1 일때 메타 나이트
+        #self.kirby_pic.clip_draw(0, 0, 451, 480, self.p1_bar_x - 190, self.p1_bar_y, 60, 60)# p1 일때 커비
+        #선택한 캐릭터에 따라서 초상화 넣기
 
