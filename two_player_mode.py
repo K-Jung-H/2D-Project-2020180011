@@ -138,5 +138,14 @@ class KO:
             if self.spotlight % 2 == 0 or self.spotlight > 100:
                 self.KO_image.clip_draw(0, 0, 473, 228, self.pos_x, 300, 300, 150)
 
+class HP_BAR:
+    HP_image = None
+    def __init__(self):
+        if HP_BAR.HP_image == None:
+            HP_BAR.HP_image = load_image('resource/KO.png')
+        self.p1_bar_x, self.p1_bar_y = 0, 0
+        self.p2_bar_x, self.p2_bar_y = 0, 0
+
+
 
 
