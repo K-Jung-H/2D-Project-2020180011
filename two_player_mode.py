@@ -144,12 +144,6 @@ class KO:
                 self.KO_image.clip_draw(0, 0, 473, 228, self.pos_x, 300, 300, 150)
 
 
-    def __del__(self):
-        print("deleted KO")
-        print("deleted KO")
-        print("deleted KO")
-        print("deleted KO")
-        print("deleted KO")
 
 
 class HP_BAR:
@@ -174,10 +168,10 @@ class HP_BAR:
         self.p2_character = picked_p2
 
     def draw(self):
-        self.HP_image.clip_draw(94, 2, 85, 60, self.p1_bar_x + 35 - (20 - p1.Life) * (370/40), self.p1_bar_y, (370/20) * p1.Life, 90) # 1p 체력
+        self.HP_image.clip_draw(94, 2, 85, 60, self.p1_bar_x + 35 - (20 - self.p1_health) * (370/40), self.p1_bar_y, (370/20) * self.p1_health, 90) # 1p 체력
         self.HP_image.clip_draw(2, 72, 560, 80, self.p1_bar_x, self.p1_bar_y, 450, 100)
 
-        self.HP_image.clip_draw(94, 2, 85, 60, self.p2_bar_x - 30 - (20 - p2.Life) * (350/40), self.p2_bar_y, (350/20) * p2.Life, 90) # 2p 체력
+        self.HP_image.clip_draw(94, 2, 85, 60, self.p2_bar_x - 30 - (20 - self.p2_health) * (350/40), self.p2_bar_y, (350/20) * self.p2_health, 90) # 2p 체력
         self.HP_image.clip_composite_draw(2, 72, 560, 80, 0, 'h', self.p2_bar_x, self.p2_bar_y, 420, 100)
 
 

@@ -41,7 +41,7 @@ def handle_events():
 def init():
     global background
     global Player, Com
-    global Check_Victory
+    global Check_Victory, hp_bar
 
     picked_side = 'p1'
     computer_side = 'p2'
@@ -95,7 +95,7 @@ def init():
     World.add_object(background, 0)
 
     Check_Victory = KO()
-
+    hp_bar = HP_BAR(picked_character, computer_character, picked_side)
 
 def finish():
     World.clear()
@@ -106,6 +106,7 @@ def update():
     World.update()
     World.handle_collisions()
     Check_Victory.update()
+    hp_bar.update()
     if Check_Victory.KO_time is not None:
         pass
         #delay(0.1)
@@ -115,6 +116,7 @@ def draw():
     clear_canvas()
     World.render()
     Check_Victory.draw()
+    hp_bar.draw()
     update_canvas()
 
 def pause():
@@ -157,6 +159,57 @@ class KO:
         if self.drawing:
             if self.spotlight % 2 == 0 or self.spotlight > 100:
                 self.KO_image.clip_draw(0, 0, 473, 228, self.pos_x, 300, 300, 150)
+
+
+class HP_BAR:
+    HP_image = None
+    def __init__(self, p1_c, p2_c, player_side):
+        if HP_BAR.HP_image == None:
+            HP_BAR.HP_image = load_image('resource/HP_bar.png')
+        self.p1_bar_x, self.p1_bar_y = 230, 550
+        self.p2_bar_x, self.p2_bar_y = 780, 550
+        self.p1_health = 20
+        self.p2_health = 20
+
+        self.p1_character = p1_c
+        self.p2_character = p2_c
+        self.player_side = player_side
+
+        self.metaknight_pic = load_image('resource/Meta_Knight_Portrait.png')
+        self.kirby_pic = load_image('resource/Kirby_Portrait.png')
+
+
+    def update(self):
+        if self.player_side == 'p1':
+            self.p1_health = Player.Life
+            self.p2_health = Com.Life
+        elif self.player_side == 'p2':
+            self.p1_health = Com.Life
+            self.p2_health = Player.Life
+
+
+
+    def draw(self):
+
+        self.HP_image.clip_draw(94, 2, 85, 60, self.p1_bar_x + 35 - (20 - self.p1_health) * (370/40), self.p1_bar_y, (370/20) * self.p1_health, 90) # 1p 체력
+        self.HP_image.clip_draw(2, 72, 560, 80, self.p1_bar_x, self.p1_bar_y, 450, 100)
+
+        self.HP_image.clip_draw(94, 2, 85, 60, self.p2_bar_x - 30 - (20 - self.p2_health) * (350/40), self.p2_bar_y, (350/20) * self.p2_health, 90) # 2p 체력
+        self.HP_image.clip_composite_draw(2, 72, 560, 80, 0, 'h', self.p2_bar_x, self.p2_bar_y, 420, 100)
+
+
+
+        # 초상화
+        if self.p1_character == 0:
+            self.kirby_pic.clip_draw(0, 0, 451, 480, self.p1_bar_x - 195, self.p1_bar_y, 50, 50)  # p1 일때 커비
+        elif self.p1_character == 1:
+            self.metaknight_pic.clip_draw(0, 0, 375, 352, self.p1_bar_x - 195, self.p1_bar_y, 50, 50) # p1 일때 메타 나이트
+
+        if self.p2_character == 0:
+            self.kirby_pic.clip_composite_draw(0, 0, 451, 480, 0, 'h', self.p2_bar_x + 180, self.p2_bar_y, 50, 50)  # p1 일때 커비
+        elif self.p2_character == 1:
+            self.metaknight_pic.clip_composite_draw(0, 0, 375, 352, 0, 'h', self.p2_bar_x + 180, self.p2_bar_y, 50, 50) # p1 일때 메타 나이트
+
 
 
 

@@ -66,7 +66,7 @@ class Attack_Area:
     def update(self):
         self.x, self.y = self.p.x, self.p.y
         self.Attacking = self.p.Attacking
-
+        self.p_dir = self.p.dir
         if not self.Attacking:
             self.x_range, self.y_range, self.power = 0, 0, 0
 
@@ -141,6 +141,7 @@ class MetaKnight:
             self.damaged_motion += 1
         else:
             self.bt.run()
+        print(self.Attacking)
 
     def draw(self):
         self.font.draw(self.x - 10, self.y + 60, f'{self.Life:02d}', (255, 0, 0))
@@ -194,6 +195,7 @@ class MetaKnight:
                     self.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, damaged_focus[frame][1], 42,
                                                          0, 'h', self.x, self.y, damaged_focus[frame][1] * 2, 42 * 2)
         draw_rectangle(*self.get_bb())
+        draw_rectangle(*self.attack_area.get_bb())
 
 
     def get_bb(self):
@@ -304,13 +306,14 @@ class MetaKnight:
 
         self.state = 'Normal_attack'
 
-        if 2 <= int(self.frame):
+        if int(self.frame) == 3 or int(self.frame) == 4:
             self.Attacking = True
 
         if int(self.frame) == 4:
-            self.Attacking = False
             self.Attack_cool_time = get_time()
             self.Attack_called = False
+            self.Attacking = False
+            self.state = 'Idle'
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.RUNNING
