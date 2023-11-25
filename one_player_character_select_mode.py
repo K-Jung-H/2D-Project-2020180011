@@ -25,13 +25,35 @@ class P1_Controller:
         self.frame_k = 0
         self.frame_m = 0
 
+        self.image_Background = load_image('resource/spot_light_solo.png')
+        self.image_black = load_image('resource/black_page.png')
+        self.image_k_portrait = load_image('resource/Kirby_Portrait.png')
+        self.image_m_portrait = load_image('resource/Meta_Knight_Portrait.png')
         self.image_m = load_image('resource/Meta_Knight_Walk.png')
         self.image_k = load_image('resource/Kirby_Walk.png')
+
         self.font = load_font('resource/ENCR10B.TTF', 16)
 
     def update(self):
         self.frame_k = (self.frame_k + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         self.frame_m = (self.frame_m + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
+
+    def draw_background(self):
+        self.image_black.clip_draw(0, 0, 100, 100, 500, 300, 1000, 600)
+        self.image_Background.clip_draw(0, 0, 1495, 998, 500, 300, 600, 600)
+
+        if self.P_side == 'Left':
+            if self.P_character == 0:
+                self.image_k_portrait.clip_draw(0, 0, 451, 480, 100, 500, 200, 200)  # p1 일때 커비
+            elif self.P_character == 1:
+                self.image_m_portrait.clip_draw(0, 0, 375, 352, 100, 500, 200, 200)  # p1 일때 메타 나이트
+        elif self.P_side == 'Right':
+            if self.P_character == 0:
+                self.image_k_portrait.clip_composite_draw(0, 0, 451, 480, 0, 'h', 900, 500, 200, 200)  # p1 일때 커비
+            elif self.P_character == 1:
+                self.image_m_portrait.clip_composite_draw(0, 0, 375, 352, 0, 'h', 900, 500, 200, 200) # p1 일때 메타 나이트
+
+
 
 
     def draw(self):
@@ -57,9 +79,7 @@ class P1_Controller:
 
 
 def init():
-    global B_image
     global Controller
-    B_image = load_image('resource/Character_Select_Background.png')
     Controller = P1_Controller()
 
 
@@ -105,7 +125,7 @@ def update():
 
 def draw():
     clear_canvas()
-    B_image.clip_draw(0, 0, 1216, 907, 500, 300, 1000, 600)
+    Controller.draw_background()
     Controller.draw()
     update_canvas()
     pass

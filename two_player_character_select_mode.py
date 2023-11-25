@@ -12,7 +12,7 @@ FRAMES_PER_ACTION = 10
 P1 = 0
 P2 = 0
 
-class P1_Controller:
+class P_Controller:
     def __init__(self):
         self.x1, self.y1 = 350, 150
         self.x2, self.y2 = 650, 150
@@ -21,6 +21,10 @@ class P1_Controller:
         self.frame_k = 0
         self.frame_m = 0
         self.Select = 0
+        self.image_Background = load_image('resource/Character_Select_Background.png')
+        self.image_black = load_image('resource/black_page.png')
+        self.image_k_portrait = load_image('resource/Kirby_Portrait.png')
+        self.image_m_portrait = load_image('resource/Meta_Knight_Portrait.png')
         self.image_m = load_image('resource/Meta_Knight_3.png')
         self.image_k = load_image('resource/Master_Kirby.png')
         self.font = load_font('resource/ENCR10B.TTF', 16)
@@ -30,7 +34,19 @@ class P1_Controller:
         self.frame_m = (self.frame_m + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
 
 
+    def draw_background(self):
+        self.image_black.clip_draw(0, 0, 100, 100, 500, 300, 1000, 600)
+        self.image_Background.clip_draw(0, 0, 1216, 907, 500, 300, 600, 600)
 
+        if self.P1 == 0:
+            self.image_k_portrait.clip_draw(0, 0, 451, 480, 100, 500, 200, 200)  # p1 일때 커비
+        elif self.P1 == 1:
+            self.image_m_portrait.clip_draw(0, 0, 375, 352, 100, 500, 200, 200) # p1 일때 메타 나이트
+
+        if self.P2 == 0:
+            self.image_k_portrait.clip_composite_draw(0, 0, 451, 480, 0, 'h', 900, 500, 200, 200)  # p1 일때 커비
+        elif self.P2 == 1:
+            self.image_m_portrait.clip_composite_draw(0, 0, 375, 352, 0, 'h', 900, 500, 200, 200) # p1 일때 메타 나이트
 
     def draw(self):
         frame_k = int(self.frame_k)
@@ -56,6 +72,7 @@ class P1_Controller:
 
 
 
+
 def P1_handle(event):
     if (event.key == SDLK_a or event.key == SDLK_d):
         return True
@@ -69,10 +86,9 @@ def P2_handle(event):
 
 
 def init():
-    global B_image
     global Controller
-    B_image = load_image('resource/Character_Select_Background.png')
-    Controller = P1_Controller()
+
+    Controller = P_Controller()
     pass
 
 def finish():
@@ -120,7 +136,7 @@ def update():
 
 def draw():
     clear_canvas()
-    B_image.clip_draw(0, 0, 1216, 907, 500, 300, 1000, 600)
+    Controller.draw_background()
     Controller.draw()
     update_canvas()
     pass

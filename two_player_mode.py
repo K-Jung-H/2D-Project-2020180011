@@ -193,5 +193,5 @@ class HP_BAR:
         elif self.p2_character == 1:
             self.metaknight_pic.clip_composite_draw(0, 0, 375, 352, 0, 'h', self.p2_bar_x + 180, self.p2_bar_y, 50, 50) # p1 일때 메타 나이트
 
-        #선택한 캐릭터에 따라서 초상화 넣기
+
 
