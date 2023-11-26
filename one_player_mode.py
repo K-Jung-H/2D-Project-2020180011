@@ -2,7 +2,9 @@ from pico2d import *
 import game_framework
 
 import World
+import Round_score
 import one_player_character_select_mode
+import one_player_mode
 import Title_mode
 from Background import BackGround
 from ai_metaknight import MetaKnight as AI_MetaKnight
@@ -41,7 +43,8 @@ def handle_events():
 def init():
     global background
     global Player, Com
-    global Check_Victory, hp_bar
+    global Check_Victory, hp_bar, score
+    global p1, p2
 
     picked_side = 'p1'
     computer_side = 'p2'
@@ -81,6 +84,7 @@ def init():
 
         World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, None)
 
+        p1, p2 = Player, Com
     elif picked_side == 'p2':
         World.add_collision_pair('p1 : p2_attack_range', Com, Player.attack_area)
         World.add_collision_pair('p1 : p2_Sword_Skill', Com, None)
@@ -90,12 +94,17 @@ def init():
 
         World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, None)
 
+        p1, p2 = Com, Player
 
     background = BackGround()
     World.add_object(background, 0)
 
     Check_Victory = KO()
     hp_bar = HP_BAR(picked_character, computer_character, picked_side)
+    score = Round_score.Score()
+    Round_score.p1_score = 0
+    Round_score.p2_score = 0
+
 
 def finish():
     World.clear()
@@ -117,6 +126,7 @@ def draw():
     World.render()
     Check_Victory.draw()
     hp_bar.draw()
+    score.draw()
     update_canvas()
 
 def pause():
@@ -126,39 +136,94 @@ def resume():
     pass
 
 
+def Compare_set_win():
+    if p1.Life >= p2.Life: # p1이 이겼다면?
+        Round_score.p2_score -= 1
+    else:
+        Round_score.p1_score -= 1
+
+
+def Compare_game_win():
+    if Round_score.p1_score == -1 or Round_score.p2_score == -1:
+        game_framework.change_mode(one_player_character_select_mode)
+    else:
+        game_framework.change_mode(one_player_mode)
+
+
 class KO:
     KO_image = None
+    Time_over_image = None
     def __init__(self):
         if KO.KO_image == None:
             KO.KO_image = load_image('resource/KO.png')
+        if KO.Time_over_image == None:
+            KO.Time_over_image = load_image('resource/Time_over.png')
+        self.font = load_font('resource/ENCR10B.TTF', 70) # 타이머
         self.KO_time = None
-        self.drawing = False
+        self.KO_drawing = False
         self.pos_x = 0
         self.spotlight = 0
 
+        self.Time_drawing = False
+        self.stage_time = 10
+        self.remain_time = 0
+        self.stage_start_time = get_time()
+
+        self.Round_end = False # 이걸로 해당 라운드 끝났는지 확인
+        self.Round_end_time = None
+
+
     def update(self):
-        if Player.Life <= 0 or Com.Life <= 0:
-            #print("KO")
-            self.drawing = True
+        # 시간 판별
+        if self.Round_end == False:
+            self.remain_time = int(self.stage_time - (get_time() - self.stage_start_time))
+            self.remain_time = max(0, self.remain_time)
+        if self.remain_time == 0:
+            self.Round_end = True
+            self.Time_drawing = True
+            if self.Round_end_time is None: # KO가 아직 안일어났다면 승부 판단
+               Compare_set_win()
+               self.Round_end_time = get_time()
+
+        # 체력 판별
+        if self.Round_end == False:
+            if Player.Life <= 0 or Com.Life <= 0:
+                self.KO_drawing = True
+                self.Round_end = True
+
+        if self.KO_drawing:
             if self.pos_x < 500:
                 self.pos_x += 10
             else:
                 max(self.pos_x, 500)
                 if self.KO_time is None:
+                    Compare_set_win()
                     self.KO_time = get_time()
 
-            if self.KO_time is not None:
-                self.spotlight += 1
-                if get_time() - self.KO_time >= 3:
-                    self.KO_time = None
-                    self.spotlight = 0
-                    game_framework.change_mode(Title_mode)
+                if self.KO_time is not None:
+                    self.spotlight += 1
+                    if get_time() - self.KO_time >= 3: # 3초만 깜빡이게
+                        self.spotlight = 0
+                        if self.Round_end_time is None: # 타임 아웃이 안일어났다면 KO 출력 3초후 종료하게
+                            self.Round_end_time = get_time()
+
+        # 3초후 게임 재시작
+        if self.Round_end_time is not None:
+            if int(get_time() - self.Round_end_time) >= 3:
+                Compare_game_win()
+
+
 
 
     def draw(self):
-        if self.drawing:
+        if self.KO_drawing:
             if self.spotlight % 2 == 0 or self.spotlight > 100:
                 self.KO_image.clip_draw(0, 0, 473, 228, self.pos_x, 300, 300, 150)
+
+        self.font.draw(465, 550, f'{self.remain_time:02d}', (255, 165, 0))
+
+        if self.Time_drawing:
+            self.Time_over_image.clip_draw(0, 0, 614, 98, 500, 300, 600, 100)
 
 
 class HP_BAR:
@@ -209,7 +274,3 @@ class HP_BAR:
             self.kirby_pic.clip_composite_draw(0, 0, 451, 480, 0, 'h', self.p2_bar_x + 180, self.p2_bar_y, 50, 50)  # p1 일때 커비
         elif self.p2_character == 1:
             self.metaknight_pic.clip_composite_draw(0, 0, 375, 352, 0, 'h', self.p2_bar_x + 180, self.p2_bar_y, 50, 50) # p1 일때 메타 나이트
-
-
-
-

@@ -1,13 +1,11 @@
 from pico2d import *
-import sys, os
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 import game_framework
-
+import Round_score
 import World
 import two_player_character_select_mode
 import Title_mode
+import two_player_mode
 from Background import BackGround
 from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
@@ -47,6 +45,7 @@ def init():
     global picked_p1, picked_p2
     global Check_Victory
     global HP_gui
+    global score
 
     picked_p1 = two_player_character_select_mode.P1
     picked_p2 = two_player_character_select_mode.P2
@@ -78,6 +77,8 @@ def init():
 
     HP_gui = HP_BAR()
     Check_Victory = KO()
+    score = Round_score.Score()
+
 
 
 def finish():
@@ -90,9 +91,6 @@ def update():
     World.handle_collisions()
     Check_Victory.update()
     HP_gui.update()
-    if Check_Victory.KO_time is not None:
-        pass
-        #delay(0.1)
 
 
 def draw():
@@ -100,6 +98,7 @@ def draw():
     World.render()
     HP_gui.draw()
     Check_Victory.draw()
+    score.draw()
     update_canvas()
 
 def pause():
@@ -107,6 +106,20 @@ def pause():
 
 def resume():
     pass
+
+def Compare_set_win():
+    if p1.Life >= p2.Life: # p1이 이겼다면?
+        Round_score.p2_score -= 1
+    else:
+        Round_score.p1_score -= 1
+
+
+def Compare_game_win():
+    if Round_score.p1_score == -1 or Round_score.p2_score == -1:
+        game_framework.change_mode(two_player_character_select_mode)
+    else:
+        game_framework.change_mode(two_player_mode)
+
 
 
 class KO:
@@ -123,49 +136,65 @@ class KO:
         self.pos_x = 0
         self.spotlight = 0
 
-        self.stage_time = 5
+        self.Time_drawing = False
+        self.stage_time = 30
         self.remain_time = 0
         self.stage_start_time = get_time()
 
         self.Round_end = False # 이걸로 해당 라운드 끝났는지 확인
+        self.Round_end_time = None
 
     def update(self):
         # 시간 판별
-        if   self.Round_end == False:
+        if self.Round_end == False:
             self.remain_time = int(self.stage_time - (get_time() - self.stage_start_time))
             self.remain_time = max(0, self.remain_time)
         if self.remain_time == 0:
-            print("Time over")
             self.Round_end = True
+            self.Time_drawing = True
+            if self.Round_end_time is None:  # KO가 아직 안일어났다면 승부 판단
+                Compare_set_win()
+                self.Round_end_time = get_time()
 
         # 체력 판별
-        if p1.Life <= 0 or p2.Life <= 0:
-            print("KO")
-            self.Round_end = True
-            self.KO_drawing = True
+        if self.Round_end == False:
+            if p1.Life <= 0 or p2.Life <= 0:
+                self.KO_drawing = True
+                self.Round_end = True
+
+        if self.KO_drawing:
             if self.pos_x < 500:
                 self.pos_x += 10
             else:
                 max(self.pos_x, 500)
                 if self.KO_time is None:
+                    Compare_set_win()
                     self.KO_time = get_time()
 
-            if self.KO_time is not None:
-                self.spotlight += 1
-                if get_time() - self.KO_time >= 3:
-                    self.KO_time = None
-                    self.spotlight = 0
-                    game_framework.change_mode(Title_mode)
+                if self.KO_time is not None:
+                    self.spotlight += 1
+                    if get_time() - self.KO_time >= 3:  # 3초만 깜빡이게
+                        self.spotlight = 0
+                        if self.Round_end_time is None:  # 타임 아웃이 안일어났다면 KO 출력 3초후 종료하게
+                            self.Round_end_time = get_time()
+
+        # 3초후 게임 재시작
+        if self.Round_end_time is not None:
+            if int(get_time() - self.Round_end_time) >= 3:
+                Compare_game_win()
 
 
     def draw(self):
-        if self.KO_drawing and self.Round_end:
+        if self.KO_drawing:
             if self.spotlight % 2 == 0 or self.spotlight > 100:
                 self.KO_image.clip_draw(0, 0, 473, 228, self.pos_x, 300, 300, 150)
+
         self.font.draw(465, 550, f'{self.remain_time:02d}', (255, 165, 0))
 
-        if self.Round_end and self.remain_time == 0:
+        if self.Time_drawing:
             self.Time_over_image.clip_draw(0, 0, 614, 98, 500, 300, 600, 100)
+
+
 
 
 

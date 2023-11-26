@@ -93,7 +93,7 @@ class MetaKnight:
 
     def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
-        self.Life = 10
+        self.Life = 1
         self.Picked_Player = Player
         if Player == "p1":
             self.dir = 1
@@ -141,7 +141,6 @@ class MetaKnight:
             self.damaged_motion += 1
         else:
             self.bt.run()
-        print(self.Attacking)
 
     def draw(self):
         self.font.draw(self.x - 10, self.y + 60, f'{self.Life:02d}', (255, 0, 0))
