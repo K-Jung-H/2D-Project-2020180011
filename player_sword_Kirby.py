@@ -128,9 +128,11 @@ Defense_focus = [(35, 940, 40, 40, 0, 0), (75, 940, 40, 40, 0, 0), (125, 940, 40
 #
 
 # reforged
-stand_focus = [[0, 32], [44, 33], [92, 30], [139, 31]]
-walk_focus = [[0, 22], [39, 27], [80, 30], [120, 37], [167, 37], [214, 32], [259, 29], [299, 20]]
-Run_focus = [[0, 34], [41, 30], [83, 29], [122, 34], [165, 30], [210, 34]]
+stand_focus = [[0, 27], [31, 27]]
+walk_focus = [[0, 25], [29, 28], [61, 31], [96, 32], [133, 32], [169, 28], [201, 24], [229, 23], [256, 23], [283, 28], [315, 25]] # 11개
+
+#done
+Run_focus = [[0, 31], [35, 29], [67, 26],  [97, 26], [165, 30], [210, 34]]
 Jump_focus = [[0, 32], [47, 35], [97, 30], [138, 21], [177, 22], [218, 20], [253, 21], [290, 20], [318, 22], [352, 24],
               [386, 33], [437, 39], [500, 34], [564, 30], [614, 30], [666, 30], [717, 28]]
 damaged_focus = [[0, 34], [42, 39]]
@@ -166,13 +168,13 @@ class Idle:
 
     @staticmethod
     def do(p1):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+        p1.frame = (p1.frame + FRAMES_PER_ACTION/10 * ACTION_PER_TIME * game_framework.frame_time) % 2
 
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
         p_size_x = stand_focus[frame][1]
-        p_size_y = 45
+        p_size_y = 40
         if p1.dir == 1:
             p1.stand_image.clip_draw(stand_focus[frame][0], 0, p_size_x, p_size_y,
                                      p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
@@ -186,7 +188,7 @@ class Walk:
 
     @staticmethod
     def enter(p1, e):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 6
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 11
         if Right_Move_Down(e):
             p1.Right_Move, p1.dir = True, 1
 
@@ -224,7 +226,7 @@ class Walk:
     @staticmethod
     def do(p1):
 
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 11
         if p1.Left_Move and p1.Right_Move:
             p1.dir = p1.Last_Input_Direction
 
@@ -239,7 +241,7 @@ class Walk:
     def draw(p1):
         frame = int(p1.frame)
         p_size_x = walk_focus[frame][1]
-        p_size_y = 49
+        p_size_y = 41
 
         if p1.dir == 1:
             p1.walk_image.clip_draw(walk_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y + 10, p_size_x * 2,
@@ -875,7 +877,7 @@ class StateMachine:
         self.player.font.draw(self.player.x - 10, self.player.y + 60, f'{self.player.Life:02d}', (255, 0, 0))
 
 
-class Kirby:
+class Sword_Kirby:
 
     def __init__(self, Player="p1"):
         self.x, self.y = 400, 150
@@ -908,11 +910,11 @@ class Kirby:
         self.font = load_font('resource/ENCR10B.TTF', 16)
         self.Left_Move = False
         self.Right_Move = False
-        self.image = load_image('resource/Master_Kirby.png')
-        self.stand_image = load_image('resource/Kirby_Stand.png')
-        self.walk_image = load_image('resource/Kirby_Walk.png')
-        self.run_image = load_image('resource/Kirby_Run.png')
-        self.jump_image = load_image('resource/Kirby_Jump.png')
+        self.stand_image = load_image('resource/Sword_Kirby/Sword_kirby_Stand.png')
+        self.walk_image = load_image('resource/Sword_Kirby/Sword_kirby_Walk.png')
+        self.run_image = load_image('resource/Sword_Kirby/Sword_kirby_Run.png')
+        self.jump_image = load_image('resource/Sword_Kirby/Sword_kirby_Jump.png')
+        #
         self.damaged_image = load_image('resource/Kirby_Damaged.png')
         self.charge_attack_image = load_image('resource/Kirby_Charge_Attack.png')
         self.upper_attack_image = load_image('resource/Kirby_Upper_Attack.png')

@@ -9,7 +9,7 @@ import two_player_mode
 from Background import BackGround
 from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
-
+from player_sword_Kirby import Sword_Kirby
 
 def P1_handle(event):
     if (event.key == SDLK_q or event.key == SDLK_w or event.key == SDLK_a or event.key == SDLK_s
@@ -51,7 +51,8 @@ def init():
     picked_p2 = two_player_character_select_mode.P2
 
     if picked_p1 == 0:
-        p1 = Kirby("p1")
+        #p1 = Kirby("p1")
+        p1 = Sword_Kirby("p1")
     elif picked_p1 == 1:
         p1 = MetaKnight("p1")
 
