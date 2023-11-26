@@ -111,18 +111,38 @@ def resume():
 
 class KO:
     KO_image = None
+    Time_over_image = None
     def __init__(self):
         if KO.KO_image == None:
             KO.KO_image = load_image('resource/KO.png')
+        if KO.Time_over_image == None:
+            KO.Time_over_image = load_image('resource/Time_over.png')
+        self.font = load_font('resource/ENCR10B.TTF', 70) # 타이머
         self.KO_time = None
-        self.drawing = False
+        self.KO_drawing = False
         self.pos_x = 0
         self.spotlight = 0
 
+        self.stage_time = 5
+        self.remain_time = 0
+        self.stage_start_time = get_time()
+
+        self.Round_end = False # 이걸로 해당 라운드 끝났는지 확인
+
     def update(self):
+        # 시간 판별
+        if   self.Round_end == False:
+            self.remain_time = int(self.stage_time - (get_time() - self.stage_start_time))
+            self.remain_time = max(0, self.remain_time)
+        if self.remain_time == 0:
+            print("Time over")
+            self.Round_end = True
+
+        # 체력 판별
         if p1.Life <= 0 or p2.Life <= 0:
             print("KO")
-            self.drawing = True
+            self.Round_end = True
+            self.KO_drawing = True
             if self.pos_x < 500:
                 self.pos_x += 10
             else:
@@ -139,9 +159,13 @@ class KO:
 
 
     def draw(self):
-        if self.drawing:
+        if self.KO_drawing and self.Round_end:
             if self.spotlight % 2 == 0 or self.spotlight > 100:
                 self.KO_image.clip_draw(0, 0, 473, 228, self.pos_x, 300, 300, 150)
+        self.font.draw(465, 550, f'{self.remain_time:02d}', (255, 165, 0))
+
+        if self.Round_end and self.remain_time == 0:
+            self.Time_over_image.clip_draw(0, 0, 614, 98, 500, 300, 600, 100)
 
 
 

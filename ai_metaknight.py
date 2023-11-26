@@ -364,9 +364,11 @@ class MetaKnight:
         c1 = Condition('근처에 플레이어가 있는가?', self.is_player_nearby, 10)
         c2 = Condition('멀리에 플레이어가 있는가?', self.is_player_nearby, 15)
 
+
         c3 = Condition('마지막으로 공격한지 3초가 지났는가?', self.is_attack_possible, 3)
         c4 = Condition('플레이어가 공격범위 내에 있는가?', self.is_player_nearby, 5)
         c5 = Condition('공격을 받은 상태인가?', self.is_hurt)
+
 
         SEQ_near_chase = Sequence('Chase_Near_Player', c1, a3)
         SEQ_far_chase = Sequence('Chase_Far_Player', c2, a4)

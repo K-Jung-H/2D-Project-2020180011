@@ -876,7 +876,6 @@ class StateMachine:
         self.cur_state.draw(self.player)
         self.player.attack_area.draw()
         self.player.font.draw(self.player.x - 10, self.player.y + 60, f'{self.player.Life:02d}', (255, 0, 0))
-        #print(f"{self.player.Picked_Player}'s HP: {self.player.Life}")
 
 
 class Kirby:
