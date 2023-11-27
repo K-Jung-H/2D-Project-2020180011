@@ -10,6 +10,7 @@ from Background import BackGround
 from ai_metaknight import MetaKnight as AI_MetaKnight
 from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
+from player_sword_Kirby import Sword_Kirby
 
 
 def P_handle_L(event):
@@ -46,31 +47,37 @@ def init():
     global Check_Victory, hp_bar, score
     global p1, p2
 
-    picked_side = 'p1'
-    computer_side = 'p2'
+    picked_side = None
+    computer_side = None
 
     picked_character = one_player_character_select_mode.Player
+    computer_difficulty = 1
     computer_character = 1
 
 
     if one_player_character_select_mode.Player_side == 'Left':
         picked_side, computer_side = 'p1', 'p2'
+        print("p1")
     elif one_player_character_select_mode.Player_side == 'Right':
         picked_side, computer_side = 'p2', 'p1'
+        print("p2")
 
-    print(picked_side, picked_character)
 
     if picked_character == 0:
         Player = Kirby(picked_side)
     elif picked_character == 1:
         Player = MetaKnight(picked_side)
+    elif picked_character == 2:
+        Player = Sword_Kirby(picked_side)
 
-    # ai 추가할 부분
 
-    if computer_character == 0:
-        Com = Kirby(computer_side)
-    elif computer_character == 1:
+
+    if computer_difficulty == 1:
         Com = AI_MetaKnight(computer_side)
+        computer_character = 1
+    elif computer_difficulty == 2:
+        Com = Kirby(computer_side)
+        computer_character = 0
 
     World.add_object(Player, 1)
     World.add_object(Com, 1)
@@ -228,7 +235,7 @@ class KO:
 
 class HP_BAR:
     HP_image = None
-    def __init__(self, p1_c, p2_c, player_side):
+    def __init__(self, player_character, com_character, player_side):
         if HP_BAR.HP_image == None:
             HP_BAR.HP_image = load_image('resource/HP_bar.png')
         self.p1_bar_x, self.p1_bar_y = 230, 550
@@ -236,19 +243,29 @@ class HP_BAR:
         self.p1_health = 20
         self.p2_health = 20
 
-        self.p1_character = p1_c
-        self.p2_character = p2_c
+        self.player_character = player_character
+        self.com_character = com_character
+
+        self.p1_character = 0
+        self.p2_character = 0
         self.player_side = player_side
 
         self.metaknight_pic = load_image('resource/Meta_Knight_Portrait.png')
         self.kirby_pic = load_image('resource/Kirby_Portrait.png')
+        self.sword_kirby_pic = load_image('resource/Sword_kirby_Portrait.png')
 
 
     def update(self):
+        print(self.player_side)
         if self.player_side == 'p1':
+            self.p1_character = self.player_character
+            self.p2_character = self.com_character
             self.p1_health = Player.Life
             self.p2_health = Com.Life
+
         elif self.player_side == 'p2':
+            self.p2_character = self.player_character
+            self.p1_character = self.com_character
             self.p1_health = Com.Life
             self.p2_health = Player.Life
 
@@ -269,8 +286,14 @@ class HP_BAR:
             self.kirby_pic.clip_draw(0, 0, 451, 480, self.p1_bar_x - 195, self.p1_bar_y, 50, 50)  # p1 일때 커비
         elif self.p1_character == 1:
             self.metaknight_pic.clip_draw(0, 0, 375, 352, self.p1_bar_x - 195, self.p1_bar_y, 50, 50) # p1 일때 메타 나이트
+        elif self.p1_character == 2:
+            self.sword_kirby_pic.clip_draw(0, 0, 221, 244, self.p1_bar_x - 195, self.p1_bar_y, 50, 50)  # p1 일때 소드 커비
+
 
         if self.p2_character == 0:
             self.kirby_pic.clip_composite_draw(0, 0, 451, 480, 0, 'h', self.p2_bar_x + 180, self.p2_bar_y, 50, 50)  # p1 일때 커비
         elif self.p2_character == 1:
             self.metaknight_pic.clip_composite_draw(0, 0, 375, 352, 0, 'h', self.p2_bar_x + 180, self.p2_bar_y, 50, 50) # p1 일때 메타 나이트
+        elif self.p2_character == 2:
+            self.sword_kirby_pic.clip_composite_draw(0, 0, 221, 244, 0, 'h', self.p2_bar_x + 180, self.p2_bar_y, 50, 50)  # p1 일때 소드 커비
+

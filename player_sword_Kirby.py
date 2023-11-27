@@ -5,7 +5,7 @@ from pico2d import (get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SP
 import World
 import game_framework
 from SK_Sword_Attack import Sword_Kirby_Sword_Strike as Sword_Strike
-from K_Attack_Area import Kirby_Attack_Area
+from SK_Attack_Area import Sword_Kirby_Attack_Area
 
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
 RUN_SPEED_KMPH = 20.0  # Km / Hour
@@ -205,7 +205,6 @@ class Walk:
                 if Input_time <= 0.5:  # 1초 안에 2번 입력했다면
                     if p1.Last_Input_Direction == p1.dir:  # 이전과 같은 방향 이동을 시도했다면
                         p1.state_machine.handle_event(('RUN', 0))
-                        print("Running_Start")
                 p1.Last_Input_time = get_time()
                 p1.Last_Input_Direction = p1.dir
 
@@ -352,9 +351,6 @@ class Jump:
                                               p_width * 2, p_height * 2)
 
 
-
-
-
 class Hurt:
 
     @staticmethod
@@ -450,8 +446,6 @@ class Normal_Attack:
 
 
 
-
-
 class Speed_Attack:
 
     @staticmethod
@@ -509,7 +503,6 @@ class Charge_Attack:
         if Charge_Attack_Down(e):
             p1.frame = 0
             p1.charging = True
-            # p1.Attacking = False
             p1.Charging_Time = get_time()
 
         elif Charge_Attack_Up(e):
@@ -583,12 +576,15 @@ class Defense:
     def exit(p1, e):
         p1.Right_Move = False
         p1.Left_Move = False
+        p1.Defensing = False
         pass
 
     @staticmethod
     def do(p1):
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 10
+        p1.Defensing = True
         if int(p1.frame) == 9:
+            p1.Defensing = False
             p1.state_machine.handle_event(('STOP', 0))
 
     @staticmethod
@@ -676,7 +672,6 @@ class Drop_Attack:
 
     @staticmethod
     def do(p1):
-
         if 5 <= int(p1.frame):
             p1.Attacking = True
             p1.y += p1.jump_value
@@ -870,10 +865,11 @@ class Sword_Kirby:
         self.Last_Input_Direction = None  # 대쉬 파악용
 
         self.jump_value = 0  # 점프 구현
-        self.Defense_time = None  # 방어 지속 시간 체크
+        self.Defensing = False
+        self.Defense_time = None # 방어 지속 시간 체크
         self.Defense_cooltime = 0  # 방어 재사용 대기시간
 
-        self.attack_area = Kirby_Attack_Area(self)
+        self.attack_area = Sword_Kirby_Attack_Area(self)
         self.Attacking = False
         self.charging = False
         self.Charging_Point = 0
@@ -928,9 +924,9 @@ class Sword_Kirby:
     def get_bb(self):
         if self.state_machine.cur_state == Idle:
             if self.dir == 1:
-                return self.x - 12, self.y - 35, self.x + 32, self.y + 5
+                return self.x - 10, self.y - 35, self.x + 30, self.y + 5
             elif self.dir == -1:
-                return self.x - 32, self.y - 35, self.x + 12, self.y + 5
+                return self.x - 30, self.y - 35, self.x + 10, self.y + 5
 
         elif self.state_machine.cur_state == Walk or self.state_machine.cur_state == Run:
             if self.dir == 1:
@@ -944,11 +940,11 @@ class Sword_Kirby:
                     return self.x - 32, self.y - 35, self.x + 12, self.y + 5
 
 
-        elif self.state_machine.cur_state == Jump:  # 점프 상황에서 피격 범위만 정하면 끝
+        elif self.state_machine.cur_state == Jump:
             if self.dir == 1:
                 return self.x - 12, self.y - 35, self.x + 32, self.y + 5
             elif self.dir == -1:
-                return self.x - 32, self.y - 25, self.x + 12, self.y + 45
+                return self.x - 32, self.y - 35, self.x + 12, self.y + 5
             else:
                 if self.Last_Input_Direction == 1:
                     return self.x - 12, self.y - 35, self.x + 32, self.y + 5
@@ -958,31 +954,42 @@ class Sword_Kirby:
 
         elif self.state_machine.cur_state == Normal_Attack:
             if self.dir == 1:
-                return self.x - 35, self.y - 45, self.x + 35, self.y + 15
+                return self.x - 35, self.y - 35, self.x + 35, self.y + 15
             elif self.dir == -1:
-                return self.x - 45, self.y - 45, self.x + 25, self.y + 15
+                return self.x - 45, self.y - 35, self.x + 25, self.y + 15
+
+        elif self.state_machine.cur_state == Speed_Attack:
+            if self.dir == 1:
+                return self.x - 35, self.y - 35, self.x + 35, self.y + 15
+            elif self.dir == -1:
+                return self.x - 45, self.y - 35, self.x + 25, self.y + 15
 
         elif self.state_machine.cur_state == Charge_Attack:
             if self.dir == 1:
-                return self.x - 35, self.y - 45, self.x + 25, self.y + 15
+                return self.x - 15, self.y - 45, self.x + 35, self.y + 15
             elif self.dir == -1:
-                return self.x - 35, self.y - 45, self.x + 25, self.y + 15
+                return self.x - 35, self.y - 45, self.x + 15, self.y + 15
 
         elif self.state_machine.cur_state == Defense:
             if self.dir == 1:
-                return self.x - 25, self.y - 40, self.x + 35, self.y + 20
+                return self.x - 25, self.y - 30, self.x + 25, self.y + 20
             elif self.dir == -1:
-                return self.x - 30, self.y - 40, self.x + 30, self.y + 20
+                return self.x - 25, self.y - 30, self.x + 25, self.y + 20
 
         elif self.state_machine.cur_state == Upper_Attack:
-            return self.x - 20, self.y - 60, self.x + 20, self.y - 20
+            if self.dir == 1:
+                return self.x - 45, self.y - 30, self.x, self.y + 10
+            elif self.dir == -1:
+                return self.x, self.y - 30, self.x + 45, self.y + 10
 
         elif self.state_machine.cur_state == Drop_Attack:
-            return self.x - 20, self.y - 40, self.x + 20, self.y + 10
+            if self.dir == 1:
+                return self.x - 40, self.y - 20, self.x, self.y + 20
+            elif self.dir == -1:
+                return self.x, self.y - 20, self.x + 40, self.y + 20
 
         elif self.state_machine.cur_state == Falling_Attack:
             return self.x - 20, self.y - 20, self.x + 20, self.y + 20
-
 
         else:
             return 0, 0, 0, 0
@@ -991,16 +998,31 @@ class Sword_Kirby:
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
                 if other.Attacking:
-                    print("p1 is damaged")
-                    self.state_machine.handle_event(('Damaged', 0, other.power))
-                    self.dir = other.p_dir
+                    # 직접적인 공격 받고, 강공격이 아니라면 반사하기
+                    if self.Defensing and group == 'p1 : p2_attack_range' and other.charge_attack == False:
+                        print("p1 Defensed")
+                        other.p.state_machine.handle_event(('Damaged', 0, other.power))
+                        other.p.dir = self.dir
+                    else:
+                        if other.power != 0:
+                            print("p1 is damaged")
+                            self.state_machine.handle_event(('Damaged', 0, other.power))
+                            self.dir = other.p_dir
 
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
-                    print("p2 is damaged")
-                    self.state_machine.handle_event(('Damaged', 0, other.power))
-                    self.dir = other.p_dir
+                    if other.Attacking:
+                        # 직접적인 공격 받고, 강공격이 아니라면 반사하기
+                        if self.Defensing and group == 'p2 : p1_attack_range' and other.charge_attack == False:
+                            print("p2 Defensed")
+                            other.p.state_machine.handle_event(('Damaged', 0, other.power))
+                            other.p.dir = self.dir
+                        else:
+                            if other.power != 0:
+                                print("p2 is damaged")
+                                self.state_machine.handle_event(('Damaged', 0, other.power))
+                                self.dir = other.p_dir
 
     def remove(self):
         self.attack_area = None

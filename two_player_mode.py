@@ -11,6 +11,7 @@ from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
 from player_sword_Kirby import Sword_Kirby
 
+
 def P1_handle(event):
     if (event.key == SDLK_q or event.key == SDLK_w or event.key == SDLK_a or event.key == SDLK_s
                             or event.key == SDLK_d or event.key == SDLK_e or event.key == SDLK_f):
@@ -51,15 +52,18 @@ def init():
     picked_p2 = two_player_character_select_mode.P2
 
     if picked_p1 == 0:
-        #p1 = Kirby("p1")
-        p1 = Sword_Kirby("p1")
+        p1 = Kirby("p1")
     elif picked_p1 == 1:
         p1 = MetaKnight("p1")
+    elif picked_p1 == 2:
+        p1 = Sword_Kirby("p1")
 
     if picked_p2 == 0:
         p2 = Kirby("p2")
     elif picked_p2 == 1:
         p2 = MetaKnight("p2")
+    elif picked_p2 == 2:
+        p2 = Sword_Kirby("p2")
 
     World.add_object(p1, 1)
     World.add_object(p2, 1)
@@ -213,6 +217,8 @@ class HP_BAR:
         self.p2_character = None
         self.metaknight_pic = load_image('resource/Meta_Knight_Portrait.png')
         self.kirby_pic = load_image('resource/Kirby_Portrait.png')
+        self.sword_kirby_pic = load_image('resource/Sword_kirby_Portrait.png')
+
 
 
     def update(self):
@@ -235,11 +241,15 @@ class HP_BAR:
             self.kirby_pic.clip_draw(0, 0, 451, 480, self.p1_bar_x - 195, self.p1_bar_y, 50, 50)  # p1 일때 커비
         elif self.p1_character == 1:
             self.metaknight_pic.clip_draw(0, 0, 375, 352, self.p1_bar_x - 195, self.p1_bar_y, 50, 50) # p1 일때 메타 나이트
+        elif self.p1_character == 2:
+            self.sword_kirby_pic.clip_draw(0, 0, 221, 244, self.p1_bar_x - 195, self.p1_bar_y, 50, 50)  # p1 일때 소드 커비
 
         if self.p2_character == 0:
             self.kirby_pic.clip_composite_draw(0, 0, 451, 480, 0, 'h', self.p2_bar_x + 180, self.p2_bar_y, 50, 50)  # p1 일때 커비
         elif self.p2_character == 1:
             self.metaknight_pic.clip_composite_draw(0, 0, 375, 352, 0, 'h', self.p2_bar_x + 180, self.p2_bar_y, 50, 50) # p1 일때 메타 나이트
+        elif self.p2_character == 2:
+            self.sword_kirby_pic.clip_composite_draw(0, 0, 221, 244, 0, 'h', self.p2_bar_x + 180, self.p2_bar_y, 50, 50)  # p1 일때 소드 커비
 
 
 

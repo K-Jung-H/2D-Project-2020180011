@@ -103,18 +103,6 @@ def Falling_Attack_DOWN(e):
             and (e[2] == "Air_Up" or e[2] == "Air_Down"))
 
 
-
-Normal_Attack_focus = [[45, 800, 45, 50],[97,800, 60, 50],[160, 800, 60, 50],[227, 800, 45, 50], [290, 800, 55, 50], [362, 785, 90, 50], [455, 785, 95, 50],[555, 785, 70, 50] ]
-Speed_Attack_focus = [[40, 700, 55, 50], [105, 700, 55, 50], [165, 700, 55, 50], [230, 700, 75, 50], [310, 695, 65, 50],  [390, 690, 85, 50], [570,616,85,50], [670,616,70,50], ]
-Defense_focus = [(35, 940, 40, 40,0 ,0), (75, 940, 40, 40, 0 ,0), (125, 940, 40, 40, 0 ,0), (175, 940, 50, 40, 0 ,0), (235, 930, 40, 65, 0 ,0),
-                 (280, 930, 40, 65, 0 ,0), (325, 930, 40, 65, 0 ,0), (375, 930, 40, 65, 0 ,0), (420, 930, 40, 65, 0 ,0), (470, 930, 40, 65, 0 ,0),
-                 (510, 940, 65, 40, 0, 0), (585, 940, 65, 40, 0, 0), (665, 940, 70, 40, 0, 0), (750, 940, 65, 40, 0, 0),]
-
-#
-# 커비의 충돌 체크 먼저 추가하기, 안그러면 다른 동작 추가하려 하는데, 모드가 안돌아감
-# 그다음 커비의 달리기 점프, 동작부터 추가하기
-#
-
 #reforged
 stand_focus = [[0, 32], [44, 33], [92, 30], [139, 31]]
 walk_focus = [[0, 22], [39, 27], [80, 30], [120, 37], [167, 37], [214, 32], [259, 29], [299, 20]]
@@ -126,6 +114,10 @@ Drop_attack_focus = [[0, 39], [66, 44], [141, 56], [249, 76], [354, 28]] #jump 2
 Falling_attack_focus = [[0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53] , [0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53], [0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53]] #점프의 12, 13, 14번째 이미지를 쓰고 하기
 charge_focus = [[0, 56], [68, 58], [139, 65], [215, 41], [267, 41], [320, 40], [370, 40], [440, 62], [528, 70], [629, 70], [733, 92]]
 charge_location = [[-33, -9], [- 35, -9], [-42, -9], [- 18, -9], [ -18, -9], [-17, -9], [-17, -9], [- 16, -9], [- 17 ,-9], [-21, -9], [-21,-9]]
+Normal_Attack_focus = [[45, 800, 45, 50],[97,800, 60, 50],[160, 800, 60, 50],[227, 800, 45, 50], [290, 800, 55, 50], [362, 785, 90, 50], [455, 785, 95, 50],[555, 785, 70, 50] ]
+Speed_Attack_focus = [[40, 700, 55, 50], [105, 700, 55, 50], [165, 700, 55, 50], [230, 700, 75, 50], [310, 695, 65, 50],  [390, 690, 85, 50], [570,616,85,50], [670,616,70,50], ]
+Defense_focus = [[0,23], [29, 26], [61, 30], [98, 18], [122, 24], [152, 32], [189, 22], [218, 24], [250, 25], [282, 25]]
+
 
 class Idle:
 
@@ -585,29 +577,29 @@ class Defense:
     def exit(p1, e):
         p1.Right_Move = False
         p1.Left_Move = False
+        p1.Defensing = False
         pass
 
     @staticmethod
     def do(p1):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 15
-        if int(p1.frame) == 14:
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 10
+        p1.Defensing = True
+        if int(p1.frame) == 9:
+            p1.Defensing = False
             p1.state_machine.handle_event(('STOP', 0))
-
-
 
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_size_x = Defense_focus[frame][2]
-        p_size_y = Defense_focus[frame][3]
-        p_x = p1.x + Defense_focus[frame][4]
-        p_y = p1.y + Defense_focus[frame][5]
+        p_size_x = Defense_focus[frame][1]
+        p_size_y = 22
         if p1.dir == 1:
-            p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y, p_x , p_y, p_size_x * 2, p_size_y * 2)
+            p1.defense_image.clip_draw(Defense_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y,
+                               p_size_x * 2, p_size_y * 2)
 
         elif p1.dir == -1:
-            p1.image.clip_composite_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y,
-                                         0, 'h', p_x , p_y, p_size_x * 2, p_size_y * 2)
+            p1.defense_image.clip_composite_draw(Defense_focus[frame][0], 0, p_size_x, p_size_y,
+                                         0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
 
 
@@ -850,7 +842,7 @@ class StateMachine:
             Falling_Attack: {STOP: Jump, Right_Move_Down: Falling_Attack, Left_Move_Down: Falling_Attack,
                              Right_Move_Up: Falling_Attack, Left_Move_Up: Falling_Attack, Get_Damage: Hurt},
 
-            Defense: {Defense_Up: Idle, STOP: Idle, }
+            Defense: {Defense_Up: Idle, STOP: Idle, Get_Damage: Hurt}
 
         }
 
@@ -897,6 +889,7 @@ class Kirby:
         self.Last_Input_Direction = None  # 대쉬 파악용
 
         self.jump_value = 0 #점프 구현
+        self.Defensing = False
         self.Defense_time = None # 방어 지속 시간 체크
         self.Defense_cooltime = 0  # 방어 재사용 대기시간
 
@@ -917,6 +910,7 @@ class Kirby:
         self.run_image = load_image('resource/Kirby_Run.png')
         self.jump_image = load_image('resource/Kirby_Jump.png')
         self.damaged_image = load_image('resource/Kirby_Damaged.png')
+        self.defense_image = load_image('resource/Sword_Kirby/Defense_Kirby.png')
         self.charge_attack_image = load_image('resource/Kirby_Charge_Attack.png')
         self.upper_attack_image = load_image('resource/Kirby_Upper_Attack.png')
         self.drop_attack_image = load_image('resource/Kirby_Drop_Attack.png')
@@ -931,18 +925,13 @@ class Kirby:
     def handle_event(self, event):
         if self.jump_value > 0:
             self.state_machine.handle_event(('INPUT', event, "Air_Up"))
-            print("command in air")
         elif self.jump_value < 0:
             self.state_machine.handle_event(('INPUT', event, "Air_Down"))
-            print("command in air")
         else:
             self.state_machine.handle_event(('INPUT', event, "Ground"))
-            print("command on ground")
 
     def draw(self):
         self.state_machine.draw()
-        #체력 표기
-        #self.font.draw(self.x - 10, self.y + 50, f'{self.Charging_Point:02d}', (255, 255, 0))
         draw_rectangle(*self.get_bb())
 
 
@@ -1004,9 +993,9 @@ class Kirby:
 
         elif self.state_machine.cur_state == Defense:
             if self.dir == 1:
-                return self.x - 25, self.y - 40, self.x + 35, self.y + 20
+                return self.x - 25, self.y - 30, self.x + 25, self.y + 20
             elif self.dir == -1:
-                return self.x - 30, self.y - 40, self.x + 30, self.y + 20
+                return self.x - 25, self.y - 30, self.x + 25, self.y + 20
 
         elif self. state_machine.cur_state == Upper_Attack:
             return self.x - 20, self.y - 60, self.x + 20, self.y - 20
@@ -1026,16 +1015,31 @@ class Kirby:
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
                 if other.Attacking:
-                    print("p1 is damaged")
-                    self.state_machine.handle_event(('Damaged', 0, other.power))
-                    self.dir = other.p_dir
+                    # 직접적인 공격 받고, 강공격이 아니라면 반사하기
+                    if self.Defensing and group == 'p1 : p2_attack_range' and other.charge_attack == False:
+                        print("p1 Defensed")
+                        other.p.state_machine.handle_event(('Damaged', 0, other.power))
+                        other.p.dir = self.dir
+                    else:
+                        if other.power != 0:
+                            print("p1 is damaged")
+                            self.state_machine.handle_event(('Damaged', 0, other.power))
+                            self.dir = other.p_dir
 
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
-                    print("p2 is damaged")
-                    self.state_machine.handle_event(('Damaged', 0, other.power))
-                    self.dir = other.p_dir
+                    if other.Attacking:
+                        # 직접적인 공격 받고, 강공격이 아니라면 반사하기
+                        if self.Defensing and group == 'p2 : p1_attack_range' and other.charge_attack == False:
+                            print("p2 Defensed")
+                            other.p.state_machine.handle_event(('Damaged', 0, other.power))
+                            other.p.dir = self.dir
+                        else:
+                            if other.power != 0:
+                                print("p2 is damaged")
+                                self.state_machine.handle_event(('Damaged', 0, other.power))
+                                self.dir = other.p_dir
 
 
     def remove(self):

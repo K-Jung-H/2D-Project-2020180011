@@ -10,6 +10,11 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 10
 
+K_Standing_focus = [[223, 1195], [268, 1195], [315, 1195], [362, 1195]]
+M_walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
+SK_walk_focus = [[0, 25], [29, 28], [61, 31], [96, 32], [133, 32], [169, 28], [201, 24], [229, 23], [256, 23], [283, 28], [315, 25]] # 11개
+
+
 P1 = 0
 P2 = 0
 
@@ -21,18 +26,23 @@ class P_Controller:
         self.P2 = 1
         self.frame_k = 0
         self.frame_m = 0
+        self.frame_sk = 0
         self.Select = 0
         self.image_Background = load_image('resource/Character_Select_Background.png')
         self.image_black = load_image('resource/black_page.png')
         self.image_k_portrait = load_image('resource/Kirby_Portrait.png')
         self.image_m_portrait = load_image('resource/Meta_Knight_Portrait.png')
+        self.image_sk_portrait = load_image('resource/Sword_kirby_Portrait.png')
         self.image_m = load_image('resource/Meta_Knight_3.png')
         self.image_k = load_image('resource/Master_Kirby.png')
+        self.image_sk = load_image('resource/Sword_Kirby/Sword_kirby_Walk.png')
+
         self.font = load_font('resource/ENCR10B.TTF', 16)
 
     def update(self):
         self.frame_k = (self.frame_k + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
-        self.frame_m = (self.frame_m + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
+        self.frame_m = (self.frame_m + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
+        self.frame_sk = (self.frame_sk + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 11
 
 
     def draw_background(self):
@@ -43,15 +53,24 @@ class P_Controller:
             self.image_k_portrait.clip_draw(0, 0, 451, 480, 100, 500, 200, 200)  # p1 일때 커비
         elif self.P1 == 1:
             self.image_m_portrait.clip_draw(0, 0, 375, 352, 100, 500, 200, 200) # p1 일때 메타 나이트
+        elif self.P1 == 2:
+            self.image_sk_portrait.clip_draw(0, 0, 221, 244, 100, 500, 200, 200)  # p1 일때 소드 커비
+
 
         if self.P2 == 0:
-            self.image_k_portrait.clip_composite_draw(0, 0, 451, 480, 0, 'h', 900, 500, 200, 200)  # p1 일때 커비
+            self.image_k_portrait.clip_composite_draw(0, 0, 451, 480, 0, 'h', 900, 500, 200, 200)  # p2 일때 커비
         elif self.P2 == 1:
-            self.image_m_portrait.clip_composite_draw(0, 0, 375, 352, 0, 'h', 900, 500, 200, 200) # p1 일때 메타 나이트
+            self.image_m_portrait.clip_composite_draw(0, 0, 375, 352, 0, 'h', 900, 500, 200, 200) # p2 일때 메타 나이트
+        elif self.P2 == 2:
+            self.image_sk_portrait.clip_composite_draw(0, 0, 221, 244, 0, 'h', 900, 500, 200, 200)  # p2 일때 소드 커비
+
+
+
 
     def draw(self):
         frame_k = int(self.frame_k)
         frame_m = int(self.frame_m)
+        frame_sk = int(self.frame_sk)
         x1 = self.x1
         y1 = self.y1
         x2 = self.x2
@@ -63,6 +82,10 @@ class P_Controller:
         elif self.P1 == 1:
             self.image_m.clip_draw(62 * frame_m + M_walking_focus[frame_m][0], 655,M_walking_focus[frame_m][1], 60, x1,
                                    y1, M_walking_focus[frame_m][1] * 2, 60 * 2)
+        elif self.P1 == 2:
+            self.image_sk.clip_draw(SK_walk_focus[frame_sk][0], 0, SK_walk_focus[frame_sk][1], 41, x1, y1, SK_walk_focus[frame_sk][1] * 2,
+                                    41 * 2)
+
 
         if self.P2 == 0:
             self.image_k.clip_composite_draw(K_Standing_focus[frame_k][0], K_Standing_focus[frame_k][1], 35, 45,
@@ -70,6 +93,9 @@ class P_Controller:
         elif self.P2 == 1:
             self.image_m.clip_composite_draw(62 * frame_m + M_walking_focus[frame_m][0], 655, M_walking_focus[frame_m][1], 60, 0, 'h', x2, y2,
                                M_walking_focus[frame_m][1] * 2, 60 * 2)
+        elif self.P2 == 2:
+            self.image_sk.clip_composite_draw(SK_walk_focus[frame_sk][0], 0, SK_walk_focus[frame_sk][1], 41,
+                                              0, 'h', x2, y2, SK_walk_focus[frame_sk][1] * 2, 41 * 2)
 
 
 
@@ -110,16 +136,16 @@ def handle_events():
         elif P1_handle(event):
 
                 if event.type == SDL_KEYDOWN and event.key == SDLK_d:
-                    Controller.P1 = (Controller.P1 + 1) % 2
+                    Controller.P1 = (Controller.P1 + 1) % 3
                 elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
-                    Controller.P1 = (Controller.P1 - 1) % 2
+                    Controller.P1 = (Controller.P1 - 1) % 3
 
         elif P2_handle(event):
 
             if event.type == SDL_KEYDOWN and event.key == SDLK_RIGHT:
-                Controller.P2 = (Controller.P2 + 1) % 2
+                Controller.P2 = (Controller.P2 + 1) % 3
             elif event.type == SDL_KEYDOWN and event.key == SDLK_LEFT:
-                Controller.P2 = (Controller.P2 - 1) % 2
+                Controller.P2 = (Controller.P2 - 1) % 3
 
 
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
@@ -150,7 +176,5 @@ def resume(): pass
 
 
 
-K_Standing_focus = [[223, 1195], [268, 1195], [315, 1195], [362, 1195]]
-M_walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 
 

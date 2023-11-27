@@ -23,6 +23,7 @@ class Sword_Kirby_Sword_Strike:
         self.power = abs(velocity)
         self.p_dir = velocity / abs(velocity)
         self.Attacking = True
+        self.charge_attack = False
 
 
     def draw(self):

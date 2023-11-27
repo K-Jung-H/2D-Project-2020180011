@@ -21,6 +21,7 @@ class Kirby_Attack_Area:
         self.y_range = 0
         self.power = 0
         self.Attacking = False
+        self.charge_attack = False
 
 
     def draw(self):
@@ -36,6 +37,7 @@ class Kirby_Attack_Area:
 
         if not self.p.Attacking:
             self.x_range, self.y_range, self.power = 0, 0, 0
+            self.charge_attack = False
 
         else: # 공격 상태일 때
             if self.player_cur_state == player_Kirby.Normal_Attack:
@@ -48,6 +50,7 @@ class Kirby_Attack_Area:
             elif self.player_cur_state == player_Kirby.Charge_Attack:
                 self.x_range, self.y_range = 30, 50
                 self.power = self.p.Charging_Point
+                self.charge_attack = True
             elif self.player_cur_state == player_Kirby.Upper_Attack:
                 self.x_range, self.y_range = 30, 40
                 self.power = 2

@@ -57,6 +57,7 @@ class Attack_Area:
         self.y_range = 0
         self.power = 0
         self.Attacking = False
+        self.charge_attack = True
 
     def draw(self):
         draw_rectangle(*self.get_bb())
@@ -108,6 +109,7 @@ class MetaKnight:
 
         self.attack_area = Attack_Area(self)
         self.Attacking = False
+
         self.Attack_cool_time = 0
         self.Attack_called = False
 
@@ -211,7 +213,7 @@ class MetaKnight:
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
                 if other.Attacking:
-                    print("p1 is damaged")
+                    print("com is damaged")
                     #ai damaged
                     if self.state != 'Hurt':
                         self.damaged_amount = max(1, other.power)
@@ -222,7 +224,7 @@ class MetaKnight:
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
-                    print("p2 is damaged by", group, other.x_range, other.y_range)
+                    print("com is damaged by", group, other.x_range, other.y_range)
                     #ai damaged
                     if self.state != 'Hurt':
                         self.damaged_amount = max(1, other.power)
