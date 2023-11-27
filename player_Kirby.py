@@ -408,14 +408,18 @@ class Normal_Attack:
 
     @staticmethod
     def exit(p1, e):
-        pass
+        p1.Attacking = False
 
     @staticmethod
     def do(p1):
-        p1.Attacking = True
         p1.frame = (p1.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 9
-        if int(p1.frame) == 8:
+
+        if 5 <= int(p1.frame) <= 7:
+            p1.Attacking = True
+        else:
             p1.Attacking = False
+
+        if int(p1.frame) == 8:
             p1.state_machine.handle_event(('STOP', 0))
 
 
@@ -426,13 +430,13 @@ class Normal_Attack:
         p_size_x = Normal_Attack_focus[frame][2]
         p_size_y = Normal_Attack_focus[frame][3]
         if p1.dir == 1:
-            if  frame <= 4:
+            if frame <= 4:
                 p1.image.clip_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y, p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
             elif frame > 4:
                 p1.image.clip_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y, p1.x + 5*frame, p1.y -5, p_size_x * 2, p_size_y * 2)
 
         elif p1.dir == -1:
-            if  frame <= 4:
+            if frame <= 4:
                 p1.image.clip_composite_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y,
                                              0, 'h', p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
             elif frame > 4:
@@ -449,14 +453,18 @@ class Speed_Attack:
 
     @staticmethod
     def exit(p1, e):
-        pass
+        p1.Attacking = False
 
     @staticmethod
     def do(p1):
-        p1.Attacking = True
         p1.frame = (p1.frame + FRAMES_PER_FAST_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 9
-        if int(p1.frame) == 8:
+
+        if 6 <= int(p1.frame) <= 8:
+            p1.Attacking = True
+        else:
             p1.Attacking = False
+
+        if int(p1.frame) == 8:
             p1.state_machine.handle_event(('STOP', 0))
 
 
@@ -495,7 +503,6 @@ class Charge_Attack:
         if Charge_Attack_Down(e):
             p1.frame = 0
             p1.charging = True
-            #p1.Attacking = False
             p1.Charging_Time = get_time()
 
         elif Charge_Attack_Up(e):
@@ -523,30 +530,33 @@ class Charge_Attack:
             
     @staticmethod
     def exit(p1, e):
-        pass
+        p1.Attacking = False
 
     @staticmethod
     def do(p1):
-        frame_increment = FRAMES_PER_CHARGE_ATTACK * ACTION_PER_TIME * game_framework.frame_time
 
         if not (p1.charging or p1.Attacking) and int(p1.frame) < 3: #차징 준비 동작
-            p1.frame = (p1.frame + frame_increment) % 4
+            p1.frame = (p1.frame + FRAMES_PER_CHARGE_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 4
             if int(p1.frame) == 3:
                 p1.charging = True
         elif p1.charging:   #차징
             p1.frame = max(3, p1.frame)
-            p1.frame = (p1.frame + frame_increment) % 7
+            p1.frame = (p1.frame + FRAMES_PER_CHARGE_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 7
             p1.frame = max(3, p1.frame)
             p1.Charging_Point = int(get_time() - p1.Charging_Time)
         elif not p1.charging:
             p1.frame = max(p1.frame, 7)
-            p1.frame = (p1.frame + frame_increment) % 12
+            p1.frame = (p1.frame + FRAMES_PER_CHARGE_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 12
         if int(p1.frame) == 11:
-            p1.Attacking = False
             if p1.Charging_Point >= 1:
                 p1.SwordStrike()
                 p1.Charging_Point = 0
             p1.state_machine.handle_event(('STOP', 0))
+
+        if 8 <= int(p1.frame) <= 10:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
 
     @staticmethod
     def draw(p1):
@@ -610,7 +620,7 @@ class Upper_Attack:
 
     @staticmethod
     def exit(p1, e):
-        pass
+        p1.Attacking = False
 
     @staticmethod
     def do(p1):
@@ -620,11 +630,16 @@ class Upper_Attack:
         else:
             p1.y += 1
         p1.jump_value -= 0.1
-        p1.Attacking = True
+
         p1.frame = (p1.frame + FRAMES_PER_UPPER_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 12
         if int(p1.frame) == 11:
-            p1.Attacking = False
+
             p1.state_machine.handle_event(('STOP', 0))
+
+        if 4 <= int(p1.frame) <= 9:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
 
 
 
@@ -670,12 +685,10 @@ class Drop_Attack:
 
     @staticmethod
     def exit(p1, e):
-        pass
+        p1.Attacking = False
 
     @staticmethod
     def do(p1):
-
-        p1.Attacking = True
         if int(p1.frame) <= 4:
             p1.frame = (p1.frame + FRAMES_PER_DROP_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
         elif int(p1.frame) <= 8:
@@ -689,6 +702,11 @@ class Drop_Attack:
             p1.Attacking = False
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
+
+        if 4 <= int(p1.frame) <= 8:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
 
 
 
@@ -724,7 +742,7 @@ class Drop_Attack:
 class Falling_Attack:
     @staticmethod
     def enter(p1, e):
-        if  p1.state_machine.last_state != Falling_Attack:
+        if p1.state_machine.last_state != Falling_Attack:
             p1.frame = 0
         else: # 공격 도중에 새로운 입력을 받는 경우
             if Right_Move_Down(e):
@@ -748,7 +766,7 @@ class Falling_Attack:
 
     @staticmethod
     def exit(p1, e):
-        pass
+        p1.Attacking = False
 
     @staticmethod
     def do(p1):
@@ -760,7 +778,7 @@ class Falling_Attack:
                 p1.x += (p1.dir * RUN_SPEED_PPS * game_framework.frame_time)
         p1.x = clamp(25, p1.x, 1000 - 25)
 
-        p1.Attacking = True
+
         if int(p1.frame) != 26:
             p1.y += p1.jump_value/10
             p1.jump_value -= 0.1
@@ -772,6 +790,11 @@ class Falling_Attack:
             p1.Attacking = False
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
+
+        if 4 <= int(p1.frame) <= 25:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
 
     @staticmethod
     def draw(p1):
