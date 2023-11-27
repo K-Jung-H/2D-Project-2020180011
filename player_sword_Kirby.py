@@ -112,8 +112,7 @@ def Falling_Attack_DOWN(e):
 
 
 
-Speed_Attack_focus = [[40, 700, 55, 50], [105, 700, 55, 50], [165, 700, 55, 50], [230, 700, 75, 50], [310, 695, 65, 50],
-                      [390, 690, 85, 50], [570, 616, 85, 50], [670, 616, 70, 50], ]
+
 Defense_focus = [(35, 940, 40, 40, 0, 0), (75, 940, 40, 40, 0, 0), (125, 940, 40, 40, 0, 0), (175, 940, 50, 40, 0, 0),
                  (235, 930, 40, 65, 0, 0),
                  (280, 930, 40, 65, 0, 0), (325, 930, 40, 65, 0, 0), (375, 930, 40, 65, 0, 0), (420, 930, 40, 65, 0, 0),
@@ -133,21 +132,19 @@ Run_focus = [[0, 31], [35, 29], [67, 26],  [97, 26], [127, 28], [159, 25], [188,
 Jump_focus = [[0, 30], [34, 30], [68, 21], [93, 21], [118, 22], [144, 32], [180, 35], [219, 32], [255, 25], [284, 25]] # 10개
 damaged_focus = [[0, 32], [33, 34], [69, 35]]
 Normal_Attack_focus = [[0, 29], [32, 31], [71, 31], [127, 39], [177, 43], [224, 43], [271, 64], [339, 61]]
-
+Speed_Attack_focus =  [[0, 42], [46, 37], [87, 34], [136, 19], [197, 42], [260, 49], [335, 53], [421, 62], [516, 62], [608, 43], [685, 58], [781, 58]]
+charge_focus = [[0, 43], [48, 42], [94, 36], [149, 22], [175, 41], [223, 43], [275, 43], [331, 48], [382, 43]]
+charge_location = [0, -10, -10, 0, 20, 20, 20, 20, 0]
+Upper_attack_focus = [[0, 29], [33, 32], [69, 40], [113, 46], [169, 47], [225, 47], [281, 47], [337, 47], [393, 47],
+                      [452, 47], [505, 46]]
+Drop_attack_focus = [[0, 41], [45, 41], [90, 43], [138, 42], [186, 36], [240, 41], [291, 43], [347, 48]]
 #done
 
-
-
-Upper_attack_focus = [[0, 24], [42, 24], [92, 24], [144, 28], [210, 50], [299, 56], [387, 76], [489, 80], [606, 92],
-                      [739, 20], [804, 26], [867, 28]]
-Drop_attack_focus = [[0, 39], [66, 44], [141, 56], [249, 76], [354, 28]]  # jump 2,3,4,5,6 이미지 후 연결
 Falling_attack_focus = [[0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53], [0, 53],
                         [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53], [0, 53], [54, 53],
                         [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53]]  # 점프의 12, 13, 14번째 이미지를 쓰고 하기
-charge_focus = [[0, 56], [68, 58], [139, 65], [215, 41], [267, 41], [320, 40], [370, 40], [440, 62], [528, 70],
-                [629, 70], [733, 92]]
-charge_location = [[-33, -9], [- 35, -9], [-42, -9], [- 18, -9], [-18, -9], [-17, -9], [-17, -9], [- 16, -9],
-                   [- 17, -9], [-21, -9], [-21, -9]]
+
+
 
 
 class Idle:
@@ -512,7 +509,7 @@ class Speed_Attack:
                                              p_size_y,
                                              0, 'h', p1.x - 40, p1.y - 12, p_size_x * 2, p_size_y * 2)
 
-Speed_Attack_focus =  [[0, 42], [46, 37], [87, 34], [136, 19], [197, 42], [260, 49], [335, 53], [421, 62], [516, 62], [608, 43], [685, 58], [781, 58]]
+
 
 class Charge_Attack:
 
@@ -553,19 +550,13 @@ class Charge_Attack:
     def do(p1):
         frame_increment = FRAMES_PER_CHARGE_ATTACK * ACTION_PER_TIME * game_framework.frame_time
 
-        if not (p1.charging or p1.Attacking) and int(p1.frame) < 3:  # 차징 준비 동작
-            p1.frame = (p1.frame + frame_increment) % 4
-            if int(p1.frame) == 3:
-                p1.charging = True
-        elif p1.charging:  # 차징
-            p1.frame = max(3, p1.frame)
-            p1.frame = (p1.frame + frame_increment) % 7
-            p1.frame = max(3, p1.frame)
+        if p1.charging:  # 차징
+            p1.frame = 0
             p1.Charging_Point = int(get_time() - p1.Charging_Time)
         elif not p1.charging:
-            p1.frame = max(p1.frame, 7)
-            p1.frame = (p1.frame + frame_increment) % 12
-        if int(p1.frame) == 11:
+            p1.frame = max(p1.frame, 0)
+            p1.frame = (p1.frame + frame_increment) % 10
+        if int(p1.frame) == 9:
             p1.Attacking = False
             if p1.Charging_Point >= 1:
                 p1.SwordStrike()
@@ -576,18 +567,19 @@ class Charge_Attack:
     def draw(p1):
         frame = int(p1.frame)
         p_size_x = charge_focus[frame][1]
-        p_size_y = 60
+        p_size_y = 61
         if p1.dir == 1:
             p1.charge_attack_image.clip_draw(charge_focus[frame][0], 0, p_size_x, p_size_y,
-                                             p1.x + charge_location[frame][0],
-                                             p1.y + 10, p_size_x * 2, p_size_y * 2)
+                                             p1.x + charge_location[frame],
+                                             p1.y - 6, p_size_x * 2, p_size_y * 2)
 
         elif p1.dir == -1:
             p1.charge_attack_image.clip_composite_draw(charge_focus[frame][0], 0, p_size_x, p_size_y,
-                                                       0, 'h', p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
+                                                       0, 'h', p1.x - charge_location[frame], p1.y - 6, p_size_x * 2, p_size_y * 2)
 
         if p1.charging == True:
             p1.font.draw(p1.x - 10, p1.y + 50, f'{p1.Charging_Point:02d}', (255, 255, 0))
+
 
 
 class Defense:
@@ -636,8 +628,8 @@ class Upper_Attack:
     @staticmethod
     def do(p1):
 
-        if (4 <= int(p1.frame) <= 8):
-            p1.y += 10
+        if (4 <= int(p1.frame) <= 7):
+            p1.y += 15
         else:
             p1.y += 1
         p1.jump_value -= 0.1
@@ -651,7 +643,7 @@ class Upper_Attack:
     def draw(p1):
         frame = int(p1.frame)
         p_size_x = Upper_attack_focus[frame][1]
-        p_size_y = 79
+        p_size_y = 61
         if p1.dir == 1:
             p1.upper_attack_image.clip_draw(Upper_attack_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y,
                                             p_size_x * 2, p_size_y * 2)
@@ -659,6 +651,7 @@ class Upper_Attack:
         elif p1.dir == -1:
             p1.upper_attack_image.clip_composite_draw(Upper_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
                                                       p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
 
 
 class Drop_Attack:
@@ -693,15 +686,17 @@ class Drop_Attack:
     @staticmethod
     def do(p1):
 
-        p1.Attacking = True
-        if int(p1.frame) <= 4:
-            p1.frame = (p1.frame + FRAMES_PER_DROP_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
-        elif int(p1.frame) <= 8:
-            p1.frame = (p1.frame + FRAMES_PER_DROP_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
-            p1.jump_value -= 0.5
-        else:
+        if 5 <= int(p1.frame):
+            p1.Attacking = True
             p1.y += p1.jump_value
             p1.jump_value -= 1.5
+            p1.frame = min(int(p1.frame), 5)
+
+        elif int(p1.frame) <= 4:
+            p1.y += p1.jump_value/100
+
+
+        p1.frame = (p1.frame + FRAMES_PER_DROP_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 7
 
         if p1.y <= 150:
             p1.Attacking = False
@@ -711,29 +706,17 @@ class Drop_Attack:
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
+        p_size_x = Drop_attack_focus[frame][1]
+        p_size_y = 48
+        if p1.dir == 1:
+            p1.drop_attack_image.clip_draw(Drop_attack_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y,
+                                           p_size_x * 2, p_size_y * 2)
 
-        if frame <= 4:
-            p_start_x = Jump_focus[frame][0]
-            p_start_y = 0
-            p_width = Jump_focus[frame][1]
-            p_height = 54
-            if p1.dir == 1:
-                p1.jump_image.clip_draw(p_start_x, p_start_y, p_width, p_height, p1.x, p1.y, p_width * 2, p_height * 2)
+        elif p1.dir == -1:
+            p1.drop_attack_image.clip_composite_draw(Drop_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
+                                                     p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
-            elif p1.dir == -1:
-                p1.jump_image.clip_composite_draw(p_start_x, p_start_y, p_width, p_height, 0, 'h', p1.x, p1.y,
-                                                  p_width * 2, p_height * 2)
-        else:
-            frame = frame - 5
-            p_size_x = Drop_attack_focus[frame][1]
-            p_size_y = 86
-            if p1.dir == 1:
-                p1.drop_attack_image.clip_draw(Drop_attack_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y,
-                                               p_size_x * 2, p_size_y * 2)
 
-            elif p1.dir == -1:
-                p1.drop_attack_image.clip_composite_draw(Drop_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
-                                                         p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
 
 class Falling_Attack:
@@ -813,6 +796,12 @@ class Falling_Attack:
                 p1.falling_attack_image.clip_composite_draw(Falling_attack_focus[frame][0], 0, p_size_x, p_size_y, 0,
                                                             'h',
                                                             p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
+
+Falling_attack_focus = [[0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53], [0, 53],
+                        [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53], [0, 53], [54, 53],
+                        [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53]]
+
 
 
 class StateMachine:
@@ -928,7 +917,7 @@ class Sword_Kirby:
         self.speed_attack_image = load_image('resource/Sword_Kirby/sword_kirby_speed_attack.png')
         self.charge_attack_image = load_image('resource/Sword_Kirby/sword_kirby_charge_attack.png')
         self.upper_attack_image = load_image('resource/Sword_Kirby/sword_kirby_upper_attack.png')
-        self.drop_attack_image = load_image('resource/Kirby_Drop_Attack.png')
+        self.drop_attack_image = load_image('resource/Sword_Kirby/sword_kirby_drop_attack.png')
         self.falling_attack_image = load_image('resource/Kirby_Falling_Attack.png')
 
         self.state_machine = StateMachine(self)
