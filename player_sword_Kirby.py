@@ -4,7 +4,7 @@ from pico2d import (get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SP
 
 import World
 import game_framework
-from K_Sword_Attack import Master_Kirby_Sword_Strike as Sword_Strike
+from SK_Sword_Attack import Sword_Kirby_Sword_Strike as Sword_Strike
 from K_Attack_Area import Kirby_Attack_Area
 
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
@@ -113,12 +113,7 @@ def Falling_Attack_DOWN(e):
 
 
 
-Defense_focus = [(35, 940, 40, 40, 0, 0), (75, 940, 40, 40, 0, 0), (125, 940, 40, 40, 0, 0), (175, 940, 50, 40, 0, 0),
-                 (235, 930, 40, 65, 0, 0),
-                 (280, 930, 40, 65, 0, 0), (325, 930, 40, 65, 0, 0), (375, 930, 40, 65, 0, 0), (420, 930, 40, 65, 0, 0),
-                 (470, 930, 40, 65, 0, 0),
-                 (510, 940, 65, 40, 0, 0), (585, 940, 65, 40, 0, 0), (665, 940, 70, 40, 0, 0),
-                 (750, 940, 65, 40, 0, 0), ]
+
 
 #
 # 커비의 충돌 체크 먼저 추가하기, 안그러면 다른 동작 추가하려 하는데, 모드가 안돌아감
@@ -138,14 +133,13 @@ charge_location = [0, -10, -10, 0, 20, 20, 20, 20, 0]
 Upper_attack_focus = [[0, 29], [33, 32], [69, 40], [113, 46], [169, 47], [225, 47], [281, 47], [337, 47], [393, 47],
                       [452, 47], [505, 46]]
 Drop_attack_focus = [[0, 41], [45, 41], [90, 43], [138, 42], [186, 36], [240, 41], [291, 43], [347, 48]]
+Defense_focus = [[0,23], [29, 26], [61, 30], [98, 18], [122, 24], [152, 32], [189, 22], [218, 24], [250, 25], [282, 25]]
+
 #done
 
 Falling_attack_focus = [[0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53], [0, 53],
                         [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53], [0, 53], [54, 53],
                         [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53]]  # 점프의 12, 13, 14번째 이미지를 쓰고 하기
-
-
-
 
 class Idle:
 
@@ -596,24 +590,24 @@ class Defense:
 
     @staticmethod
     def do(p1):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 15
-        if int(p1.frame) == 14:
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 10
+        if int(p1.frame) == 9:
             p1.state_machine.handle_event(('STOP', 0))
 
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_size_x = Defense_focus[frame][2]
-        p_size_y = Defense_focus[frame][3]
-        p_x = p1.x + Defense_focus[frame][4]
-        p_y = p1.y + Defense_focus[frame][5]
+        p_size_x = Defense_focus[frame][1]
+        p_size_y = 22
         if p1.dir == 1:
-            p1.image.clip_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y, p_x, p_y,
+            p1.defense_image.clip_draw(Defense_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y,
                                p_size_x * 2, p_size_y * 2)
 
         elif p1.dir == -1:
-            p1.image.clip_composite_draw(Defense_focus[frame][0], Defense_focus[frame][1], p_size_x, p_size_y,
-                                         0, 'h', p_x, p_y, p_size_x * 2, p_size_y * 2)
+            p1.defense_image.clip_composite_draw(Defense_focus[frame][0], 0, p_size_x, p_size_y,
+                                         0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+
+
 
 
 class Upper_Attack:
@@ -846,7 +840,7 @@ class StateMachine:
             Falling_Attack: {STOP: Jump, Right_Move_Down: Falling_Attack, Left_Move_Down: Falling_Attack,
                              Right_Move_Up: Falling_Attack, Left_Move_Up: Falling_Attack, Get_Damage: Hurt},
 
-            Defense: {Defense_Up: Idle, STOP: Idle, }
+            Defense: { STOP: Idle, } # Defense_Up: Idle,
 
         }
 
@@ -911,15 +905,14 @@ class Sword_Kirby:
         self.walk_image = load_image('resource/Sword_Kirby/Sword_kirby_Walk.png')
         self.run_image = load_image('resource/Sword_Kirby/Sword_kirby_Run.png')
         self.jump_image = load_image('resource/Sword_Kirby/Sword_kirby_Jump.png')
-        #
         self.damaged_image = load_image('resource/Sword_Kirby/sword_kirby_damaged.png')
         self.normal_attack_image = load_image('resource/Sword_Kirby/sword_kirby_normal_attack.png')
         self.speed_attack_image = load_image('resource/Sword_Kirby/sword_kirby_speed_attack.png')
         self.charge_attack_image = load_image('resource/Sword_Kirby/sword_kirby_charge_attack.png')
         self.upper_attack_image = load_image('resource/Sword_Kirby/sword_kirby_upper_attack.png')
         self.drop_attack_image = load_image('resource/Sword_Kirby/sword_kirby_drop_attack.png')
-        self.falling_attack_image = load_image('resource/Kirby_Falling_Attack.png')
-
+        #self.falling_attack_image = load_image('resource/Kirby_Falling_Attack.png')
+        self.defense_image = load_image('resource/Sword_Kirby/Defense_Kirby.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
 
@@ -929,18 +922,14 @@ class Sword_Kirby:
     def handle_event(self, event):
         if self.jump_value > 0:
             self.state_machine.handle_event(('INPUT', event, "Air_Up"))
-            print("command in air")
         elif self.jump_value < 0:
             self.state_machine.handle_event(('INPUT', event, "Air_Down"))
-            print("command in air")
         else:
             self.state_machine.handle_event(('INPUT', event, "Ground"))
-            print("command on ground")
+
 
     def draw(self):
         self.state_machine.draw()
-        # 체력 표기
-        # self.font.draw(self.x - 10, self.y + 50, f'{self.Charging_Point:02d}', (255, 255, 0))
         draw_rectangle(*self.get_bb())
 
     def SwordStrike(self):
