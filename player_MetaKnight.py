@@ -29,12 +29,16 @@ FRAMES_PER_FALLING_ATTACK = 5
 
 #walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 Normal_Attack_focus = [[110, 50],[220,60],[325, 75],[425,110], [649,91]]
-Speed_Attack_focus = [[2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400]]
+Speed_Attack_focus = [[2, 50, 485], [2, 50, 485], [755, 110, 480], [2, 100, 405],[110,100,400], [2, 100, 405]]
 Charge_Attack_focus = [[2, 50],[110, 50],[220,60],[325, 75],[425,110], [425,110],[540, 100],[540, 100],[540, 100],[645,110]]
 Defense_focus = [[445, 30, 340],[498, 35, 340], [540, 35, 340], [592, 42, 330], [636, 42, 340], [0, 50, 210], [50, 50, 210], [113, 50, 210], [163, 50, 210]]
 Drop_attack_focus = [[0, 28], [48, 26], [96, 26], [136, 28], [188, 27], [242, 30], [290, 37],[355, 27], [405, 27]]
-Falling_attack_focus = [[0, 33], [55,32], [112, 34], [166, 37], [227, 33], [284, 33], [339, 32], [396, 34], [451, 32], [509, 32]]
-Faf_player_location = [[0,0], [-15, -15], [-25, 0], [0, -5], [-25, -15], [0,0], [-15, -15], [-25, 0], [0,0], [0,0]]
+Falling_attack_focus = [[0, 33], [55,32], [112, 34], [166, 37], [227, 33], [284, 33], [339, 32], [396, 34], [451, 32],
+                        [0, 33], [55,32], [112, 34], [166, 37], [227, 33], [284, 33], [339, 32], [396, 34], [451, 32],
+                        [0, 33], [55,32], [112, 34], [166, 37], [227, 33], [284, 33], [339, 32], [396, 34], [451, 32], [509, 32]]
+Faf_player_location = [[0,0], [-15, -15], [-25, 0], [0, -5], [-25, -15], [0,0], [-15, -15], [-25, 0], [0,0],
+                       [0,0], [-15, -15], [-25, 0], [0, -5], [-25, -15], [0,0], [-15, -15], [-25, 0], [0,0],
+                       [0,0], [-15, -15], [-25, 0], [0, -5], [-25, -15], [0,0], [-15, -15], [-25, 0], [0,0], [0,0]]
 
 
 
@@ -232,7 +236,6 @@ class Run:
 
     @staticmethod
     def exit(p1, e):
-        print("Running off")
         pass
 
     @staticmethod
@@ -392,27 +395,27 @@ class Hurt:
                 p1.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
 
-
-
 class Normal_Attack:
-
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
 
     @staticmethod
     def exit(p1, e):
+        p1.Attacking = False
         pass
 
     @staticmethod
     def do(p1):
-        p1.Attacking = True
+
         p1.frame = (p1.frame + FRAMES_PER_ATTACK * ACTION_PER_TIME * game_framework.frame_time)
         if int(p1.frame) == 5:
-            p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
 
-
+        if 3 <= int(p1.frame) <= 4:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
 
     @staticmethod
     def draw(p1):
@@ -435,15 +438,18 @@ class Speed_Attack:
 
     @staticmethod
     def exit(p1, e):
-        pass
+        p1.Attacking = False
 
     @staticmethod
     def do(p1):
-        p1.Attacking = True
-        p1.frame = (p1.frame + FRAMES_PER_FAST_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 5
-        if int(p1.frame) == 4:
-            p1.Attacking = False
+        p1.frame = (p1.frame + FRAMES_PER_FAST_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 7
+        if int(p1.frame) == 6:
             p1.state_machine.handle_event(('STOP', 0))
+
+        if 3 <= int(p1.frame) <= 6:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
 
 
 
@@ -472,7 +478,6 @@ class Charge_Attack:
 
         elif Charge_Attack_Up(e):
             p1.charging = False
-            p1.Attacking = True
 
         if Right_Move_Down(e) and p1.charging:
             p1.Right_Move, p1.dir = True, 1
@@ -493,7 +498,7 @@ class Charge_Attack:
 
     @staticmethod
     def exit(p1, e):
-        pass
+        p1.Attacking = False
 
 
     @staticmethod
@@ -510,8 +515,12 @@ class Charge_Attack:
                 p1.Charging_Point = 0
 
         if int(p1.frame) == 9:
-            p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
+
+        if 4 <= int(p1.frame) <= 9:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
 
 
 
@@ -538,7 +547,7 @@ class Upper_Attack:
 
     @staticmethod
     def exit(p1, e):
-        pass
+        p1.Attacking = False
 
     @staticmethod
     def do(p1):
@@ -591,15 +600,11 @@ class Drop_Attack:
 
     @staticmethod
     def exit(p1, e):
-        pass
+        p1.Attacking = False
 
     @staticmethod
     def do(p1):
-
-        p1.Attacking = True
         if int(p1.frame) != 8:
-            #p1.y += p1.jump_value
-            #p1.jump_value -= 0.5
             p1.frame = (p1.frame + FRAMES_PER_DROP_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 9
         else:
             p1.y += p1.jump_value
@@ -610,7 +615,10 @@ class Drop_Attack:
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
 
-
+        if 6 <= int(p1.frame) <= 9:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
 
     @staticmethod
     def draw(p1):
@@ -652,7 +660,8 @@ class Falling_Attack:
 
     @staticmethod
     def exit(p1, e):
-        pass
+        p1.frame = 1
+        p1.Attacking = False
 
     @staticmethod
     def do(p1):
@@ -664,11 +673,11 @@ class Falling_Attack:
                 p1.x += (p1.dir * RUN_SPEED_PPS * game_framework.frame_time)
         p1.x = clamp(25, p1.x, 1000 - 25)
 
-        p1.Attacking = True
-        if int(p1.frame) != 9:
+
+        if int(p1.frame) != 27:
             p1.y += p1.jump_value/10
             p1.jump_value -= 0.1
-            p1.frame = (p1.frame + FRAMES_PER_FALLING_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
+            p1.frame = (p1.frame + 3 * FRAMES_PER_FALLING_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 28
         else:
             p1.state_machine.handle_event(('STOP', 0))
 
@@ -676,6 +685,12 @@ class Falling_Attack:
             p1.Attacking = False
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
+
+        if 0 <= int(p1.frame) <= 27:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
+
 
     @staticmethod
     def draw(p1):
