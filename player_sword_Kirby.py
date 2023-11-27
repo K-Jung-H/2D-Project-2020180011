@@ -132,6 +132,8 @@ walk_focus = [[0, 25], [29, 28], [61, 31], [96, 32], [133, 32], [169, 28], [201,
 Run_focus = [[0, 31], [35, 29], [67, 26],  [97, 26], [127, 28], [159, 25], [188, 26], [218, 29]]
 Jump_focus = [[0, 30], [34, 30], [68, 21], [93, 21], [118, 22], [144, 32], [180, 35], [219, 32], [255, 25], [284, 25]] # 10개
 damaged_focus = [[0, 32], [33, 34], [69, 35]]
+Normal_Attack_focus = [[0, 29], [32, 31], [71, 31], [127, 39], [177, 43], [224, 43], [271, 64], [339, 61]]
+
 #done
 
 
@@ -451,10 +453,15 @@ class Normal_Attack:
 
 
         elif p1.dir == -1:
-            p1.normal_attack_image.clip_composite_draw(Normal_Attack_focus[frame][0], 0, p_size_x,
-                                             p_size_y, 0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+            if frame < 4:
+                p1.normal_attack_image.clip_composite_draw(Normal_Attack_focus[frame][0], 0, p_size_x,
+                                                p_size_y, 0, 'h', p1.x - 20, p1.y, p_size_x * 2, p_size_y * 2)
+            elif frame >= 4:
+                p1.normal_attack_image.clip_composite_draw(Normal_Attack_focus[frame][0], 0, p_size_x,
+                                                p_size_y, 0, 'h', p1.x - 20, p1.y, p_size_x * 2, p_size_y * 2)
 
-Normal_Attack_focus = [[0, 29], [32, 31], [71, 31], [127, 39], [177, 43], [224, 43], [271, 64], [339, 61]]
+
+
 
 
 class Speed_Attack:
@@ -470,42 +477,42 @@ class Speed_Attack:
     @staticmethod
     def do(p1):
         p1.Attacking = True
-        p1.frame = (p1.frame + FRAMES_PER_FAST_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 9
-        if int(p1.frame) == 8:
+        p1.frame = (p1.frame + FRAMES_PER_FAST_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 13
+        if int(p1.frame) == 12:
             p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
 
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-        p_size_x = Speed_Attack_focus[frame][2]
-        p_size_y = Speed_Attack_focus[frame][3]
+        p_size_x = Speed_Attack_focus[frame][1]
+        p_size_y = 48
 
         if p1.dir == 1:
             if frame < 3:
-                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y, p1.x,
-                                   p1.y + 10, p_size_x * 2, p_size_y * 2)
+                p1.speed_attack_image.clip_draw(Speed_Attack_focus[frame][0], 0, p_size_x, p_size_y, p1.x,
+                                   p1.y - 12, p_size_x * 2, p_size_y * 2)
             elif 3 <= frame < 6:
-                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y,
-                                   p1.x + 10 * frame, p1.y + 10, p_size_x * 2, p_size_y * 2)
+                p1.speed_attack_image.clip_draw(Speed_Attack_focus[frame][0], 0, p_size_x, p_size_y,
+                                   p1.x + 10 * frame, p1.y - 12, p_size_x * 2, p_size_y * 2)
             else:
-                p1.image.clip_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y,
-                                   p1.x + 40, p1.y, p_size_x * 2, p_size_y * 2)
-            draw_rectangle(p1.x - 5, p1.y - 45, p1.x + 35, p1.y - 5)
+                p1.speed_attack_image.clip_draw(Speed_Attack_focus[frame][0], 0, p_size_x, p_size_y,
+                                   p1.x + 40, p1.y - 12, p_size_x * 2, p_size_y * 2)
         elif p1.dir == -1:
             if frame < 3:
-                p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x,
+                p1.speed_attack_image.clip_composite_draw(Speed_Attack_focus[frame][0], 0, p_size_x,
                                              p_size_y,
-                                             0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+                                             0, 'h', p1.x, p1.y - 12, p_size_x * 2, p_size_y * 2)
             elif 3 <= frame < 6:
-                p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x,
+                p1.speed_attack_image.clip_composite_draw(Speed_Attack_focus[frame][0], 0, p_size_x,
                                              p_size_y,
-                                             0, 'h', p1.x - 10 * frame, p1.y, p_size_x * 2, p_size_y * 2)
+                                             0, 'h', p1.x - 10 * frame, p1.y - 12, p_size_x * 2, p_size_y * 2)
             else:
-                p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x,
+                p1.speed_attack_image.clip_composite_draw(Speed_Attack_focus[frame][0], 0, p_size_x,
                                              p_size_y,
-                                             0, 'h', p1.x - 40, p1.y - 10, p_size_x * 2, p_size_y * 2)
+                                             0, 'h', p1.x - 40, p1.y - 12, p_size_x * 2, p_size_y * 2)
 
+Speed_Attack_focus =  [[0, 42], [46, 37], [87, 34], [136, 19], [197, 42], [260, 49], [335, 53], [421, 62], [516, 62], [608, 43], [685, 58], [781, 58]]
 
 class Charge_Attack:
 
