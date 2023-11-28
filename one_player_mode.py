@@ -8,6 +8,7 @@ import one_player_mode
 import Title_mode
 from Background import BackGround
 from ai_metaknight import MetaKnight as AI_MetaKnight
+from ai_sword_kirby import Sword_Kirby as AI_Sword_Kirby
 from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
 from player_sword_Kirby import Sword_Kirby
@@ -51,7 +52,7 @@ def init():
     computer_side = None
 
     picked_character = one_player_character_select_mode.Player
-    computer_difficulty = 1
+    computer_difficulty = 2
     computer_character = 1
 
 
@@ -76,7 +77,7 @@ def init():
         Com = AI_MetaKnight(computer_side)
         computer_character = 1
     elif computer_difficulty == 2:
-        Com = Kirby(computer_side)
+        Com = AI_Sword_Kirby(computer_side)
         computer_character = 0
 
     World.add_object(Player, 1)

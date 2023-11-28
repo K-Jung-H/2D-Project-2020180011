@@ -14,7 +14,7 @@ RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 FAST_RUN_SPEED_PPS = RUN_SPEED_PPS * 1.8
 
-# Boy Action Speed
+
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 10
@@ -112,13 +112,6 @@ def Falling_Attack_DOWN(e):
 
 
 
-
-
-
-#
-# 커비의 충돌 체크 먼저 추가하기, 안그러면 다른 동작 추가하려 하는데, 모드가 안돌아감
-# 그다음 커비의 달리기 점프, 동작부터 추가하기
-#
 
 # reforged
 stand_focus = [[0, 27], [31, 27]]
