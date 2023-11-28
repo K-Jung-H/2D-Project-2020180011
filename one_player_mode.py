@@ -58,10 +58,10 @@ def init():
 
     if one_player_character_select_mode.Player_side == 'Left':
         picked_side, computer_side = 'p1', 'p2'
-        print("p1")
+
     elif one_player_character_select_mode.Player_side == 'Right':
         picked_side, computer_side = 'p2', 'p1'
-        print("p2")
+
 
 
     if picked_character == 0:
@@ -257,7 +257,6 @@ class HP_BAR:
 
 
     def update(self):
-        print(self.player_side)
         if self.player_side == 'p1':
             self.p1_character = self.player_character
             self.p2_character = self.com_character
