@@ -76,8 +76,7 @@ def init():
 
     World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, None)
 
-
-    background = BackGround()
+    background = BackGround(500, 300, Round_score.Background_stage)
     World.add_object(background, 0)
 
     HP_gui = HP_BAR()

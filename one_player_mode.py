@@ -108,7 +108,7 @@ def init():
 
         p1, p2 = Com, Player
 
-    background = BackGround()
+    background = BackGround(500, 300, Round_score.Background_stage)
     World.add_object(background, 0)
 
     Check_Victory = KO()
