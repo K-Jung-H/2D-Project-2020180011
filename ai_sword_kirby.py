@@ -575,29 +575,6 @@ class Sword_Kirby:
             return BehaviorTree.RUNNING
 
 
-    def Upper_Attack(self):
-        if self.state != 'Upper_attack': # 입장 전 상태가 일치 하지 않으면 무시
-            return BehaviorTree.SUCCESS
-        if int(self.frame) == 11 or self.y >= 500:
-            self.y = 400
-            self.Attacking = False
-            self.Jumping = True
-            self.state = 'Jump'
-            return BehaviorTree.SUCCESS
-        return BehaviorTree.FAIL
-
-
-
-    def Drop_Attack(self):
-        if self.state != 'Drop_attack': # 입장 전 상태가 일치 하지 않으면 무시
-            self.y -=15
-            return BehaviorTree.FAIL
-
-    def Falling_Attack(self):
-        if self.state != 'Falling_attack': # 입장 전 상태가 일치 하지 않으면 무시
-            self.y -=15
-            return BehaviorTree.FAIL
-
 
     def build_behavior_tree(self):
         a1 = Action('Set random location', self.set_random_location)
@@ -609,9 +586,7 @@ class Sword_Kirby:
 
         a7 = Action('Jump',self.jump)
 
-        a8 = Action('Upper_attack', self.Upper_Attack)
-        a9 = Action('Drop_attack', self.Drop_Attack)
-        a10 = Action('Falling_attack', self.Falling_Attack)
+
 
         c1 = Condition('근처에 플레이어가 있는가?', self.is_player_nearby, 10)
         c2 = Condition('멀리에 플레이어가 있는가?', self.is_player_nearby, 15)
@@ -626,14 +601,12 @@ class Sword_Kirby:
         c7 = Condition('현재 공중 액션에 있는가?', self.check_last_action)
 
 
-        SEL_air_attack = Selector('Select_Air_Action' ,a8 ,a9, a10, a7)
-
         SEQ_If_in_jumping = Sequence('if_in_jumping', c7, a7)
         SEQ_follow_jump = Sequence('jump_to_follow', c6, a7) # 상대에 따라 점프하기
 
         SEL_jump = Selector('JUMP', SEQ_follow_jump, SEQ_If_in_jumping)
-        SEQ_jump = Sequence('Jump',SEL_jump)
-        SEL_do_air_action = Selector('Air_Action', SEL_air_attack, SEQ_jump)
+        SEQ_jump = Sequence('Jump', SEL_jump)
+        SEL_do_air_action = Selector('Air_Action', SEQ_jump)
 
 
 
