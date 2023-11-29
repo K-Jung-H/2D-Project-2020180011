@@ -521,6 +521,11 @@ class Sword_Kirby:
         a9 = Action('Drop_attack', self.Drop_Attack)
         a10 = Action('Falling_attack', self.Falling_Attack)
 
+        # 공중에서 공격 상태와 점프 상태가 번갈아 꼬이는 현상인가?
+        # 일단 어떤 상태가 번갈아 일어나는 중
+        # 루트에 점프와 공중 공격만 넣고 파악하기
+
+
         c1 = Condition('근처에 플레이어가 있는가?', self.is_player_nearby, 10)
         c2 = Condition('멀리에 플레이어가 있는가?', self.is_player_nearby, 15)
 
