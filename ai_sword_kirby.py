@@ -398,6 +398,12 @@ class Sword_Kirby:
             print("do_jump")
             return BehaviorTree.SUCCESS
 
+    def check_player_x_for_attack(self, distance):
+        if self.distance_less_than(one_player_mode.Player.x, 0, self.x, 0, distance):
+            return BehaviorTree.SUCCESS
+        else:
+            return BehaviorTree.FAIL
+
 
 
     def select_to_air_attack(self):
@@ -478,23 +484,23 @@ class Sword_Kirby:
 
         c6 = Condition('공격하기 위해 점프해야 하는가?', self.check_player_y_for_attack, 3)
         c7 = Condition('현재 공중에서 점프중인가?', self.check_jumping)
-        c8 = Action('공중에서 어떤 공격을 고를건가', self.select_to_air_attack)
-
+        c8 = Condition('공중에서 어떤 공격을 고를건가', self.select_to_air_attack)
+        c9 = Condition('x값만 봤을 때, 공격 범위 안에 있는가', self.check_player_x_for_attack, 3)
 
 
         SEQ_if_air_do_jump = Sequence('in air',c7, a7)
         SEQ_follow_jump = Sequence('follow_jump', c6, a7)
         SEQ_jump = Selector('Jump', SEQ_if_air_do_jump, SEQ_follow_jump)
 
-        SEL_air_attack = Selector('Do_Air_Attack',a8 ,a9, a10)
-        SEQ_air_attack = Sequence('Air_Attack?', c8, SEL_air_attack)
+        SEL_Do_air_attack = Selector('Do_Air_Attack',a8 ,a9, a10)
+        SEQ_select_attack_in_air = Sequence('Air_Attack?', c8, SEL_Do_air_attack) # 공중이라면 공격 선택하기
 
         SEQ_near_chase = Sequence('Chase_Near_Player', c1, a3)
         SEQ_far_chase = Sequence('Chase_Far_Player', c2, a4)
 
 
 
-        SEQ_air_attack = Sequence('Air_Attack?', c8, SEL_air_attack) # 점프 도중이라면 공중 공격 <--- 여기에 x 범위 안에 있는지 판단 기능 넣기
+        SEQ_air_attack = Sequence('Air_Attack?', c9, SEQ_select_attack_in_air) # x 범위 안에 있는데, 점프 도중이라면 공중 공격
 
         SEQ_ground_attack = Sequence('Ground_attack',c4, a5) #공격 범위 안이라면 공격
 
@@ -502,11 +508,12 @@ class Sword_Kirby:
         SEQ_hurt = Sequence('HURT', c5, a6)
 
         SEQ_Chase = Sequence("chase", c3, SEQ_far_chase, SEQ_near_chase)  # 마지막으로 공격한지 3초가 지났다면 추격
-        SEL_attack = Selector('attack_to_Player', c6, c4, a5) # 공격범위라면 공격
-        SEL_chase_attack = Selector("chase_and_attack", SEQ_Chase, SEL_attack) #
+        SEL_attack = Sequence('attack_to_Player', c4, a5) # 공격범위라면 공격
+        SEL_chase_attack = Sequence("chase_and_attack", SEQ_Chase, SEL_attack) #
 
+#SEQ_air_attack
         # /공격한지 3초가 지났다면 / 맞은 상태라면 / 멀리 있으면 뛰어가고, 가까이 있으면 걸어가기 / 공격범위 안에 있다면 공격 / 배회하기
-        root = SEQ_1stage = Selector("1 stage: move and normal_attack", SEQ_hurt, SEQ_jump, SEL_chase_attack, SEQ_wander)
+        root = SEQ_1stage = Selector("1 stage: move and normal_attack", SEQ_hurt,SEQ_jump, SEL_chase_attack, SEQ_wander)
 
         self.bt = BehaviorTree(root)
         pass
