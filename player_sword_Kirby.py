@@ -987,6 +987,7 @@ class Sword_Kirby:
         else:
             return 0, 0, 0, 0
 
+
     def handle_collision(self, group, other):
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
