@@ -416,6 +416,11 @@ class Normal_Attack:
             p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
 
+        if 5 <= int(p1.frame) <= 8:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
+
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
@@ -457,6 +462,11 @@ class Speed_Attack:
         if int(p1.frame) == 12:
             p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
+
+        if 10 <= int(p1.frame) <= 12:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
 
     @staticmethod
     def draw(p1):
@@ -541,6 +551,11 @@ class Charge_Attack:
                 p1.Charging_Point = 0
             p1.state_machine.handle_event(('STOP', 0))
 
+        if 4 <= int(p1.frame) <= 9:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
+
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
@@ -619,6 +634,12 @@ class Upper_Attack:
             p1.Attacking = False
             p1.state_machine.handle_event(('STOP', 0))
 
+        if 3 <= int(p1.frame) <= 10:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
+
+
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
@@ -681,6 +702,11 @@ class Drop_Attack:
             p1.Attacking = False
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
+
+        if 4 <= int(p1.frame) <= 7:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
 
     @staticmethod
     def draw(p1):
@@ -750,6 +776,12 @@ class Falling_Attack:
             p1.Attacking = False
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
+
+
+        if 4 <= int(p1.frame) <= 24:
+            p1.Attacking = True
+        else:
+            p1.Attacking = False
 
     @staticmethod
     def draw(p1):

@@ -703,7 +703,7 @@ class Drop_Attack:
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
 
-        if 4 <= int(p1.frame) <= 8:
+        if 4 <= int(p1.frame) <= 9:
             p1.Attacking = True
         else:
             p1.Attacking = False

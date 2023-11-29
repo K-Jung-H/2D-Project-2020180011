@@ -1,8 +1,12 @@
 from pico2d import *
 
-
+player_character = 'Master_Kirby'
+player_side = 'Left'
 p1_score = 2
 p2_score = 2
+difficulty = 1
+
+
 
 number_list = [[25, 8], [35, 6], [43, 8], [53, 8], [63, 8]]
 

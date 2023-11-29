@@ -1,29 +1,27 @@
 from pico2d import load_image, get_events, clear_canvas, update_canvas, get_time, load_font
-from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LEFT, SDLK_RIGHT
+from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDLK_UP, SDLK_DOWN, SDLK_LEFT, SDLK_RIGHT
 
-import Mode_Select_mode
+
 import game_framework
-import two_player_mode
+import one_player_mode
+import Mode_Select_mode
 import Round_score
-
-TIME_PER_ACTION = 1.0
-ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
-FRAMES_PER_ACTION = 10
 
 K_Standing_focus = [[223, 1195], [268, 1195], [315, 1195], [362, 1195]]
 M_walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 SK_walk_focus = [[0, 25], [29, 28], [61, 31], [96, 32], [133, 32], [169, 28], [201, 24], [229, 23], [256, 23], [283, 28], [315, 25]] # 11개
 
 
-P1 = 0
-P2 = 0
+TIME_PER_ACTION = 1.0
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 10
 
 class P_Controller:
     def __init__(self):
         self.x1, self.y1 = 350, 150
         self.x2, self.y2 = 650, 150
         self.P1 = 0
-        self.P2 = 1
+        self.P2 = 0
         self.frame_k = 0
         self.frame_m = 0
         self.frame_sk = 0
@@ -43,6 +41,7 @@ class P_Controller:
         self.frame_k = (self.frame_k + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         self.frame_m = (self.frame_m + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
         self.frame_sk = (self.frame_sk + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 11
+        print(self.P1, self.P2)
 
 
     def draw_background(self):
@@ -98,27 +97,41 @@ class P_Controller:
                                               0, 'h', x2, y2, SK_walk_focus[frame_sk][1] * 2, 41 * 2)
 
 
-
-
-def P1_handle(event):
-    if (event.key == SDLK_a or event.key == SDLK_d):
-        return True
-    return False
-
-def P2_handle(event):
-    if (event.key == SDLK_LEFT or event.key == SDLK_RIGHT):
-        return True
-    return False
-
-
-
 def init():
     global Controller
-    Round_score.p1_score = 2
-    Round_score.p2_score = 2
-
     Controller = P_Controller()
-    pass
+
+    player_character = None
+
+    if Round_score.player_character == 'Master_Kirby':
+        player_character = 0
+    elif Round_score.player_character == 'Meta_Knight':
+        player_character = 1
+    elif Round_score.player_character == 'Sword_Kirby':
+        player_character = 2
+
+    if Round_score.player_side == 'Left':
+        Controller.P1 = player_character
+
+        if Round_score.difficulty == 1:
+            Controller.P2 = 1
+        elif Round_score.difficulty == 2:
+            Controller.P2 = 2
+        elif Round_score.difficulty == 3:
+            Controller.P2 = 0
+
+    elif Round_score.player_side == 'Right':
+        Controller.P2 = player_character
+        if Round_score.difficulty == 1:
+            Controller.P1 = 1
+        elif Round_score.difficulty == 2:
+            Controller.P1 = 2
+        elif Round_score.difficulty == 3:
+            Controller.P1 = 0
+
+
+
+
 
 def finish():
     pass
@@ -129,36 +142,19 @@ def handle_events():
 
     for event in events:
         if event.type == SDL_QUIT:
-            game_framework.quit()
+            game_framework.change_mode(Mode_Select_mode)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.change_mode(Mode_Select_mode)
-
-        elif P1_handle(event):
-
-                if event.type == SDL_KEYDOWN and event.key == SDLK_d:
-                    Controller.P1 = (Controller.P1 + 1) % 3
-                elif event.type == SDL_KEYDOWN and event.key == SDLK_a:
-                    Controller.P1 = (Controller.P1 - 1) % 3
-
-        elif P2_handle(event):
-
-            if event.type == SDL_KEYDOWN and event.key == SDLK_RIGHT:
-                Controller.P2 = (Controller.P2 + 1) % 3
-            elif event.type == SDL_KEYDOWN and event.key == SDLK_LEFT:
-                Controller.P2 = (Controller.P2 - 1) % 3
-
-
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
-            game_framework.change_mode(two_player_mode)
+            game_framework.change_mode(one_player_mode)
 
-    print(f"P1: {Controller.P1}, P2: {Controller.P2}")
 
 
 def update():
-    global P1, P2
+    global Player
+    global Player_side
+    global Controller
     Controller.update()
-    P1 = Controller.P1
-    P2 = Controller.P2
 
 
 
@@ -173,8 +169,6 @@ def draw():
 def pause(): pass
 
 def resume(): pass
-
-
 
 
 

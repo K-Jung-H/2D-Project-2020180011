@@ -1,7 +1,8 @@
 from pico2d import load_image, get_events, clear_canvas, update_canvas, get_time, load_font
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDLK_UP, SDLK_DOWN, SDLK_LEFT, SDLK_RIGHT
 
-
+import Round_score
+import Enemy_matching_mode
 import game_framework
 import one_player_mode
 import Mode_Select_mode
@@ -9,6 +10,7 @@ import Mode_Select_mode
 K_walk_focus = [[0, 22], [39, 27], [80, 30], [120, 37], [167, 37], [214, 32], [259, 29], [299, 20]]
 M_walk_focus = [[2,39], [51,36], [100, 34], [149, 37], [203, 36], [258, 40], [316, 41], [377, 38] ]
 SK_walk_focus = [[0, 25], [29, 28], [61, 31], [96, 32], [133, 32], [169, 28], [201, 24], [229, 23], [256, 23], [283, 28], [315, 25]] # 11개
+C_list = ['Master_Kirby', 'Meta_Knight', 'Sword_Kirby']
 
 
 TIME_PER_ACTION = 1.0
@@ -104,7 +106,12 @@ def init():
 
 
 def finish():
-    pass
+    global Controller
+    Round_score.player_character = C_list[Controller.P_character]
+    Round_score.player_side = Controller.P_side
+    Round_score.p1_score = 2
+    Round_score.p2_score = 2
+    Round_score.difficulty = 1
 
 
 def handle_events():
@@ -114,7 +121,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.change_mode(Mode_Select_mode)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-            game_framework.quit()
+            game_framework.change_mode(Mode_Select_mode)
 
         if event.type == SDL_KEYDOWN and event.key == SDLK_UP:
             Controller.P_character = (Controller.P_character + 1) % 3
@@ -125,7 +132,7 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_RIGHT: # 우측 키세팅 선택
             Controller.P_side = 'Right'
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
-            game_framework.change_mode(one_player_mode)
+            game_framework.change_mode(Enemy_matching_mode)
 
 
 
@@ -136,7 +143,7 @@ def update():
     Controller.update()
     Player = Controller.P_character
     Player_side = Controller.P_side
-    print(Player, Player_side)
+
 
 
 

@@ -105,16 +105,9 @@ class Attack_Area:
 
         elif self.p.state == 'Falling_attack':
             return p_L, p_B - 5, p_R, p_T - 5
-
         else:
             return 0, 0, 0, 0
 
-
-
-
-
-
-        return p_L, p_B, p_R, p_T
 
     def handle_collision(self, group, other):
         pass
@@ -170,6 +163,29 @@ class Sword_Kirby:
 
     def update(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
+
+        if self.state == 'Normal_attack':
+            if 3 <= int(self.frame) <= 8:
+                self.Attacking = True
+        elif self.state == 'Upper_attack':
+            if 3 <= int(self.frame) <= 10:
+                self.Attacking = True
+            else:
+                self.Attacking = False
+        elif self.state == 'Drop_attack':
+            if 4 <= int(self.frame) <= 7:
+                self.Attacking = True
+            else:
+                self.Attacking = False
+        elif self.state == 'Falling_attack':
+            if 3 <= int(self.frame) <= 25:
+                self.Attacking = True
+            else:
+                self.Attacking = False
+
+        if self.state == 'Jump' or self.state == 'Idle':
+            self.Attacking = False
+
         self.attack_area.update()
 
         if self.Life <= 0:
@@ -178,12 +194,6 @@ class Sword_Kirby:
             self.damaged_motion += 1
         else:
             self.bt.run()
-            print(self.state)
-            print(self.state)
-            print(self.state)
-            print(self.state)
-            print(self.state)
-            print(self.state)
 
     def draw(self):
         self.font.draw(self.x - 10, self.y + 60, f'{self.Life:02d}', (255, 0, 0))
@@ -455,7 +465,7 @@ class Sword_Kirby:
 
         self.state = 'Normal_attack'
 
-        if int(self.frame) == 6 or int(self.frame) == 7:
+        if 5 <= int(self.frame) == 8:
             self.Attacking = True
 
         if int(self.frame) == 8:

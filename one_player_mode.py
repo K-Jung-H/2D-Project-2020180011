@@ -4,6 +4,7 @@ import game_framework
 import World
 import Round_score
 import one_player_character_select_mode
+import Enemy_matching_mode
 import one_player_mode
 import Title_mode
 from Background import BackGround
@@ -52,9 +53,8 @@ def init():
     computer_side = None
 
     picked_character = one_player_character_select_mode.Player
-    computer_difficulty = 2
+    computer_difficulty = Round_score.difficulty
     computer_character = 1
-
 
     if one_player_character_select_mode.Player_side == 'Left':
         picked_side, computer_side = 'p1', 'p2'
@@ -78,7 +78,11 @@ def init():
         computer_character = 1
     elif computer_difficulty == 2:
         Com = AI_Sword_Kirby(computer_side)
-        computer_character = 0
+        computer_character = 2
+    # elif computer_difficulty == 3:
+    #     Com = AI_Master_Kirby(computer_side)
+    #     computer_character = 3
+
 
     World.add_object(Player, 1)
     World.add_object(Com, 1)
@@ -110,8 +114,6 @@ def init():
     Check_Victory = KO()
     hp_bar = HP_BAR(picked_character, computer_character, picked_side)
     score = Round_score.Score()
-    Round_score.p1_score = 0
-    Round_score.p2_score = 0
 
 
 def finish():
@@ -124,9 +126,7 @@ def update():
     World.handle_collisions()
     Check_Victory.update()
     hp_bar.update()
-    if Check_Victory.KO_time is not None:
-        pass
-        #delay(0.1)
+
 
 
 def draw():
@@ -153,7 +153,17 @@ def Compare_set_win():
 
 def Compare_game_win():
     if Round_score.p1_score == -1 or Round_score.p2_score == -1:
-        game_framework.change_mode(one_player_character_select_mode)
+        if Player.Life >= 0:
+            if Round_score.player_side == 'Left':
+                Round_score.p1_score += 2
+                Round_score.p2_score = 2
+            else:
+                Round_score.p1_score = 2
+                Round_score.p2_score += 2
+            Round_score.difficulty += 1
+            game_framework.change_mode(Enemy_matching_mode)
+        else:
+            game_framework.change_mode(Lose_mode)
     else:
         game_framework.change_mode(one_player_mode)
 
@@ -173,7 +183,7 @@ class KO:
         self.spotlight = 0
 
         self.Time_drawing = False
-        self.stage_time = 10
+        self.stage_time = 30
         self.remain_time = 0
         self.stage_start_time = get_time()
 
