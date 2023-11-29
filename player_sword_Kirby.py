@@ -608,7 +608,6 @@ class Upper_Attack:
 
     @staticmethod
     def do(p1):
-
         if (4 <= int(p1.frame) <= 7):
             p1.y += 15
         else:

@@ -230,6 +230,36 @@ class Sword_Kirby:
                                                     Jump_focus[frame][1] * 2, 54 * 2)
 
 
+        elif self.state == 'Upper_attack':
+            frame = int(self.frame) % 10
+            if self.dir == 1:
+                self.upper_attack_image.clip_draw(Upper_attack_focus[frame][0], 0, Upper_attack_focus[frame][1], 61, self.x, self.y,
+                                                Upper_attack_focus[frame][1] * 2, 61 * 2)
+
+            elif self.dir == -1:
+                self.upper_attack_image.clip_composite_draw(Upper_attack_focus[frame][0], 0, Upper_attack_focus[frame][1], 61, 0, 'h',
+                                                          self.x, self.y, Upper_attack_focus[frame][1] * 2, 61 * 2)
+
+
+        elif self.state == 'Drop_attack':
+            frame = int(self.frame) % 7
+            if self.dir == 1:
+                self.drop_attack_image.clip_draw(Drop_attack_focus[frame][0], 0, Drop_attack_focus[frame][1], 48, self.x, self.y,
+                                               Drop_attack_focus[frame][1] * 2, 48 * 2)
+
+            elif self.dir == -1:
+                self.drop_attack_image.clip_composite_draw(Drop_attack_focus[frame][0], 0, Drop_attack_focus[frame][1], 48, 0, 'h',
+                                                         self.x, self.y, Drop_attack_focus[frame][1] * 2, 48 * 2)
+
+
+        elif self.state == 'Falling_attack':
+            frame = int(self.frame) % 27
+            if p1.dir == 1:
+                self.falling_attack_image.clip_draw(Falling_attack_focus[frame][0], 0, Falling_attack_focus[frame][1], 54, self.x, self.y,
+                                                    Falling_attack_focus[frame][1] * 2, 54 * 2)
+            elif self.dir == -1:
+                self.falling_attack_image.clip_composite_draw(Falling_attack_focus[frame][0], 0, Falling_attack_focus[frame][1], 54,
+                                                            0,'h',self.x, self.y, Falling_attack_focus[frame][1] * 2, 54 * 2)
 
         draw_rectangle(*self.get_bb())
         draw_rectangle(*self.attack_area.get_bb())
@@ -391,11 +421,9 @@ class Sword_Kirby:
 
     def check_player_y_for_attack(self, distance):
         if self.distance_less_than(0, one_player_mode.Player.y, 0, self.y, distance):
-            print("do_normal_attack")
             return BehaviorTree.FAIL
         else:
             self.state = 'Jump'
-            print("do_jump")
             return BehaviorTree.SUCCESS
 
     def check_player_x_for_attack(self, distance):
@@ -407,6 +435,8 @@ class Sword_Kirby:
 
 
     def select_to_air_attack(self):
+
+
         if self.state in ['Jump', 'Upper_attack', 'Drop_attack', 'Falling_attack']:
             if self.state == 'Upper_attack' or (self.state == 'Jump' and self.jump_value >= 0):
                 self.state = 'Upper_attack'
@@ -416,6 +446,7 @@ class Sword_Kirby:
                   (self.distance_less_than(one_player_mode.Player.x, one_player_mode.Player.y, self.x, self.y, 3) and
                    self.state == 'Jump')):
                 self.state = 'Falling_attack'
+            print(self.state)
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.FAIL
@@ -423,6 +454,7 @@ class Sword_Kirby:
 
     def check_jumping(self):
         if self.Jumping:
+            self.state = 'Jump'
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.FAIL
@@ -433,6 +465,7 @@ class Sword_Kirby:
             self.jump_value = 20
             self.Jumping = True
 
+        self.state = 'Jump'
         self.y += self.jump_value
         self.jump_value -= 1
         speed = RUN_SPEED_PPS * 1.5
@@ -446,11 +479,26 @@ class Sword_Kirby:
             self.Jumping = False
             return BehaviorTree.SUCCESS
         print(self.y)
-        return BehaviorTree.RUNNING
+        return BehaviorTree.FAIL
 
 
     def Upper_Attack(self):
-        pass
+        if self.state == 'Upper_attack':
+            if (4 <= int(self.frame) <= 7):
+                self.y += 15
+            else:
+                self.y += 1
+            self.jump_value -= 0.1
+            self.Attacking = True
+            self.frame = (self.frame + FRAMES_PER_UPPER_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 12
+            if int(self.frame) == 11:
+                self.Attacking = False
+                return BehaviorTree.SUCCESS
+            else:
+                return BehaviorTree.RUNNING
+        else:
+            return BehaviorTree.FAIL
+
 
     def Drop_Attack(self):
         pass
@@ -485,35 +533,40 @@ class Sword_Kirby:
         c6 = Condition('공격하기 위해 점프해야 하는가?', self.check_player_y_for_attack, 3)
         c7 = Condition('현재 공중에서 점프중인가?', self.check_jumping)
         c8 = Condition('공중에서 어떤 공격을 고를건가', self.select_to_air_attack)
-        c9 = Condition('x값만 봤을 때, 공격 범위 안에 있는가', self.check_player_x_for_attack, 3)
+        c9 = Condition('x값만 봤을 때, 공격 범위 안에 있는가', self.check_player_x_for_attack, 5)
+
+
+
+        SEL_Do_air_attack = Selector('Do_Air_Attack',a8 ,a9, a10)
+        SEQ_select_attack_in_air = Sequence('Air_Attack?', c8, SEL_Do_air_attack) # 공중이라면 공격 선택하기
+        SEQ_air_attack = Sequence('Air_Attack?', c9, SEQ_select_attack_in_air) # x 범위 안에 있는데, 점프 도중이라면 공중 공격
 
 
         SEQ_if_air_do_jump = Sequence('in air',c7, a7)
         SEQ_follow_jump = Sequence('follow_jump', c6, a7)
-        SEQ_jump = Selector('Jump', SEQ_if_air_do_jump, SEQ_follow_jump)
+        SEQ_jump = Selector('Jump', SEQ_if_air_do_jump, SEQ_follow_jump, SEQ_air_attack)
 
-        SEL_Do_air_attack = Selector('Do_Air_Attack',a8 ,a9, a10)
-        SEQ_select_attack_in_air = Sequence('Air_Attack?', c8, SEL_Do_air_attack) # 공중이라면 공격 선택하기
 
         SEQ_near_chase = Sequence('Chase_Near_Player', c1, a3)
         SEQ_far_chase = Sequence('Chase_Far_Player', c2, a4)
 
 
 
-        SEQ_air_attack = Sequence('Air_Attack?', c9, SEQ_select_attack_in_air) # x 범위 안에 있는데, 점프 도중이라면 공중 공격
 
         SEQ_ground_attack = Sequence('Ground_attack',c4, a5) #공격 범위 안이라면 공격
+
+        SEL_attack = Selector(SEQ_air_attack, SEQ_ground_attack)
 
         SEQ_wander = Sequence('Wander', a1, a2)
         SEQ_hurt = Sequence('HURT', c5, a6)
 
+
         SEQ_Chase = Sequence("chase", c3, SEQ_far_chase, SEQ_near_chase)  # 마지막으로 공격한지 3초가 지났다면 추격
-        SEL_attack = Sequence('attack_to_Player', c4, a5) # 공격범위라면 공격
-        SEL_chase_attack = Sequence("chase_and_attack", SEQ_Chase, SEL_attack) #
+        SEQ_chase_attack = Sequence("chase_and_attack", SEQ_Chase, SEQ_ground_attack)
 
 #SEQ_air_attack
         # /공격한지 3초가 지났다면 / 맞은 상태라면 / 멀리 있으면 뛰어가고, 가까이 있으면 걸어가기 / 공격범위 안에 있다면 공격 / 배회하기
-        root = SEQ_1stage = Selector("1 stage: move and normal_attack", SEQ_hurt,SEQ_jump, SEL_chase_attack, SEQ_wander)
+        root = SEQ_1stage = Selector("1 stage: move and normal_attack", SEQ_hurt,SEQ_jump, SEQ_chase_attack, SEQ_wander)
 
         self.bt = BehaviorTree(root)
         pass
