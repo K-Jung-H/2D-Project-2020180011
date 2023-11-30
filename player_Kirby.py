@@ -206,7 +206,7 @@ class Walk:
 
         elif p1.Left_Move or p1.Right_Move:
             p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
-            p1.x = clamp(100, p1.x, 1000 - 50)
+            #p1.x = clamp(100, p1.x, 1000 - 50)
 
         elif not (p1.Left_Move and p1.Right_Move):
             p1.state_machine.handle_event(('STOP', 0))
@@ -355,6 +355,7 @@ class Hurt:
         p1.jump_value = 5
         p1.y += p1.jump_value
         p1.damaged_time = get_time()
+        p1.Get_Damage = True
 
     @staticmethod
     def exit(p1, e):
@@ -363,6 +364,7 @@ class Hurt:
         p1.dir *= -1
         p1.Left_Move = False
         p1.Right_Move = False
+        p1.Get_Damage = False
 
 
     @staticmethod
@@ -381,6 +383,7 @@ class Hurt:
 
         if get_time() - p1.damaged_time >= 0.2 * p1.damaged_amount:
             if p1.y == 150:
+                p1.Get_Damage = False
                 p1.state_machine.handle_event(('TIME_OUT', 0))
 
 
@@ -921,6 +924,7 @@ class Kirby:
         self.Charging_Point = 0
         self.Charging_Time = 0
 
+        self.Get_Damage = False
         self.damaged_time = None # 맞은 시점
         self.damaged_motion = 1
         self.font = load_font('resource/ENCR10B.TTF', 16)

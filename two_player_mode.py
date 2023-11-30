@@ -50,8 +50,12 @@ def init():
     global score
     global F_Z
 
+    Round_score.Background_stage = 2
+    F_Z = falling_zone.Falling_area(Round_score.Background_stage)
+    background = BackGround(500, 300, Round_score.Background_stage)
+    World.add_object(background, 0)
 
-    F_Z = falling_zone.Falling_area()
+
     picked_p1 = two_player_character_select_mode.P1
     picked_p2 = two_player_character_select_mode.P2
 
@@ -83,8 +87,7 @@ def init():
 
     World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, None)
 
-    background = BackGround(500, 300, Round_score.Background_stage)
-    World.add_object(background, 0)
+
 
     HP_gui = HP_BAR()
     Check_Victory = KO()
@@ -100,6 +103,9 @@ def finish():
 def update():
     World.update()
     World.handle_collisions()
+
+    stage_clamp(Round_score.Background_stage)
+
     Check_Victory.update()
     HP_gui.update()
     F_Z.update()
@@ -119,6 +125,42 @@ def pause():
 
 def resume():
     pass
+
+
+def custom_clamp(value, lower_bound1, upper_bound1, lower_bound2, upper_bound2):
+    if lower_bound1 <= value <= upper_bound1:
+        # 첫 번째 범위에 속하는 경우
+        return value
+    elif lower_bound2 <= value <= upper_bound2:
+        # 두 번째 범위에 속하는 경우
+        return value
+    else:
+        # 어느 범위에도 속하지 않는 경우, 가까운 범위의 가까운 경계로 clamp
+        range1_distance = min(abs(value - lower_bound1), abs(value - upper_bound1))
+        range2_distance = min(abs(value - lower_bound2), abs(value - upper_bound2))
+
+        if range1_distance < range2_distance:
+            return max(lower_bound1, min(value, upper_bound1))
+        else:
+            return max(lower_bound2, min(value, upper_bound2))
+
+
+def stage_clamp(stage_num):
+    if stage_num == 1:
+        if not p1.Get_Damage:
+            p1.x = clamp(80, p1.x, 1000 - 80)
+
+        if not p2.Get_Damage:
+            p2.x = clamp(80, p2.x, 1000 - 80)
+
+
+    elif stage_num == 2:
+        if not p1.Get_Damage:
+            custom_clamp(p1.x, )# 여기부터
+
+        pass
+
+
 
 def Compare_set_win():
     if p1.Life >= p2.Life: # p1이 이겼다면?
@@ -234,6 +276,12 @@ class HP_BAR:
         self.p2_health = p2.Life
         self.p1_character = picked_p1
         self.p2_character = picked_p2
+
+        if p1.y <= 50 and p1.Life != 0:
+            p1.Life -= 1
+
+        if p2.y <= 50 and p2.Life != 0:
+            p2.Life -= 1
 
     def draw(self):
         self.HP_image.clip_draw(94, 2, 85, 60, self.p1_bar_x + 35 - (20 - self.p1_health) * (370/40), self.p1_bar_y, (370/20) * self.p1_health, 90) # 1p 체력

@@ -355,6 +355,7 @@ class Hurt:
         p1.jump_value = 5
         p1.y += p1.jump_value
         p1.damaged_time = get_time()
+        p1.Get_Damage = True
 
     @staticmethod
     def exit(p1, e):
@@ -363,6 +364,7 @@ class Hurt:
         p1.dir *= -1
         p1.Left_Move = False
         p1.Right_Move = False
+        p1.Get_Damage = False
 
     @staticmethod
     def do(p1):
@@ -380,6 +382,7 @@ class Hurt:
 
         if get_time() - p1.damaged_time >= 0.2 * p1.damaged_amount:
             if p1.y == 150:
+                p1.Get_Damage = False
                 p1.state_machine.handle_event(('TIME_OUT', 0))
 
     @staticmethod
@@ -900,8 +903,10 @@ class Sword_Kirby:
         self.Charging_Point = 0
         self.Charging_Time = 0
 
+        self.Get_Damage = False
         self.damaged_time = None  # 맞은 시점
         self.damaged_motion = 1
+
         self.font = load_font('resource/ENCR10B.TTF', 16)
         self.Left_Move = False
         self.Right_Move = False

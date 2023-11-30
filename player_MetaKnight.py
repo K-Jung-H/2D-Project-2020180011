@@ -353,6 +353,7 @@ class Hurt:
         p1.jump_value = 5
         p1.y += p1.jump_value
         p1.damaged_time = get_time()
+        p1.Get_Damage = True
 
     @staticmethod
     def exit(p1, e):
@@ -360,7 +361,9 @@ class Hurt:
         p1.damaged_amount = 0
         p1.Left_Move = False
         p1.Right_Move = False
+        p1.Get_Damage = False
         p1.dir *= -1
+
 
 
     @staticmethod
@@ -379,6 +382,7 @@ class Hurt:
 
         if get_time() - p1.damaged_time >= 0.2 * p1.damaged_amount:
             if p1.y == 150:
+                p1.Get_Damage = False
                 p1.state_machine.handle_event(('TIME_OUT', 0))
 
 
@@ -796,7 +800,6 @@ class StateMachine:
         self.cur_state.do(self.player)
         self.player.attack_area.update(self.cur_state)
 
-        #print(self.cur_state)
 
     def handle_event(self, e):
         for check_event, next_state in self.transitions[self.cur_state].items():
@@ -813,14 +816,13 @@ class StateMachine:
         self.cur_state.draw(self.player)
         self.player.attack_area.draw()
         self.player.font.draw(self.player.x - 10, self.player.y + 60, f'{self.player.Life:02d}', (255, 0, 0))
-        #print(f"{self.player.Picked_Player}'s HP: {self.player.Life}")
 
 
 class MetaKnight:
 
     def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
-        self.Life = 2
+        self.Life = 20
         self.damaged_amount = 0
         self.Picked_Player = Player
         if Player == "p1":
@@ -844,6 +846,7 @@ class MetaKnight:
         self.Charging_Point = 0
         self.Charging_Time = 0
 
+        self.Get_Damage = False
         self.damaged_time = None # 맞은 시점
         self.damaged_motion = 1
 
@@ -868,13 +871,11 @@ class MetaKnight:
     def handle_event(self, event):
         if self.jump_value > 0:
             self.state_machine.handle_event(('INPUT', event, "Air_Up"))
-            print("command in air")
         elif self.jump_value < 0:
             self.state_machine.handle_event(('INPUT', event, "Air_Down"))
-            print("command in air")
         else:
             self.state_machine.handle_event(('INPUT', event, "Ground"))
-            print("command on ground")
+
 
     def draw(self):
         self.state_machine.draw()
