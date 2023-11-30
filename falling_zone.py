@@ -17,7 +17,7 @@ class Falling_area:
             else:
                 return  970, 0, 1000, 150
         if self.stage == 2:
-            return 400, 0, 600, 150
+            return 420, 0, 580, 150
 
         return 0, 0, 0, 0
 

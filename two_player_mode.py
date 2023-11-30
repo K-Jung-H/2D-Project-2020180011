@@ -50,7 +50,7 @@ def init():
     global score
     global F_Z
 
-    Round_score.Background_stage = 2
+    Round_score.Background_stage = 3
     F_Z = falling_zone.Falling_area(Round_score.Background_stage)
     background = BackGround(500, 300, Round_score.Background_stage)
     World.add_object(background, 0)
@@ -104,8 +104,8 @@ def update():
     World.update()
     World.handle_collisions()
 
-    stage_clamp(Round_score.Background_stage)
-
+    #stage_clamp(Round_score.Background_stage)
+    stage_clamp(3)
     Check_Victory.update()
     HP_gui.update()
     F_Z.update()
@@ -129,13 +129,10 @@ def resume():
 
 def custom_clamp(value, lower_bound1, upper_bound1, lower_bound2, upper_bound2):
     if lower_bound1 <= value <= upper_bound1:
-        # 첫 번째 범위에 속하는 경우
         return value
     elif lower_bound2 <= value <= upper_bound2:
-        # 두 번째 범위에 속하는 경우
         return value
     else:
-        # 어느 범위에도 속하지 않는 경우, 가까운 범위의 가까운 경계로 clamp
         range1_distance = min(abs(value - lower_bound1), abs(value - upper_bound1))
         range2_distance = min(abs(value - lower_bound2), abs(value - upper_bound2))
 
@@ -149,16 +146,24 @@ def stage_clamp(stage_num):
     if stage_num == 1:
         if not p1.Get_Damage:
             p1.x = clamp(80, p1.x, 1000 - 80)
-
         if not p2.Get_Damage:
             p2.x = clamp(80, p2.x, 1000 - 80)
 
 
     elif stage_num == 2:
-        if not p1.Get_Damage:
-            custom_clamp(p1.x, )# 여기부터
+        if p1.y == 150:
+            p1.x = custom_clamp(p1.x, 0, 380, 600, 1000)
+        elif (p1.Get_Damage and p1.y < 150):
+            p1.x = clamp(400, p1.x, 600)
 
-        pass
+        if p2.y == 150:
+            p2.x = custom_clamp(p2.x, 0, 380, 600, 1000)
+        elif (p2.Get_Damage and p2.y < 150):
+            p2.x = clamp(400, p2.x, 600)
+
+    elif stage_num == 3:
+        p1.x = clamp(20, p1.x, 980)
+        p2.x = clamp(20, p2.x, 980)
 
 
 

@@ -886,7 +886,6 @@ class StateMachine:
                 self.cur_state = next_state
                 self.cur_state.enter(self.player, e)
                 return True
-
         return False
 
     def draw(self):
