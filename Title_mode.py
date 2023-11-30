@@ -6,9 +6,13 @@ import Mode_Select_mode
 
 class Message:
     image = None
+    title_image = None
+    back_image = None
     def __init__(self):
         if Message.image == None:
             Message.image = load_image('resource/start_message.png')
+            Message.title_image = load_image('resource/Kirby_Title.png')
+            Message.back_image = load_image('resource/Start_Loading_Background.png')
         self.x = 500
         self.y = 100
         self.start_time = get_time()
@@ -20,11 +24,8 @@ class Message:
             self.image.clip_draw(0, 30, 696, 59, self.x, self.y, 600, 50)
 
 def init():
-    global image
     global message
-    image = load_image('resource/Kirby_Title.png')
     message = Message()
-    pass
 
 def finish():
     pass
