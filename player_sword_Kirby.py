@@ -1016,15 +1016,22 @@ class Sword_Kirby:
         elif self.state_machine.cur_state == Falling_Attack:
             return self.x - 20, self.y - 20, self.x + 20, self.y + 20
 
+
+        elif self.state_machine.cur_state == Hurt:
+            if self.dir == 1:
+                return self.x - 10, self.y - 35, self.x + 30, self.y + 5
+            elif self.dir == -1:
+                return self.x - 30, self.y - 35, self.x + 10, self.y + 5
+
         else:
-            return 0, 0, 0, 0
+            return self.x, self.y, self.x, self.y
 
 
     def handle_collision(self, group, other):
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
                 if other.Attacking:
-                    # 직접적인 공격 받고, 강공격이 아니라면 반사하기
+                    # 직접적인 공격 받고, 강공격이 아니라면 밀쳐내기
                     if self.Defensing and group == 'p1 : p2_attack_range' and other.charge_attack == False:
                         print("p1 Defensed")
                         other.p.state_machine.handle_event(('Damaged', 0, other.power))
@@ -1034,6 +1041,11 @@ class Sword_Kirby:
                             print("p1 is damaged")
                             self.state_machine.handle_event(('Damaged', 0, other.power))
                             self.dir = other.p_dir
+
+            if group == 'p1 : Falling_area':
+                if self.state_machine.cur_state == Hurt:
+                    self.state_machine.handle_event(('Damaged', 0, 0))
+                    self.y -= 10
 
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
@@ -1050,6 +1062,8 @@ class Sword_Kirby:
                                 self.state_machine.handle_event(('Damaged', 0, other.power))
                                 self.dir = other.p_dir
 
-    def remove(self):
-        self.attack_area = None
-        del self
+            if group == 'p2 : Falling_area':
+                if self.state_machine.cur_state == Hurt:
+                    self.state_machine.handle_event(('Damaged', 0, 0))
+                    self.y -= 10
+

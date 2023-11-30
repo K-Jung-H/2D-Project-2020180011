@@ -189,7 +189,6 @@ class Walk:
                 if Input_time <= 0.5:    # 1초 안에 2번 입력했다면
                     if p1.Last_Input_Direction == p1.dir:  # 이전과 같은 방향 이동을 시도했다면
                         p1.state_machine.handle_event(('RUN', 0))
-                        print("Running_Start")
                 p1.Last_Input_time = get_time()
                 p1.Last_Input_Direction = p1.dir
 
@@ -207,7 +206,7 @@ class Walk:
 
         elif p1.Left_Move or p1.Right_Move:
             p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
-            p1.x = clamp(25, p1.x, 1000 - 25)
+            p1.x = clamp(100, p1.x, 1000 - 50)
 
         elif not (p1.Left_Move and p1.Right_Move):
             p1.state_machine.handle_event(('STOP', 0))
@@ -604,12 +603,12 @@ class Defense:
         p_size_x = Defense_focus[frame][1]
         p_size_y = 22
         if p1.dir == 1:
-            p1.defense_image.clip_draw(Defense_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y,
+            p1.defense_image.clip_draw(Defense_focus[frame][0], 0, p_size_x, p_size_y, p1.x, p1.y - 10,
                                p_size_x * 2, p_size_y * 2)
 
         elif p1.dir == -1:
             p1.defense_image.clip_composite_draw(Defense_focus[frame][0], 0, p_size_x, p_size_y,
-                                         0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+                                         0, 'h', p1.x, p1.y - 10, p_size_x * 2, p_size_y * 2)
 
 
 
@@ -865,7 +864,7 @@ class StateMachine:
             Falling_Attack: {STOP: Jump, Right_Move_Down: Falling_Attack, Left_Move_Down: Falling_Attack,
                              Right_Move_Up: Falling_Attack, Left_Move_Up: Falling_Attack, Get_Damage: Hurt},
 
-            Defense: {Defense_Up: Idle, STOP: Idle, Get_Damage: Hurt}
+            Defense: {STOP: Idle, Get_Damage: Hurt}
 
         }
 
@@ -1029,6 +1028,11 @@ class Kirby:
         elif self.state_machine.cur_state == Falling_Attack:
             return self.x - 20, self.y - 20, self.x + 20, self.y + 20
 
+        elif self.state_machine.cur_state == Hurt:
+            if self.dir == -1:
+                return self.x - 12, self.y - 35, self.x + 32, self.y + 5
+            elif self.dir == 1:
+                return self.x - 32, self.y - 35, self.x + 12, self.y + 5
 
         else:
             return 0, 0, 0, 0
@@ -1049,6 +1053,11 @@ class Kirby:
                             self.state_machine.handle_event(('Damaged', 0, other.power))
                             self.dir = other.p_dir
 
+            if group == 'p1 : Falling_area':
+                if self.state_machine.cur_state == Hurt:
+                    self.state_machine.handle_event(('Damaged', 0, 0))
+                    self.y -= 10
+
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
@@ -1063,6 +1072,11 @@ class Kirby:
                                 print("p2 is damaged")
                                 self.state_machine.handle_event(('Damaged', 0, other.power))
                                 self.dir = other.p_dir
+
+            if group == 'p2 : Falling_area':
+                if self.state_machine.cur_state == Hurt:
+                    self.state_machine.handle_event(('Damaged', 0, 0))
+                    self.y -= 10
 
 
     def remove(self):

@@ -2,6 +2,7 @@ from pico2d import *
 
 import game_framework
 import Round_score
+import falling_zone
 import World
 import two_player_character_select_mode
 import Title_mode
@@ -47,7 +48,10 @@ def init():
     global Check_Victory
     global HP_gui
     global score
+    global F_Z
 
+
+    F_Z = falling_zone.Falling_area()
     picked_p1 = two_player_character_select_mode.P1
     picked_p2 = two_player_character_select_mode.P2
 
@@ -70,9 +74,12 @@ def init():
 
     World.add_collision_pair('p1 : p2_attack_range', p1, p2.attack_area)
     World.add_collision_pair('p1 : p2_Sword_Skill', p1, None)
+    World.add_collision_pair('p1 : Falling_area', p1, F_Z)
 
     World.add_collision_pair('p2 : p1_attack_range', p2, p1.attack_area)
     World.add_collision_pair('p2 : p1_Sword_Skill', p2, None)
+    World.add_collision_pair('p2 : Falling_area', p2, F_Z)
+
 
     World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, None)
 
@@ -95,12 +102,14 @@ def update():
     World.handle_collisions()
     Check_Victory.update()
     HP_gui.update()
+    F_Z.update()
 
 
 def draw():
     clear_canvas()
     World.render()
     HP_gui.draw()
+    F_Z.draw()
     Check_Victory.draw()
     score.draw()
     update_canvas()

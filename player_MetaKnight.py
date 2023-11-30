@@ -710,35 +710,25 @@ class Defense:
 
     @staticmethod
     def enter(p1, e):
-        waiting_time = int(get_time() - p1.Defense_cooltime)
-        print(waiting_time)
-        if p1.Defense_cooltime == 0 or waiting_time > 3: # 첫 사용 또는 재사용 대기시간이 지났을 때
-            p1.frame = 0
-            p1.Defense_time = get_time()
-
-        elif waiting_time <= 3:
-            p1.state_machine.handle_event(('STOP', 0))
-
-
-
-
+        p1.frame = 0
+        p1.Defensing = True
 
     @staticmethod
     def exit(p1, e):
         p1.Right_Move = False
         p1.Left_Move = False
-        p1.dir = p1.Last_Input_Direction
+        p1.Defensing = False
 
-        if Defense_Up(e):
-            p1.Defense_cooltime = get_time()
-        pass
+
 
     @staticmethod
     def do(p1):
-        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 9
-        if int(get_time() - p1.Defense_time) == 5:
+        p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 10
+        p1.Defensing = True
+        if int(p1.frame) == 9:
+            p1.Defensing = False
             p1.state_machine.handle_event(('STOP', 0))
-            p1.Defense_cooltime = get_time()
+
 
 
 
@@ -844,9 +834,9 @@ class MetaKnight:
         self.Last_Input_time = None # 대쉬 파악용
         self.Last_Input_Direction = None  # 대쉬 파악용
 
-        self.jump_value = 0 #점프 구현
-        self.Defense_time = None # 방어 지속 시간 체크
-        self.Defense_cooltime = 0  # 방어 재사용 대기시간
+        self.jump_value = 0
+
+        self.Defensing = None
 
         self.attack_area = Meta_Attack_Area(self)
         self.Attacking = False
@@ -888,8 +878,6 @@ class MetaKnight:
 
     def draw(self):
         self.state_machine.draw()
-        #남은 체력 표기하기
-        #self.font.draw(self.x - 10, self.y + 50, f'{self.Charging_Point:02d}', (255, 255, 0))
         draw_rectangle(*self.get_bb())
 
     def SwordStrike(self):
@@ -991,28 +979,54 @@ class MetaKnight:
             elif self.dir == -1:
                 return self.x - 45, self.y - 45, self.x + 15, self.y + 25
 
+        elif self.state_machine.cur_state == Hurt:
+            if self.dir == 1:
+                return self.x - 40, self.y - 35, self.x + 20, self.y + 5
+            elif self.dir == -1:
+                return self.x - 20, self.y - 35, self.x + 40, self.y + 5
 
         else:
             return self.x, self.y, self.x, self.y
+
 
 
     def handle_collision(self, group, other):
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
                 if other.Attacking:
-                    print("p1 is damaged")
-                    self.state_machine.handle_event(('Damaged', 0, other.power))
-                    self.dir = other.p_dir
+                    # 직접적인 공격 받고, 강공격이 아니라면 밀쳐내기
+                    if self.Defensing and group == 'p1 : p2_attack_range' and other.charge_attack == False:
+                        print("p1 Defensed")
+                        other.p.state_machine.handle_event(('Damaged', 0, other.power))
+                        other.p.dir = self.dir
+                    else:
+                        if other.power != 0:
+                            print("p1 is damaged")
+                            self.state_machine.handle_event(('Damaged', 0, other.power))
+                            self.dir = other.p_dir
+
+            if group == 'p1 : Falling_area':
+                if self.state_machine.cur_state == Hurt:
+                    self.state_machine.handle_event(('Damaged', 0, 0))
+                    self.y -= 10
 
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
-                    print("p2 is damaged")
-                    self.state_machine.handle_event(('Damaged', 0, other.power))
-                    self.dir = other.p_dir
+                    if other.Attacking:
+                        # 직접적인 공격 받고, 강공격이 아니라면 반사하기
+                        if self.Defensing and group == 'p2 : p1_attack_range' and other.charge_attack == False:
+                            print("p2 Defensed")
+                            other.p.state_machine.handle_event(('Damaged', 0, other.power))
+                            other.p.dir = self.dir
+                        else:
+                            if other.power != 0:
+                                print("p2 is damaged")
+                                self.state_machine.handle_event(('Damaged', 0, other.power))
+                                self.dir = other.p_dir
 
+            if group == 'p2 : Falling_area':
+                if self.state_machine.cur_state == Hurt:
+                    self.state_machine.handle_event(('Damaged', 0, 0))
+                    self.y -= 10
 
-        # if group == 'p1_Sword_Skill:p2_Sword_Skill':
-        #     World.remove_collision_object(self)
-        # elif group == 'p1 : p2_Sword_Skill' or group == 'p2 : p1_Sword_Skill':
-        #     World.remove_collision_object(self)
