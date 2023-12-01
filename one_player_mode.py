@@ -5,8 +5,10 @@ import World
 import Round_score
 import one_player_character_select_mode
 import Enemy_matching_mode
+import Lose_mode
 import one_player_mode
-import Title_mode
+import falling_zone
+
 from Background import BackGround
 from ai_metaknight import MetaKnight as AI_MetaKnight
 from ai_sword_kirby import Sword_Kirby as AI_Sword_Kirby
@@ -48,14 +50,19 @@ def init():
     global Player, Com
     global Check_Victory, hp_bar, score
     global p1, p2
+    global F_Z
 
     picked_side = None
     computer_side = None
+
+    Round_score.difficulty = 2
+    Round_score.Background_stage = 1
 
     picked_character = one_player_character_select_mode.Player
     computer_difficulty = Round_score.difficulty
     computer_character = 1
 
+    Round_score.p2_score = 2
     if one_player_character_select_mode.Player_side == 'Left':
         picked_side, computer_side = 'p1', 'p2'
 
@@ -95,7 +102,6 @@ def init():
         World.add_collision_pair('p2 : p1_Sword_Skill', Com, None)
 
         World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, None)
-
         p1, p2 = Player, Com
     elif picked_side == 'p2':
         World.add_collision_pair('p1 : p2_attack_range', Com, Player.attack_area)
@@ -105,11 +111,17 @@ def init():
         World.add_collision_pair('p2 : p1_Sword_Skill', Player, None)
 
         World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, None)
-
         p1, p2 = Com, Player
+
+    World.add_collision_pair('p : Falling_area', Player, None)
+    World.add_collision_pair('p : Falling_area', Com, None)
+
+    F_Z = falling_zone.Falling_area(Round_score.Background_stage)
+    World.add_collision_pair('p : Falling_area', None, F_Z)
 
     background = BackGround(500, 300, Round_score.Background_stage)
     World.add_object(background, 0)
+
 
     Check_Victory = KO()
     hp_bar = HP_BAR(picked_character, computer_character, picked_side)
@@ -124,6 +136,9 @@ def finish():
 def update():
     World.update()
     World.handle_collisions()
+    F_Z.update()
+    stage_clamp(Round_score.Background_stage)
+
     Check_Victory.update()
     hp_bar.update()
 
@@ -132,6 +147,7 @@ def update():
 def draw():
     clear_canvas()
     World.render()
+    F_Z.draw()
     Check_Victory.draw()
     hp_bar.draw()
     score.draw()
@@ -144,6 +160,50 @@ def resume():
     pass
 
 
+def custom_clamp(value, lower_bound1, upper_bound1, lower_bound2, upper_bound2):
+    if lower_bound1 <= value <= upper_bound1:
+        return value
+    elif lower_bound2 <= value <= upper_bound2:
+        return value
+    else:
+        range1_distance = min(abs(value - lower_bound1), abs(value - upper_bound1))
+        range2_distance = min(abs(value - lower_bound2), abs(value - upper_bound2))
+
+        if range1_distance < range2_distance:
+            return max(lower_bound1, min(value, upper_bound1))
+        else:
+            return max(lower_bound2, min(value, upper_bound2))
+
+
+def stage_clamp(stage_num):
+    if stage_num == 1:
+        if not Player.Get_Damage:
+            Player.x = clamp(80, Player.x, 1000 - 80)
+        if not Com.Get_Damage:
+            Com.x = clamp(80, Com.x, 1000 - 80)
+
+
+    elif stage_num == 2:
+        if Player.y == 150:
+            Player.x = custom_clamp(Player.x, 0, 380, 600, 1000)
+        elif (Player.Get_Damage and Player.y < 150):
+            Player.x = clamp(400, Player.x, 600)
+
+        if Com.y == 150:
+            Com.x = custom_clamp(Com.x, 0, 380, 600, 1000)
+        elif (Com.Get_Damage and Com.y < 150):
+            Com.x = clamp(400, Com.x, 600)
+
+    elif stage_num == 3:
+        Player.x = clamp(20, Player.x, 980)
+        Com.x = clamp(20, Com.x, 980)
+
+    elif stage_num == 4:
+        Player.x = clamp(20, Player.x, 980)
+        Com.x = clamp(20, Com.x, 980)
+
+
+
 def Compare_set_win():
     if p1.Life >= p2.Life: # p1이 이겼다면?
         Round_score.p2_score -= 1
@@ -152,8 +212,8 @@ def Compare_set_win():
 
 
 def Compare_game_win():
-    if Round_score.p1_score == -1 or Round_score.p2_score == -1:
-        if Player.Life >= 0:
+    if Round_score.p1_score == -1 or Round_score.p2_score == -1: # 게임 종료시
+        if Player.Life >= 0: # 플레이어가 이겼다면
             if Round_score.player_side == 'Left':
                 Round_score.p1_score += 2
                 Round_score.p2_score = 2
@@ -278,6 +338,12 @@ class HP_BAR:
             self.p1_character = self.com_character
             self.p1_health = Com.Life
             self.p2_health = Player.Life
+
+        if Player.y <= 50 and Player.Life != 0:
+            Player.Life -= 1
+
+        if Com.y <= 50 and Com.Life != 0:
+            Com.Life -= 1
 
 
 

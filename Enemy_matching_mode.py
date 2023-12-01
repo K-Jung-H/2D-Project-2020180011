@@ -120,24 +120,30 @@ def init():
 
     if Round_score.player_side == 'Left':
         Controller.P1 = player_character
-        Controller.Select_side =  'Left'
+        Controller.Select_side = 'Left'
 
         if Round_score.difficulty == 1:
             Controller.P2 = 1
+            Round_score.Background_stage = 4
         elif Round_score.difficulty == 2:
             Controller.P2 = 2
+            Round_score.Background_stage = 1
         elif Round_score.difficulty == 3:
             Controller.P2 = 0
+            Round_score.Background_stage = 3
 
     elif Round_score.player_side == 'Right':
         Controller.P2 = player_character
         Controller.Select_side = 'Right'
         if Round_score.difficulty == 1:
             Controller.P1 = 1
+            Round_score.Background_stage = 4
         elif Round_score.difficulty == 2:
             Controller.P1 = 2
+            Round_score.Background_stage = 1
         elif Round_score.difficulty == 3:
             Controller.P1 = 0
+            Round_score.Background_stage = 3
 
 
 

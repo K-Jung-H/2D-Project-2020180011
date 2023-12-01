@@ -77,11 +77,11 @@ def init():
 
     World.add_collision_pair('p1 : p2_attack_range', p1, p2.attack_area)
     World.add_collision_pair('p1 : p2_Sword_Skill', p1, None)
-    World.add_collision_pair('p1 : Falling_area', p1, F_Z)
+    World.add_collision_pair('p : Falling_area', p1, F_Z)
 
     World.add_collision_pair('p2 : p1_attack_range', p2, p1.attack_area)
     World.add_collision_pair('p2 : p1_Sword_Skill', p2, None)
-    World.add_collision_pair('p2 : Falling_area', p2, F_Z)
+    World.add_collision_pair('p : Falling_area', p2, F_Z)
 
 
     World.add_collision_pair('p1_Sword_Skill : p2_Sword_Skill', None, None)
@@ -103,7 +103,6 @@ def update():
     World.update()
     World.handle_collisions()
 
-    #stage_clamp(Round_score.Background_stage)
     stage_clamp(Round_score.Background_stage)
     Check_Victory.update()
     HP_gui.update()

@@ -116,7 +116,7 @@ class Sword_Kirby:
 
     def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
-        self.Life = 10
+        self.Life = 20
         self.Picked_Player = Player
         if Player == "p1":
             self.dir = 1
@@ -135,11 +135,12 @@ class Sword_Kirby:
         self.Attack_cool_time = 0
         self.Attack_called = False
 
-
+        self.falling = False
         self.damaged_time = None # 맞은 시점
         self.damaged_motion = 1
         self.damaged_amount = 0
         self.Damage_called = False
+        self.Get_Damage = False
 
         self.Jumping = False
 
@@ -196,6 +197,7 @@ class Sword_Kirby:
             self.bt.run()
 
     def draw(self):
+        print(self.x, self.y)
         self.font.draw(self.x - 10, self.y + 60, f'{self.Life:02d}', (255, 0, 0))
         if self.state == 'Walk':
             self.frame = self.frame % 7
@@ -360,8 +362,12 @@ class Sword_Kirby:
 
         elif self.state == 'Falling_attack':
             return self.x - 20, self.y - 20, self.x + 20, self.y + 20
-        else:
-            return 0, 0, 0, 0
+
+        elif self.state == 'Hurt':
+            if self.dir == 1:
+                return self.x - 10, self.y - 35, self.x + 30, self.y + 5
+            elif self.dir == -1:
+                return self.x - 30, self.y - 35, self.x + 10, self.y + 5
 
 
 
@@ -388,6 +394,14 @@ class Sword_Kirby:
                         self.Life -= self.damaged_amount
                     self.state = 'Hurt'
                     self.dir = other.p_dir
+
+        if group == 'p : Falling_area':
+            if self.state == 'Hurt':
+                self.falling = True
+            if self.falling:
+                self.y -=10
+
+
 
     #===================================ai======================================================
 
@@ -489,32 +503,31 @@ class Sword_Kirby:
             return BehaviorTree.FAIL
 
     def get_hurt(self):
-        if get_time() - self.damaged_time >= 0.2 * self.damaged_amount:
-            if self.y == 150:
-                self.state = 'Idle'
-                self.Damage_called = False
-                self.dir *= -1
-                self.damaged_motion = 0
-                return BehaviorTree.SUCCESS
-            else:
-                return BehaviorTree.RUNNING
+        if get_time() - self.damaged_time >= 0.2 * self.damaged_amount and self.y == 150:
+            self.state = 'Idle'
+            self.Get_Damage = False
+            self.Damage_called = False
+            self.dir *= -1
+            self.damaged_motion = 0
+            return BehaviorTree.SUCCESS
         else:
+            self.Get_Damage = True
             self.damaged_motion += 1
             self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time * (self.damaged_amount * 0.5)
-            self.x = clamp(25, self.x, 1000 - 25)
+            self.y += self.jump_value
+            self.jump_value -= 1
 
-            if self.y > 150:
-                self.y += self.jump_value
-                self.jump_value -= 1
-            self.y = clamp(150, self.y, 1000 - 25)
-
+            if self.falling == False:
+                self.y = max(self.y, 150)
             return BehaviorTree.RUNNING
 
+
     def check_player_y_for_attack(self, distance):
-        if self.distance_less_than(0, one_player_mode.Player.y, 0, self.y, distance):
-            return BehaviorTree.FAIL
+        if one_player_mode.Player.y > self.y + 50:
+            if one_player_mode.Player.y > 100:
+                return BehaviorTree.SUCCESS
         else:
-            return BehaviorTree.SUCCESS
+            return BehaviorTree.FAIL
 
 
     def check_player_x_for_attack(self, distance):
@@ -567,8 +580,6 @@ class Sword_Kirby:
         speed = RUN_SPEED_PPS * 1.5
         self.x += self.dir * speed * game_framework.frame_time
 
-        self.x = clamp(25, self.x, 1000 - 25)
-
         if self.y <= 150:
             self.y = 150
             self.jump_value = 0
@@ -579,7 +590,7 @@ class Sword_Kirby:
         elif self.select_to_air_attack():
             self.frame = 0
             self.Attacking = True
-            return BehaviorTree.SUCCESS
+            return BehaviorTree.RUNNING
 
         else:
             return BehaviorTree.RUNNING
@@ -636,7 +647,6 @@ class Sword_Kirby:
         SEQ_chase_attack = Sequence("chase_and_attack", SEQ_Chase, SEQ_ground_attack)
 
         root = SEQ_1stage = Selector("1 stage: move and normal_attack", SEQ_hurt,SEL_do_air_action, SEQ_chase_attack, SEQ_wander)
-
         self.bt = BehaviorTree(root)
         pass
 

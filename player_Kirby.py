@@ -1056,11 +1056,6 @@ class Kirby:
                             self.state_machine.handle_event(('Damaged', 0, other.power))
                             self.dir = other.p_dir
 
-            if group == 'p1 : Falling_area':
-                if self.state_machine.cur_state == Hurt:
-                    self.state_machine.handle_event(('Damaged', 0, 0))
-                    self.y -= 10
-
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
@@ -1076,10 +1071,10 @@ class Kirby:
                                 self.state_machine.handle_event(('Damaged', 0, other.power))
                                 self.dir = other.p_dir
 
-            if group == 'p2 : Falling_area':
-                if self.state_machine.cur_state == Hurt:
-                    self.state_machine.handle_event(('Damaged', 0, 0))
-                    self.y -= 10
+        if group == 'p : Falling_area':
+            if self.state_machine.cur_state == Hurt:
+                self.state_machine.handle_event(('Damaged', 0, 0))
+                self.y -= 10
 
 
     def remove(self):

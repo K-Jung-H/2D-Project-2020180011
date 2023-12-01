@@ -94,7 +94,7 @@ class MetaKnight:
 
     def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
-        self.Life = 1
+        self.Life = 0
         self.Picked_Player = Player
         if Player == "p1":
             self.dir = 1
@@ -115,7 +115,7 @@ class MetaKnight:
 
 
         self.damaged_time = None # 맞은 시점
-        self.damaged_motion = 1
+        self.damaged_motion = 0
         self.damaged_amount = 0
         self.Damage_called = False
 

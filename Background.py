@@ -8,14 +8,18 @@ class BackGround:
         self.back1 = load_image('resource/Stage_Background.png')
         self.back2 = load_image('resource/Background_Valley.png')
         self.back3 = load_image('resource/boss_map.png')
+        self.back4 = load_image('resource/Background_Water.png')
 
     def draw(self):
         if self.stage == 1:
             self.back1.clip_draw(0, 100, 1000, 1000, self.x, self.y, 1000, 690)
         elif self.stage == 2:
-            self.back2.clip_draw(0, 0, 736, 465, self.x, self.y , 1000, 640)
+            self.back2.clip_draw(0, 0, 736, 465, self.x, self.y, 1000, 640)
         elif self.stage == 3:
             self.back3.clip_draw(0, 0, 240, 396, self.x, self.y + 30, 1000, 660)
+        elif self.stage == 4:
+            self.back4.clip_draw(0, 0, 1380, 758, self.x, self.y, 1000, 650)
+
 
 
     def update(self):
