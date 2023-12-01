@@ -13,6 +13,10 @@ SK_walk_focus = [[0, 25], [29, 28], [61, 31], [96, 32], [133, 32], [169, 28], [2
 C_list = ['Master_Kirby', 'Meta_Knight', 'Sword_Kirby']
 
 
+Change_focus = [[0, 32], [36, 32], [72, 32], [109, 32]]
+
+
+
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 10
@@ -47,7 +51,7 @@ class P1_Controller:
 
     def draw_background(self):
         self.image_black.clip_draw(0, 0, 100, 100, 500, 300, 1000, 600)
-        self.image_Background.clip_draw(0, 0, 1495, 998, 500, 300, 600, 600)
+        self.image_Background.clip_draw(0, 0, 1495, 998, 500, 280, 600, 500)
 
         if self.P_side == 'Left':
             if self.P_character == 0:
@@ -100,9 +104,36 @@ class P1_Controller:
                 self.image_sk.clip_composite_draw(p_start_x, 0, p_size_x, p_size_y, 0, 'h', self.x, self.y, p_size_x * 2, p_size_y * 2)
 
 
+class UI:
+    def __init__(self):
+        self.P_image = load_image('resource/change.png')
+        self.image_p1_p2 = load_image('resource/p1_p2.png')
+        self.Direction = None
+        self.frame = 0
+        self.cx = 500
+        self.cy = 530
+
+    def update(self):
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time)
+
+    def change_icon_draw(self):
+        frame = int(self.frame) % 4
+        if Player_side == 'Left':
+            self.P_image.clip_draw(Change_focus[frame][0], 0, Change_focus[frame][1], 24, self.cx, self.cy, 150, 100)
+            self.image_p1_p2.clip_draw(0, 0, 31, 27, 100, 100, 150, 150)
+        elif Player_side == 'Right':
+            self.P_image.clip_composite_draw(Change_focus[frame][0], 0, Change_focus[frame][1], 24, 0, 'h', self.cx, self.cy, 150, 100)
+            self.image_p1_p2.clip_draw(0, 0, 31, 27,  900, 100, 150, 150 )
+
+
+
+
+
+
 def init():
-    global Controller
+    global Controller, ui
     Controller = P1_Controller()
+    ui = UI()
 
 
 def finish():
@@ -141,6 +172,8 @@ def update():
     global Player_side
     global Controller
     Controller.update()
+    ui.update()
+
     Player = Controller.P_character
     Player_side = Controller.P_side
 
@@ -154,6 +187,7 @@ def draw():
     clear_canvas()
     Controller.draw_background()
     Controller.draw()
+    ui.change_icon_draw()
     update_canvas()
     pass
 
