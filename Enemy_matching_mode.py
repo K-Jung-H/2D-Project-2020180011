@@ -25,9 +25,11 @@ class P_Controller:
         self.frame_k = 0
         self.frame_m = 0
         self.frame_sk = 0
-        self.Select = 0
+        self.Select_side = None
         self.image_Background = load_image('resource/Character_Select_Background.png')
         self.image_black = load_image('resource/black_page.png')
+        self.image_gui = load_image('resource/solo_p_gui.png')
+
         self.image_k_portrait = load_image('resource/Kirby_Portrait.png')
         self.image_m_portrait = load_image('resource/Meta_Knight_Portrait.png')
         self.image_sk_portrait = load_image('resource/Sword_kirby_Portrait.png')
@@ -63,6 +65,12 @@ class P_Controller:
         elif self.P2 == 2:
             self.image_sk_portrait.clip_composite_draw(0, 0, 221, 244, 0, 'h', 900, 500, 200, 200)  # p2 일때 소드 커비
 
+        if self.Select_side == 'Left':
+            self.image_gui.clip_draw(0, 0, 31, 32, 100, 100, 150, 150)
+            self.image_gui.clip_draw(47, 0, 55, 32, 900, 100, 150, 150)
+        elif self.Select_side == 'Right':
+            self.image_gui.clip_draw(0, 0, 31, 32, 900, 100, 150, 150)
+            self.image_gui.clip_draw(47, 0, 55, 32, 100, 100, 150, 150)
 
 
 
@@ -112,6 +120,7 @@ def init():
 
     if Round_score.player_side == 'Left':
         Controller.P1 = player_character
+        Controller.Select_side =  'Left'
 
         if Round_score.difficulty == 1:
             Controller.P2 = 1
@@ -122,6 +131,7 @@ def init():
 
     elif Round_score.player_side == 'Right':
         Controller.P2 = player_character
+        Controller.Select_side = 'Right'
         if Round_score.difficulty == 1:
             Controller.P1 = 1
         elif Round_score.difficulty == 2:
