@@ -88,7 +88,6 @@ class Animation:
                 self.Cartoon = 4
 
 
-
 def init():
     global message
     global animation
@@ -128,10 +127,10 @@ def update():
 
 def draw():
     clear_canvas()
-    if animation.Cartoon == 4:
-        message.title_image.clip_draw(0, 0, 4210, 2571, 500, 300, Title_w, Title_h)
     animation.draw_black()
     animation.draw()
+    if animation.Cartoon == 4:
+        message.title_image.clip_draw(0, 0, 4210, 2571, 500, 300, Title_w, Title_h)
     message.draw()
     update_canvas()
     pass

@@ -4,6 +4,7 @@ from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDLK_a, SDLK_d,
 import Mode_Select_mode
 import game_framework
 import two_player_mode
+import stage_select_mode
 import Round_score
 
 TIME_PER_ACTION = 1.0
@@ -36,6 +37,7 @@ class P_Controller:
         self.image_m = load_image('resource/Meta_Knight_3.png')
         self.image_k = load_image('resource/Master_Kirby.png')
         self.image_sk = load_image('resource/Sword_Kirby/Sword_kirby_Walk.png')
+        self.image_p1_p2 = load_image('resource/p1_p2.png')
 
         self.font = load_font('resource/ENCR10B.TTF', 16)
 
@@ -98,6 +100,11 @@ class P_Controller:
                                               0, 'h', x2, y2, SK_walk_focus[frame_sk][1] * 2, 41 * 2)
 
 
+    def draw_gui(self):
+        self.image_p1_p2.clip_draw(0,0, 31, 27, 100, 100, 150, 150 )# p1
+        self.image_p1_p2.clip_draw(66,0, 32, 27, 900, 100, 150, 150 )# p1
+
+
 
 
 def P1_handle(event):
@@ -149,7 +156,7 @@ def handle_events():
 
 
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
-            game_framework.change_mode(two_player_mode)
+            game_framework.change_mode(stage_select_mode)
 
     print(f"P1: {Controller.P1}, P2: {Controller.P2}")
 
@@ -167,6 +174,7 @@ def draw():
     clear_canvas()
     Controller.draw_background()
     Controller.draw()
+    Controller.draw_gui()
     update_canvas()
     pass
 

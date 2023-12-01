@@ -33,7 +33,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-            game_framework.quit()
+            game_framework.change_mode(two_player_character_select_mode)
         else:
             if P1_handle(event):
                 p1.handle_event(event)
@@ -50,7 +50,6 @@ def init():
     global score
     global F_Z
 
-    Round_score.Background_stage = 3
     F_Z = falling_zone.Falling_area(Round_score.Background_stage)
     background = BackGround(500, 300, Round_score.Background_stage)
     World.add_object(background, 0)
@@ -105,7 +104,7 @@ def update():
     World.handle_collisions()
 
     #stage_clamp(Round_score.Background_stage)
-    stage_clamp(3)
+    stage_clamp(Round_score.Background_stage)
     Check_Victory.update()
     HP_gui.update()
     F_Z.update()

@@ -6,6 +6,15 @@ import two_player_character_select_mode
 import one_player_character_select_mode
 
 
+TIME_PER_FRAME = 0.3
+FRAME_PER_TIME = 1.0 / TIME_PER_FRAME
+FRAMES_PER_BACK_EFFECT = 10
+
+
+double_kirby = [[0, 34], [48, 34]]
+solo_kirby = [[98, 40], [146, 40]]
+
+
 class Message:
     image = None
     def __init__(self):
@@ -22,21 +31,33 @@ class Message:
             self.image.clip_draw(0, 30, 626, 59, self.x, self.y, 600, 50)
 
 
+
 class Player_Button:
     def __init__(self):
-        self.image = load_image('resource/Player_Button.png') # 1002 x 373
+        self.image = load_image('resource/selection.png') # 1002 x 373
+        self.select_kirby = load_image('resource/Select.png')
         self.P1_right_pos = 0
         self.P2_left_pos = 1000
         self.selected = None # 선택된 모드
         self.mx = None
         self.my = None
+        self.frame = 0
 
 
     def update(self):
+        self.frame = (self.frame + FRAMES_PER_BACK_EFFECT * FRAME_PER_TIME * game_framework.frame_time) % 6
         self.P1_right_pos += 5
         self.P2_left_pos -= 5
         self.P1_right_pos = clamp(0, self.P1_right_pos, 417)
         self.P2_left_pos = clamp(582, self.P2_left_pos, 1000)
+
+    def draw(self):
+        frame = int(self.frame) % 2
+        height = 37
+        self.select_kirby.clip_draw(double_kirby[frame][0], 0, double_kirby[frame][1], height, self.P2_left_pos + 210, 300, double_kirby[frame][1] * 4,
+                             height * 4)
+        self.select_kirby.clip_draw(solo_kirby[frame][0], 0, solo_kirby[frame][1], height, self.P1_right_pos - 220, 300,
+                                       solo_kirby[frame][1] * 4, height * 4)
 
 
 
@@ -82,6 +103,9 @@ def draw():
     Title_image.clip_draw(0, 0, 4210, 2571, 500, 300, 1000, 600)
     P_B.image.clip_draw(0, 0, 417, 373, P_B.P1_right_pos - 209, 300, 417, 373) # 0 ~ 417
     P_B.image.clip_draw(582, 0, 420, 373, P_B.P2_left_pos + 210, 300, 420, 373) # 582 ~ 1002
+    P_B.draw()
+
+
     message.draw()
     update_canvas()
     pass
