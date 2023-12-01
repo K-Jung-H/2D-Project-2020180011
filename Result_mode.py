@@ -28,7 +28,6 @@ class Result_Motion:
 
 def init():
     global R_M
-
     R_M = Result_Motion()
 
 def finish():

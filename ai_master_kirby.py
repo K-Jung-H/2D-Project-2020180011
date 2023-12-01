@@ -8,12 +8,13 @@ from SK_Sword_Attack import Sword_Kirby_Sword_Strike as Sword_Strike
 from SK_Attack_Area import Sword_Kirby_Attack_Area
 import one_player_mode
 
-PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
-RUN_SPEED_KMPH = 20.0  # Km / Hour
+PIXEL_PER_METER = (10.0 / 0.3) # 10 pixel 30 cm
+RUN_SPEED_KMPH = 20.0 # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 FAST_RUN_SPEED_PPS = RUN_SPEED_PPS * 1.8
+
 
 
 TIME_PER_ACTION = 1.0
@@ -24,30 +25,28 @@ FRAMES_PER_FALLING_ATTACK = 10
 
 TIME_PER_ATTACK = 0.5
 ATTACK_PER_TIME = 1.0 / TIME_PER_ATTACK
-FRAMES_PER_ATTACK = 10  # 일반 공격 동작 속도
-FRAMES_PER_FAST_ATTACK = 15  # 빠른 공격 동작 속도 더 빠르게
+FRAMES_PER_ATTACK = 10      # 일반 공격 동작 속도
+FRAMES_PER_FAST_ATTACK = 15 # 빠른 공격 동작 속도 더 빠르게
 FRAMES_PER_CHARGE_ATTACK = 8
 FRAMES_PER_UPPER_ATTACK = 15
 FRAMES_PER_DROP_ATTACK = 20
 
 
-# reforged
-stand_focus = [[0, 27], [31, 27]]
-walk_focus = [[0, 25], [29, 28], [61, 31], [96, 32], [133, 32], [169, 28], [201, 24], [229, 23], [256, 23], [283, 28], [315, 25]] # 11개
-Run_focus = [[0, 31], [35, 29], [67, 26],  [97, 26], [127, 28], [159, 25], [188, 26], [218, 29]]
-Jump_focus = [[0, 30], [34, 30], [68, 21], [93, 21], [118, 22], [144, 32], [180, 35], [219, 32], [255, 25], [284, 25]] # 10개
-damaged_focus = [[0, 32], [33, 34], [69, 35]]
-Normal_Attack_focus = [[0, 29], [32, 31], [71, 31], [127, 39], [177, 43], [224, 43], [271, 64], [339, 61]]
-Speed_Attack_focus = [[0, 42], [46, 37], [87, 34], [136, 19], [197, 42], [260, 49], [335, 53], [421, 62], [516, 62], [608, 43], [685, 58], [781, 58]]
-charge_focus = [[0, 43], [48, 42], [94, 36], [149, 22], [175, 41], [223, 43], [275, 43], [331, 48], [382, 43]]
-charge_location = [0, -10, -10, 0, 20, 20, 20, 20, 0]
-Upper_attack_focus = [[0, 29], [33, 32], [69, 40], [113, 46], [169, 47], [225, 47], [281, 47], [337, 47], [393, 47],
-                      [452, 47], [505, 46]]
-Drop_attack_focus = [[0, 41], [45, 41], [90, 43], [138, 42], [186, 36], [240, 41], [291, 43], [347, 48]]
+
+#reforged
+stand_focus = [[0, 32], [44, 33], [92, 30], [139, 31]]
+walk_focus = [[0, 22], [39, 27], [80, 30], [120, 37], [167, 37], [214, 32], [259, 29], [299, 20]]
+Run_focus = [[0, 34], [41, 30], [83, 29], [122, 34], [165, 30], [210, 34]]
+Jump_focus = [[0, 32], [47, 35], [97, 30], [138, 21], [177, 22], [218, 20], [253, 21], [290, 20], [318, 22], [352, 24], [386, 33], [437, 39], [500, 34], [564, 30], [614, 30], [666, 30], [717, 28]]
+damaged_focus = [[0, 34], [42, 39]]
+Upper_attack_focus = [[0, 24], [42, 24], [92, 24], [144, 28], [210, 50], [299, 56], [387, 76], [489, 80], [606, 92], [739, 20], [804, 26], [867, 28]]
+Drop_attack_focus = [[0, 39], [66, 44], [141, 56], [249, 76], [354, 28]] #jump 2,3,4,5,6 이미지 후 연결
+Falling_attack_focus = [[0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53] , [0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53], [0, 53], [54, 53], [110, 53], [116, 53], [218, 53], [277, 53], [331, 53], [386, 53]] #점프의 12, 13, 14번째 이미지를 쓰고 하기
+charge_focus = [[0, 56], [68, 58], [139, 65], [215, 41], [267, 41], [320, 40], [370, 40], [440, 62], [528, 70], [629, 70], [733, 92]]
+charge_location = [[-33, -9], [- 35, -9], [-42, -9], [- 18, -9], [ -18, -9], [-17, -9], [-17, -9], [- 16, -9], [- 17 ,-9], [-21, -9], [-21,-9]]
+Normal_Attack_focus = [[45, 800, 45, 50],[97,800, 60, 50],[160, 800, 60, 50],[227, 800, 45, 50], [290, 800, 55, 50], [362, 785, 90, 50], [455, 785, 95, 50],[555, 785, 70, 50] ]
+Speed_Attack_focus = [[40, 700, 55, 50], [105, 700, 55, 50], [165, 700, 55, 50], [230, 700, 75, 50], [310, 695, 65, 50],  [390, 690, 85, 50], [570,616,85,50], [670,616,70,50], ]
 Defense_focus = [[0,23], [29, 26], [61, 30], [98, 18], [122, 24], [152, 32], [189, 22], [218, 24], [250, 25], [282, 25]]
-Falling_attack_focus = [[2, 54], [61, 54], [120, 54], [179, 54], [238, 54], [297, 54], [355, 54], [414, 54],
-                        [2, 54], [61, 54], [120, 54], [179, 54], [238, 54], [297, 54], [355, 54], [414, 54],
-                        [2, 54], [61, 54], [120, 54], [179, 54], [238, 54], [297, 54], [355, 54], [414, 54],[474, 54]]
 
 
 
@@ -112,7 +111,7 @@ class Attack_Area:
     def handle_collision(self, group, other):
         pass
 
-class Sword_Kirby:
+class Master_Kirby:
 
     def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
@@ -145,18 +144,18 @@ class Sword_Kirby:
         self.Jumping = False
 
         self.font = load_font('resource/ENCR10B.TTF', 16)
-        self.stand_image = load_image('resource/Sword_Kirby/Sword_kirby_Stand.png')
-        self.walk_image = load_image('resource/Sword_Kirby/Sword_kirby_Walk.png')
-        self.run_image = load_image('resource/Sword_Kirby/Sword_kirby_Run.png')
-        self.jump_image = load_image('resource/Sword_Kirby/Sword_kirby_Jump.png')
-        self.damaged_image = load_image('resource/Sword_Kirby/sword_kirby_damaged.png')
-        self.normal_attack_image = load_image('resource/Sword_Kirby/sword_kirby_normal_attack.png')
-        self.speed_attack_image = load_image('resource/Sword_Kirby/sword_kirby_speed_attack.png')
-        self.charge_attack_image = load_image('resource/Sword_Kirby/sword_kirby_charge_attack.png')
-        self.upper_attack_image = load_image('resource/Sword_Kirby/sword_kirby_upper_attack.png')
-        self.drop_attack_image = load_image('resource/Sword_Kirby/sword_kirby_drop_attack.png')
-        self.falling_attack_image = load_image('resource/Sword_Kirby/sword_kirby_falling_attack.png')
+        self.image = load_image('resource/Master_Kirby.png')
+        self.stand_image = load_image('resource/Kirby_Stand.png')
+        self.walk_image = load_image('resource/Kirby_Walk.png')
+        self.run_image = load_image('resource/Kirby_Run.png')
+        self.jump_image = load_image('resource/Kirby_Jump.png')
+        self.damaged_image = load_image('resource/Kirby_Damaged.png')
         self.defense_image = load_image('resource/Sword_Kirby/Defense_Kirby.png')
+        self.charge_attack_image = load_image('resource/Kirby_Charge_Attack.png')
+        self.upper_attack_image = load_image('resource/Kirby_Upper_Attack.png')
+        self.drop_attack_image = load_image('resource/Kirby_Drop_Attack.png')
+        self.falling_attack_image = load_image('resource/Kirby_Falling_Attack.png')
+
 
         # ai
         self.tx, self.ty = 0, 0
@@ -199,56 +198,73 @@ class Sword_Kirby:
     def draw(self):
         self.font.draw(self.x - 10, self.y + 60, f'{self.Life:02d}', (255, 0, 0))
         if self.state == 'Walk':
-            self.frame = self.frame % 7
-            frame = int(self.frame)
+            frame = int(self.frame) % 7
+            p_size_x = walk_focus[frame][1]
             if self.dir == 1:
-                self.walk_image.clip_draw(walk_focus[frame][0], 0, walk_focus[frame][1], 36, self.x, self.y, walk_focus[frame][1] * 2, 36 * 2)
-
+                self.walk_image.clip_draw(walk_focus[frame][0], 0, p_size_x, 49, self.x, self.y + 10, p_size_x * 2,
+                                        49 * 2)
             elif self.dir == -1:
-                self.walk_image.clip_composite_draw(walk_focus[frame][0], 0, walk_focus[frame][1], 36, 0, 'h', self.x, self.y,
-                                                    walk_focus[frame][1] * 2, 36 * 2)
+                self.walk_image.clip_composite_draw(walk_focus[frame][0], 0, p_size_x, 49,
+                                                  0, 'h', self.x, self.y + 10, p_size_x * 2, 49 * 2)
 
         elif self.state == 'Run':
-            self.frame = self.frame % 4
-            frame = int(self.frame)
+            frame = int(self.frame) % 6
+            p_size_x = Run_focus[frame][1]
             if self.dir == 1:
-                self.run_image.clip_draw(Run_focus[frame][0], 0, Run_focus[frame][1], 39,
-                                         self.x, self.y, Run_focus[frame][1] * 2, 39 * 2)
-
+                self.run_image.clip_composite_draw(Run_focus[frame][0], 0, p_size_x, 44, 0, 'h', self.x, self.y + 10,
+                                                 p_size_x * 2, 44 * 2)
             elif self.dir == -1:
-                self.run_image.clip_composite_draw(Run_focus[frame][0], 0, Run_focus[frame][1], 39,
-                                                   0, 'h', self.x, self.y, Run_focus[frame][1] * 2, 39 * 2)
-
-        elif self.state == 'Normal_attack':
-            self.frame = self.frame % 8     # 안해도 되지만 혹시 모를 방지
-            frame = int(self.frame)
-            if self.dir == 1:
-                if frame < 4:
-                    self.normal_attack_image.clip_draw(Normal_Attack_focus[frame][0], 0, Normal_Attack_focus[frame][1], 50,
-                                                       self.x, self.y, Normal_Attack_focus[frame][1] * 2, 50 * 2)
-                elif frame >= 4:
-                    self.normal_attack_image.clip_draw(Normal_Attack_focus[frame][0], 0, Normal_Attack_focus[frame][1], 50,
-                                                       self.x + 20, self.y, Normal_Attack_focus[frame][1] * 2, 50 * 2)
-
-            elif self.dir == -1:
-                if frame < 4:
-                    self.normal_attack_image.clip_composite_draw(Normal_Attack_focus[frame][0], 0,  Normal_Attack_focus[frame][1],
-                                                                 50, 0, 'h', self.x - 20, self.y,  Normal_Attack_focus[frame][1] * 2,
-                                                                 50 * 2)
-                elif frame >= 4:
-                    self.normal_attack_image.clip_composite_draw(Normal_Attack_focus[frame][0], 0,  Normal_Attack_focus[frame][1],
-                                                                 50, 0, 'h', self.x - 20, self.y,  Normal_Attack_focus[frame][1] * 2,
-                                                                 50 * 2)
+                self.run_image.clip_draw(Run_focus[frame][0], 0, p_size_x, 44, self.x, self.y + 10, p_size_x * 2,
+                                       44 * 2)
 
         elif self.state == 'Idle':
-            frame = int(self.frame) % 2
+            frame = int(self.frame) % 4
+            p_size_x = stand_focus[frame][1]
             if self.dir == 1:
-                self.stand_image.clip_draw(stand_focus[frame][0], 0, stand_focus[frame][1], 40,
-                                           self.x, self.y + 10, stand_focus[frame][1] * 2, 40 * 2)
+                self.stand_image.clip_draw(stand_focus[frame][0], 0, p_size_x, 45,
+                                         self.x, self.y + 10, p_size_x * 2, 45 * 2)
 
             if self.dir == -1:
-                self.stand_image.clip_composite_draw(stand_focus[frame][0], 0, stand_focus[frame][1], 40,
-                                                     0, 'h', self.x, self.y + 10, stand_focus[frame][1] * 2, 40 * 2)
+                self.stand_image.clip_composite_draw(stand_focus[frame][0], 0, p_size_x, 45,
+                                                   0, 'h', self.x, self.y + 10, p_size_x * 2, 45 * 2)
+
+
+        elif self.state == 'Jump':
+            frame = int(self.frame) % 17
+            p_start_x = Jump_focus[frame][0]
+            p_width = Jump_focus[frame][1]
+            if self.dir == 1:
+                self.jump_image.clip_draw(p_start_x, 0, p_width, 54, self.x, self.y + 10, p_width * 2,
+                                        54 * 2)
+
+            elif self.dir == -1:
+                self.jump_image.clip_composite_draw(p_start_x, 0, p_width, 54, 0, 'h', self.x, self.y + 10,
+                                                  p_width * 2, 54 * 2)
+
+
+        elif self.state == 'Normal_attack':
+            frame = int(self.frame) % 9
+            p_size_x = Normal_Attack_focus[frame][2]
+            p_size_y = Normal_Attack_focus[frame][3]
+            if self.dir == 1:
+                if frame <= 4:
+                    self.image.clip_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y,
+                                       self.x, self.y + 10, p_size_x * 2, p_size_y * 2)
+                elif frame > 4:
+                    self.image.clip_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x, p_size_y,
+                                       self.x + 5 * frame, self.y - 5, p_size_x * 2, p_size_y * 2)
+
+            elif self.dir == -1:
+                if frame <= 4:
+                    self.image.clip_composite_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x,
+                                                 p_size_y,
+                                                 0, 'h', self.x, self.y + 10, p_size_x * 2, p_size_y * 2)
+                elif frame > 4:
+                    self.image.clip_composite_draw(Normal_Attack_focus[frame][0], Normal_Attack_focus[frame][1], p_size_x,
+                                                 p_size_y,
+                                                 0, 'h', self.x - 5 * frame, self.y - 5, p_size_x * 2, p_size_y * 2)
+
+
 
         elif self.state == 'Hurt':
 
@@ -261,16 +277,7 @@ class Sword_Kirby:
                     self.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, damaged_focus[frame][1], 42,
                                                            0, 'h', self.x, self.y, damaged_focus[frame][1] * 2, 42 * 2)
 
-        elif self.state == 'Jump':
-            frame = int(self.frame) % 10
 
-            if self.dir == 1:
-                self.jump_image.clip_draw(Jump_focus[frame][0], 0, Jump_focus[frame][1], 54, self.x, self.y + 10, Jump_focus[frame][1] * 2,
-                                          54 * 2)
-
-            elif self.dir == -1:
-                self.jump_image.clip_composite_draw(Jump_focus[frame][0], 0, Jump_focus[frame][1], 54, 0, 'h', self.x, self.y + 10,
-                                                    Jump_focus[frame][1] * 2, 54 * 2)
 
 
         elif self.state == 'Upper_attack':

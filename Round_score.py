@@ -24,6 +24,7 @@ class Score:
         num_height = 16
         #p1
         p1_point = max(0, p1_score)
+        p1_point = min(p1_score, 4)
         self.image.clip_draw(0, 0, 34, 16, 40, 480, 80, 50)
         self.image.clip_draw(number_list[p1_point][0], 0, number_list[p1_point][1], 16, 40 + 50, 480, number_list[p1_point][1] * 2, 50)
 

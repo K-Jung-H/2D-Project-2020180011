@@ -12,6 +12,7 @@ import falling_zone
 from Background import BackGround
 from ai_metaknight import MetaKnight as AI_MetaKnight
 from ai_sword_kirby import Sword_Kirby as AI_Sword_Kirby
+from ai_master_kirby import Master_Kirby as AI_Master_Kirby
 from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
 from player_sword_Kirby import Sword_Kirby
@@ -57,8 +58,8 @@ def init():
 
 
     picked_character = one_player_character_select_mode.Player
-    computer_difficulty = Round_score.difficulty
-    computer_character = 1
+    computer_difficulty = 3#Round_score.difficulty
+    computer_character = 1 # 기본 1
 
     if one_player_character_select_mode.Player_side == 'Left':
         picked_side, computer_side = 'p1', 'p2'
@@ -83,9 +84,9 @@ def init():
     elif computer_difficulty == 2:
         Com = AI_Sword_Kirby(computer_side)
         computer_character = 2
-    # elif computer_difficulty == 3:
-    #     Com = AI_Master_Kirby(computer_side)
-    #     computer_character = 3
+    elif computer_difficulty == 3:
+        Com = AI_Master_Kirby(computer_side)
+        computer_character = 0
 
 
     World.add_object(Player, 1)
@@ -124,8 +125,7 @@ def init():
     hp_bar = HP_BAR(picked_character, computer_character, picked_side)
     score = Round_score.Score()
 
-    Round_score.p1_score = 0
-    Player.Life = 1
+
 
 
 def finish():

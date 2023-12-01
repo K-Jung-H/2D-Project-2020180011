@@ -206,7 +206,6 @@ class Walk:
 
         elif p1.Left_Move or p1.Right_Move:
             p1.x += p1.dir * RUN_SPEED_PPS * game_framework.frame_time
-            #p1.x = clamp(100, p1.x, 1000 - 50)
 
         elif not (p1.Left_Move and p1.Right_Move):
             p1.state_machine.handle_event(('STOP', 0))
@@ -237,7 +236,6 @@ class Run:
 
     @staticmethod
     def exit(p1, e):
-        print("Running off")
         pass
 
     @staticmethod
@@ -248,7 +246,6 @@ class Run:
 
         elif p1.Left_Move or p1.Right_Move:
             p1.x += p1.dir * FAST_RUN_SPEED_PPS * game_framework.frame_time
-            p1.x = clamp(25, p1.x, 1000 - 25)
 
         elif not (p1.Left_Move and p1.Right_Move):
             p1.state_machine.handle_event(('STOP', 0))
