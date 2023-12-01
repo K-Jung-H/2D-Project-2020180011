@@ -5,7 +5,7 @@ import World
 import Round_score
 import one_player_character_select_mode
 import Enemy_matching_mode
-import Lose_mode
+import Result_mode
 import one_player_mode
 import falling_zone
 
@@ -55,14 +55,11 @@ def init():
     picked_side = None
     computer_side = None
 
-    Round_score.difficulty = 2
-    Round_score.Background_stage = 1
 
     picked_character = one_player_character_select_mode.Player
     computer_difficulty = Round_score.difficulty
     computer_character = 1
 
-    Round_score.p2_score = 2
     if one_player_character_select_mode.Player_side == 'Left':
         picked_side, computer_side = 'p1', 'p2'
 
@@ -126,6 +123,9 @@ def init():
     Check_Victory = KO()
     hp_bar = HP_BAR(picked_character, computer_character, picked_side)
     score = Round_score.Score()
+
+    Round_score.p1_score = 0
+    Player.Life = 1
 
 
 def finish():
@@ -223,7 +223,8 @@ def Compare_game_win():
             Round_score.difficulty += 1
             game_framework.change_mode(Enemy_matching_mode)
         else:
-            game_framework.change_mode(Lose_mode)
+            Round_score.solo_mode_result = 'Lose'
+            game_framework.change_mode(Result_mode)
     else:
         game_framework.change_mode(one_player_mode)
 
@@ -313,6 +314,9 @@ class HP_BAR:
         self.p2_bar_x, self.p2_bar_y = 780, 550
         self.p1_health = 20
         self.p2_health = 20
+        self.Com_Max_health = Com.Life
+        self.p1_max = 20
+        self.p2_max = 20
 
         self.player_character = player_character
         self.com_character = com_character
@@ -320,6 +324,7 @@ class HP_BAR:
         self.p1_character = 0
         self.p2_character = 0
         self.player_side = player_side
+
 
         self.metaknight_pic = load_image('resource/Meta_Knight_Portrait.png')
         self.kirby_pic = load_image('resource/Kirby_Portrait.png')
@@ -332,13 +337,16 @@ class HP_BAR:
             self.p2_character = self.com_character
             self.p1_health = Player.Life
             self.p2_health = Com.Life
+            self.p1_max = 20
+            self.p2_max = self.Com_Max_health
 
         elif self.player_side == 'p2':
             self.p2_character = self.player_character
             self.p1_character = self.com_character
             self.p1_health = Com.Life
             self.p2_health = Player.Life
-
+            self.p1_max = self.Com_Max_health
+            self.p2_max = 20
         if Player.y <= 50 and Player.Life != 0:
             Player.Life -= 1
 
@@ -349,10 +357,10 @@ class HP_BAR:
 
     def draw(self):
 
-        self.HP_image.clip_draw(94, 2, 85, 60, self.p1_bar_x + 35 - (20 - self.p1_health) * (370/40), self.p1_bar_y, (370/20) * self.p1_health, 90) # 1p 체력
+        self.HP_image.clip_draw(94, 2, 85, 60, self.p1_bar_x + 35 - (self.p1_max - self.p1_health) * (370/ (self.p1_max * 2)), self.p1_bar_y, (370/self.p1_max) * self.p1_health, 90) # 1p 체력
         self.HP_image.clip_draw(2, 72, 560, 80, self.p1_bar_x, self.p1_bar_y, 450, 100)
 
-        self.HP_image.clip_draw(94, 2, 85, 60, self.p2_bar_x - 30 - (20 - self.p2_health) * (350/40), self.p2_bar_y, (350/20) * self.p2_health, 90) # 2p 체력
+        self.HP_image.clip_draw(94, 2, 85, 60, self.p2_bar_x - 30 - (self.p2_max  - self.p2_health) * (350/ (self.p2_max * 2)), self.p2_bar_y, (350/self.p2_max) * self.p2_health, 90) # 2p 체력
         self.HP_image.clip_composite_draw(2, 72, 560, 80, 0, 'h', self.p2_bar_x, self.p2_bar_y, 420, 100)
 
 

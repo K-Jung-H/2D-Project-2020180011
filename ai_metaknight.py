@@ -94,7 +94,7 @@ class MetaKnight:
 
     def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
-        self.Life = 0
+        self.Life = 10
         self.Picked_Player = Player
         if Player == "p1":
             self.dir = 1

@@ -6,6 +6,8 @@ p1_score = 2
 p2_score = 2
 difficulty = 1
 
+solo_mode_result = None
+
 Background_stage = 1
 
 
