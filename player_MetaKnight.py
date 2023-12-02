@@ -1,6 +1,4 @@
-﻿from pico2d import (get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE,
-                    SDLK_LEFT, SDLK_RIGHT, SDLK_UP, SDLK_DOWN, SDLK_COMMA, SDLK_PERIOD, SDLK_SLASH,
-                    SDLK_w, SDLK_a, SDLK_s, SDLK_d, SDLK_f, SDLK_e, SDLK_q, draw_rectangle, load_font )
+﻿from pico2d import *
 import World
 import game_framework
 from M_Sword_Attack import Meta_Knight_Sword_Strike as Sword_Strike
@@ -270,6 +268,9 @@ class Jump:
     def enter(p1, e):
         if p1.state_machine.last_state != Jump and p1.state_machine.last_state != Falling_Attack:
             p1.jump_value = 20
+            p1.jump_effect.set_volume(64)
+            p1.jump_effect.play()
+
             p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7 #10
         else: # 점프 도중에 새로운 입력을 받는 경우
             if Right_Move_Down(e):
@@ -295,7 +296,7 @@ class Jump:
 
     @staticmethod
     def exit(p1, e):
-        #p1.jump_value = 0
+        p1.jump_effect.set_volume(0)
         pass
 
 
@@ -354,6 +355,9 @@ class Hurt:
         p1.y += p1.jump_value
         p1.damaged_time = get_time()
         p1.Get_Damage = True
+        p1.hurt_effect.set_volume(64)
+        p1.hurt_effect.play()
+
 
     @staticmethod
     def exit(p1, e):
@@ -363,6 +367,7 @@ class Hurt:
         p1.Right_Move = False
         p1.Get_Damage = False
         p1.dir *= -1
+        p1.hurt_effect.set_volume(0)
 
 
 
@@ -404,9 +409,12 @@ class Normal_Attack:
     def enter(p1, e):
         p1.frame = 0
 
+
+
     @staticmethod
     def exit(p1, e):
         p1.Attacking = False
+        p1.normal_effect.set_volume(0)
         pass
 
     @staticmethod
@@ -418,6 +426,8 @@ class Normal_Attack:
 
         if 3 <= int(p1.frame) <= 4:
             p1.Attacking = True
+            p1.normal_effect.set_volume(64)
+            p1.normal_effect.play()
         else:
             p1.Attacking = False
 
@@ -439,10 +449,13 @@ class Speed_Attack:
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
+        p1.fast_effect.set_volume(64)
+        p1.fast_effect.play()
 
     @staticmethod
     def exit(p1, e):
         p1.Attacking = False
+        p1.fast_effect.set_volume(0)
 
     @staticmethod
     def do(p1):
@@ -479,9 +492,13 @@ class Charge_Attack:
             p1.frame = 0
             p1.charging = True
             p1.Charging_Time = get_time()
-
+            p1.charging_effect.set_volume(64)
+            p1.charging_effect.play()
         elif Charge_Attack_Up(e):
             p1.charging = False
+            p1.charge_effect.set_volume(64)
+            p1.charge_effect.play()
+
 
         if Right_Move_Down(e) and p1.charging:
             p1.Right_Move, p1.dir = True, 1
@@ -503,6 +520,8 @@ class Charge_Attack:
     @staticmethod
     def exit(p1, e):
         p1.Attacking = False
+        p1.charging_effect.set_volume(0)
+        p1.charge_effect.set_volume(0)
 
 
     @staticmethod
@@ -548,10 +567,14 @@ class Upper_Attack:
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
+        p1.upper_effect.set_volume(64)
+        p1.upper_effect.play()
+
 
     @staticmethod
     def exit(p1, e):
         p1.Attacking = False
+        p1.upper_effect.set_volume(0)
 
     @staticmethod
     def do(p1):
@@ -578,10 +601,13 @@ class Upper_Attack:
 
 
 class Drop_Attack:
+
     @staticmethod
     def enter(p1, e):
         if Drop_Attack_DOWN(e):
             p1.frame = 0
+            p1.drop_effect.set_volume(64)
+            p1.drop_effect.play()
         else: # 점프 도중에 새로운 입력을 받는 경우
             if Right_Move_Down(e):
                 p1.Right_Move, p1.dir = True, 1
@@ -605,6 +631,7 @@ class Drop_Attack:
     @staticmethod
     def exit(p1, e):
         p1.Attacking = False
+        p1.drop_effect.set_volume(0)
 
     @staticmethod
     def do(p1):
@@ -637,11 +664,15 @@ class Drop_Attack:
             p1.drop_attack_image.clip_composite_draw(Drop_attack_focus[frame][0], 0, p_size_x, p_size_y, 0, 'h',
                                                       p1.x, p1.y, p_size_x * 2, p_size_y * 2)
 
+
 class Falling_Attack:
     @staticmethod
     def enter(p1, e):
         if  p1.state_machine.last_state != Falling_Attack:
             p1.frame = 0
+            p1.falling_effect.set_volume(64)
+            p1.falling_effect.play()
+
         else: # 공격 도중에 새로운 입력을 받는 경우
             if Right_Move_Down(e):
                 p1.Right_Move, p1.dir = True, 1
@@ -666,6 +697,7 @@ class Falling_Attack:
     def exit(p1, e):
         p1.frame = 1
         p1.Attacking = False
+        p1.falling_effect.set_volume(0)
 
     @staticmethod
     def do(p1):
@@ -716,13 +748,16 @@ class Defense:
     def enter(p1, e):
         p1.frame = 0
         p1.Defensing = True
+        p1.defense_effect.set_volume(128)
+        p1.defense_effect.play()
+
 
     @staticmethod
     def exit(p1, e):
         p1.Right_Move = False
         p1.Left_Move = False
         p1.Defensing = False
-
+        p1.defense_effect.set_volume(0)
 
 
     @staticmethod
@@ -862,6 +897,20 @@ class MetaKnight:
         self.drop_attack_image = load_image('resource/Meta_Knight_Air_Attack.png')
         self.falling_attack_image = load_image('resource/Meta_Knight_Air_Hard_Attack.png')
         self.damaged_image = load_image('resource/Meta_Knight_Damaged.png')
+
+        self.normal_effect = load_wav('resource/sound/Meta_normal_a.wav')
+        self.fast_effect = load_wav('resource/sound/Meta_fast_a.wav')
+        self.charge_effect = load_wav('resource/sound/Meta_Charge_attack.wav')
+        self.charging_effect = load_wav('resource/sound/Meta_charge.wav')
+        self.defense_effect = load_wav('resource/sound/Meta_defense.wav') # 막기 모드
+        self.guard_effect = load_wav('resource/sound/Mtea_guard.wav') # 반사
+        self.hurt_effect = load_wav('resource/sound/Meta_hurt.wav')
+
+        self.jump_effect = load_wav('resource/sound/Meta_jump.wav')
+        self.upper_effect = load_wav('resource/sound/Meta_upper_a.wav')
+        self.drop_effect = load_wav('resource/sound/MK_drop_a.wav')
+        self.falling_effect = load_wav('resource/sound/falling_attack.wav')
+
         self.state_machine = StateMachine(self)
         self.state_machine.start()
 
@@ -997,12 +1046,12 @@ class MetaKnight:
                 if other.Attacking:
                     # 직접적인 공격 받고, 강공격이 아니라면 밀쳐내기
                     if self.Defensing and group == 'p1 : p2_attack_range' and other.charge_attack == False:
-                        print("p1 Defensed")
+                        self.guard_effect.set_volume(128)
+                        self.guard_effect.play()
                         other.p.state_machine.handle_event(('Damaged', 0, other.power))
                         other.p.dir = self.dir
                     else:
                         if other.power != 0:
-                            print("p1 is damaged")
                             self.state_machine.handle_event(('Damaged', 0, other.power))
                             self.dir = other.p_dir
 
@@ -1012,14 +1061,15 @@ class MetaKnight:
                     if other.Attacking:
                         # 직접적인 공격 받고, 강공격이 아니라면 반사하기
                         if self.Defensing and group == 'p2 : p1_attack_range' and other.charge_attack == False:
-                            print("p2 Defensed")
+                            self.guard_effect.set_volume(64)
+                            self.guard_effect.play()
                             other.p.state_machine.handle_event(('Damaged', 0, other.power))
                             other.p.dir = self.dir
                         else:
                             if other.power != 0:
-                                print("p2 is damaged")
                                 self.state_machine.handle_event(('Damaged', 0, other.power))
                                 self.dir = other.p_dir
+
 
         if group == 'p : Falling_area':
             if self.state_machine.cur_state == Hurt:

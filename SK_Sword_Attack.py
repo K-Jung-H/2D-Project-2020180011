@@ -11,10 +11,12 @@ skill_focus = [[0, 30], [33, 32], [68, 27]]
 
 class Sword_Kirby_Sword_Strike:
     image = None
+    effect = None
 
     def __init__(self, x, y, velocity = 1):
         if Sword_Kirby_Sword_Strike.image == None:
             Sword_Kirby_Sword_Strike.image = load_image('resource/Sword_Kirby/sword_kirby_sword_skill.png')
+            Sword_Kirby_Sword_Strike.effect = load_wav('resource/sound/SK_SS.wav')
         self.x, self.y, self.velocity = x, y, velocity
         self.x_size = abs(velocity)
         self.y_size = abs(velocity)
@@ -24,6 +26,7 @@ class Sword_Kirby_Sword_Strike:
         self.p_dir = velocity / abs(velocity)
         self.Attacking = True
         self.charge_attack = False
+        self.effect_size = min(32 * self.power, 128)
 
 
     def draw(self):
@@ -44,7 +47,14 @@ class Sword_Kirby_Sword_Strike:
         self.frame = (self.frame + FRAMES_PER_SKILL_EFFECT * ATTACK_PER_TIME * game_framework.frame_time) % 3
         self.x_size = self.power
         self.y_size = self.power
+
+        if int(self.frame) == 2:
+            self.effect_size -= 1
+            self.effect.set_volume(self.effect_size)
+            self.effect.play()
+
         if self.x < 25 or self.x > 1600 - 25:
+            self.effect.set_volume(0)
             World.remove_object(self)
 
 
@@ -61,5 +71,6 @@ class Sword_Kirby_Sword_Strike:
             else:
                 World.remove_object(self)
         elif group == 'p1 : p2_Sword_Skill' or group == 'p2 : p1_Sword_Skill':
+            self.effect.set_volume(0)
             World.remove_object(self)
 

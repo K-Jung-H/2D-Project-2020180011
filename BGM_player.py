@@ -12,7 +12,7 @@ class BGM:
 
         self.bgm1.set_volume(64)
         self.bgm2.set_volume(64)
-        self.bgm3.set_volume(64)
+        self.bgm3.set_volume(32)
         self.bgm4.set_volume(64)
 
         self.set_end.set_volume(64)
