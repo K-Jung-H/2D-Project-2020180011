@@ -1,6 +1,7 @@
-from pico2d import load_image, get_events, clear_canvas, update_canvas, get_time, load_font
+from pico2d import *
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDLK_UP, SDLK_DOWN, SDLK_LEFT, SDLK_RIGHT
 
+import math
 import Round_score
 import Enemy_matching_mode
 import game_framework
@@ -108,10 +109,20 @@ class UI:
     def __init__(self):
         self.P_image = load_image('resource/change.png')
         self.image_p1_p2 = load_image('resource/p1_p2.png')
+        self.Pointer_image =  load_image('resource/Pointer.png')
         self.Direction = None
         self.frame = 0
         self.cx = 500
         self.cy = 530
+        self.p1_x = 300
+        self.p1_y = 530
+        self.p2_x = 700
+        self.p2_y = 530
+
+        self.p3_x = 100
+        self.p3_y = 300
+        self.p4_x = 900
+        self.p4_y = 300
 
     def update(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time)
@@ -121,9 +132,18 @@ class UI:
         if Player_side == 'Left':
             self.P_image.clip_draw(Change_focus[frame][0], 0, Change_focus[frame][1], 24, self.cx, self.cy, 150, 100)
             self.image_p1_p2.clip_draw(0, 0, 31, 27, 100, 100, 150, 150)
+            self.Pointer_image.clip_composite_draw(44, 0, 39, 16,  math.pi/2, 'h', self.p3_x, self.p3_y, 200, 100)
+
         elif Player_side == 'Right':
             self.P_image.clip_composite_draw(Change_focus[frame][0], 0, Change_focus[frame][1], 24, 0, 'h', self.cx, self.cy, 150, 100)
-            self.image_p1_p2.clip_draw(0, 0, 31, 27,  900, 100, 150, 150 )
+            self.image_p1_p2.clip_draw(66,0, 32, 27, 900, 100, 150, 150)
+            self.Pointer_image.clip_composite_draw(44, 0, 39, 16,  math.pi/2, 'h', self.p4_x, self.p4_y, 200, 100)
+
+        self.Pointer_image.clip_draw(0, 0, 15, 16, self.p1_x, self.p1_y, 100, 100)
+        self.Pointer_image.clip_draw(20, 0, 15, 16, self.p2_x, self.p2_y, 100, 100)
+
+
+
 
 
 
@@ -154,13 +174,13 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.change_mode(Mode_Select_mode)
 
-        if event.type == SDL_KEYDOWN and event.key == SDLK_UP:
+        if event.type == SDL_KEYDOWN and (event.key == SDLK_UP or event.key == SDLK_w):
             Controller.P_character = (Controller.P_character + 1) % 3
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_DOWN:
+        elif event.type == SDL_KEYDOWN and (event.key == SDLK_DOWN or event.key == SDLK_s):
             Controller.P_character = (Controller.P_character - 1) % 3
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_LEFT: # 좌측 키세팅 선택
+        elif event.type == SDL_KEYDOWN and (event.key == SDLK_LEFT or event.key == SDLK_a): # 좌측 키세팅 선택
             Controller.P_side = 'Left'
-        elif event.type == SDL_KEYDOWN and event.key == SDLK_RIGHT: # 우측 키세팅 선택
+        elif event.type == SDL_KEYDOWN and (event.key == SDLK_RIGHT or event.key == SDLK_d): # 우측 키세팅 선택
             Controller.P_side = 'Right'
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
             game_framework.change_mode(Enemy_matching_mode)

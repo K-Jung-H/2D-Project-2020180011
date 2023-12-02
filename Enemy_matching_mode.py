@@ -66,10 +66,10 @@ class P_Controller:
             self.image_sk_portrait.clip_composite_draw(0, 0, 221, 244, 0, 'h', 900, 500, 200, 200)  # p2 일때 소드 커비
 
         if self.Select_side == 'Left':
-            self.image_gui.clip_draw(0, 0, 31, 32, 100, 100, 150, 150)
+            self.image_gui.clip_draw(0, 0, 17, 32, 100, 100, 150, 150)
             self.image_gui.clip_draw(47, 0, 55, 32, 900, 100, 150, 150)
         elif self.Select_side == 'Right':
-            self.image_gui.clip_draw(0, 0, 31, 32, 900, 100, 150, 150)
+            self.image_gui.clip_draw(0, 0, 17, 32, 900, 100, 150, 150)
             self.image_gui.clip_draw(47, 0, 55, 32, 100, 100, 150, 150)
 
 

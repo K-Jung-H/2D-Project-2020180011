@@ -1,4 +1,4 @@
-from pico2d import load_image, get_events, clear_canvas, update_canvas, get_time, clamp
+from pico2d import *
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE
 
 import game_framework
@@ -47,6 +47,20 @@ class Animation:
         self.c1 = 0
         self.c2 = 1000
         self.frame = 0
+        self.sound1 = load_wav('resource/sound/Start_animation_background.wav')
+        self.sound1.set_volume(128)
+        self.sound1.play()
+
+        self.sound2 = load_wav('resource/sound/Start_star.wav')
+        self.sound2.set_volume(128)
+
+        self.sound3 = load_wav('resource/sound/Start_animation_fight.wav')
+        self.sound3.set_volume(128)
+
+
+        self.sound4 = load_wav('resource/sound/Guard.wav')
+        self.sound4.set_volume(128)
+
 
     def draw(self):
         frame = 0
@@ -74,17 +88,24 @@ class Animation:
             self.c2 -= 2
             if self.c2 - self.c1 < 200:
                 self.Cartoon = 2
+                self.sound2.play()
 
         elif self.Cartoon == 2:
-            self.c1 -= 0.2
-            self.c2 += 0.2
+            self.c1 -= 0.3
+            self.c2 += 0.3
             if self.c2 - self.c1 >= 300:
                 self.Cartoon = 3
+                self.sound2.set_volume(0)
+                self.sound3.play()
+
 
         elif self.Cartoon == 3:
             self.c1 += 10
             self.c2 -= 10
             if self.c2 - self.c1 < 50:
+                self.sound3.set_volume(0)
+                self.sound1.set_volume(0)
+                self.sound4.play()
                 self.Cartoon = 4
 
 

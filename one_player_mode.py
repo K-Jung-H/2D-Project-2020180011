@@ -58,7 +58,7 @@ def init():
 
 
     picked_character = one_player_character_select_mode.Player
-    computer_difficulty = 3#Round_score.difficulty
+    computer_difficulty = Round_score.difficulty
     computer_character = 1 # 기본 1
 
     if one_player_character_select_mode.Player_side == 'Left':
@@ -124,8 +124,6 @@ def init():
     Check_Victory = KO()
     hp_bar = HP_BAR(picked_character, computer_character, picked_side)
     score = Round_score.Score()
-
-
 
 
 def finish():
