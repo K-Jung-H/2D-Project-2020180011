@@ -76,13 +76,13 @@ class Attack_Area:
         elif self.Attacking:
             if self.p.state == 'Normal_attack':
                 self.x_range, self.y_range = 50, 50
-                self.power = 2
+                self.power = 4
             elif self.p.state == 'Upper_attack':
-                self.x_range, self.y_range = 40, 40
-                self.power = 2
+                self.x_range, self.y_range = 30, 40
+                self.power = 3
             elif self.p.state == 'Drop_attack':
-                self.x_range, self.y_range = 40, 50
-                self.power = 2
+                self.x_range, self.y_range = 40, 70
+                self.power = 4
             elif self.p.state == 'Falling_attack':
                 self.x_range, self.y_range = 50, 50
                 self.power = 3
@@ -97,7 +97,7 @@ class Attack_Area:
             return p_L + self.p_dir * 50, p_B, p_R + self.p_dir * 50, p_T
 
         elif self.p.state =='Upper_attack':
-            return p_L + self.p_dir * 30, p_B + 20, p_R + self.p_dir * 30, p_T
+            return p_L, p_B + 30, p_R, p_T + 10
 
         elif self.p.state =='Drop_attack':
             return p_L, p_B, p_R, p_T - 50
@@ -133,6 +133,7 @@ class Master_Kirby:
 
         self.Attack_cool_time = 0
         self.Attack_called = False
+        self.attack_frame = 0
 
         self.falling = False
         self.damaged_time = None # 맞은 시점
@@ -142,6 +143,9 @@ class Master_Kirby:
         self.Get_Damage = False
 
         self.Jumping = False
+
+        self.Avoid_time = 0
+
 
         self.font = load_font('resource/ENCR10B.TTF', 16)
         self.image = load_image('resource/Master_Kirby.png')
@@ -162,7 +166,10 @@ class Master_Kirby:
         self.build_behavior_tree()
 
     def update(self):
-        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
+        if self.Attacking:
+            self.frame = (self.frame + FRAMES_PER_FAST_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_FAST_ATTACK
+        else:
+            self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
 
         if self.state == 'Normal_attack':
             if 3 <= int(self.frame) <= 8:
@@ -243,7 +250,7 @@ class Master_Kirby:
 
 
         elif self.state == 'Normal_attack':
-            frame = int(self.frame) % 9
+            frame = int(self.frame) % 8
             p_size_x = Normal_Attack_focus[frame][2]
             p_size_y = Normal_Attack_focus[frame][3]
             if self.dir == 1:
@@ -267,41 +274,38 @@ class Master_Kirby:
 
 
         elif self.state == 'Hurt':
-
             frame = 1 if self.damaged_motion >= 50 else 0
+            p_size_x = damaged_focus[frame][1]
             if self.damaged_motion % 2 == 0:
                 if self.dir == -1:
-                    self.damaged_image.clip_draw(damaged_focus[frame][0], 0, damaged_focus[frame][1], 42, self.x, self.y,
-                                                 damaged_focus[frame][1] * 2, 42 * 2)
+                    self.damaged_image.clip_draw(damaged_focus[frame][0], 0, p_size_x, 35, self.x, self.y + 10,
+                                               p_size_x * 2, 35 * 2)
                 elif self.dir == 1:
-                    self.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, damaged_focus[frame][1], 42,
-                                                           0, 'h', self.x, self.y, damaged_focus[frame][1] * 2, 42 * 2)
-
-
+                    self.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, p_size_x, 35, 0, 'h', self.x,
+                                                         self.y + 10, p_size_x * 2, 35 * 2)
 
 
         elif self.state == 'Upper_attack':
-            frame = int(self.frame) % 11
-            self.y += 5
+            frame = int(self.frame) % 12
+            p_size_x = Upper_attack_focus[frame][1]
             if self.dir == 1:
-                self.upper_attack_image.clip_draw(Upper_attack_focus[frame][0], 0, Upper_attack_focus[frame][1], 61, self.x, self.y,
-                                                Upper_attack_focus[frame][1] * 2, 61 * 2)
+                self.upper_attack_image.clip_draw(Upper_attack_focus[frame][0], 0, p_size_x, 79, self.x, self.y,
+                                                p_size_x * 2, 79 * 2)
 
             elif self.dir == -1:
-                self.upper_attack_image.clip_composite_draw(Upper_attack_focus[frame][0], 0, Upper_attack_focus[frame][1], 61, 0, 'h',
-                                                          self.x, self.y, Upper_attack_focus[frame][1] * 2, 61 * 2)
+                self.upper_attack_image.clip_composite_draw(Upper_attack_focus[frame][0], 0, p_size_x, 79, 0, 'h',
+                                                          self.x, self.y, p_size_x * 2, 79 * 2)
 
 
         elif self.state == 'Drop_attack':
-            frame = int(self.frame) % 7
-            self.y -= 5
+            frame = int(self.frame)
+            p_size_x = Drop_attack_focus[frame][1]
             if self.dir == 1:
-                self.drop_attack_image.clip_draw(Drop_attack_focus[frame][0], 0, Drop_attack_focus[frame][1], 48, self.x, self.y,
-                                               Drop_attack_focus[frame][1] * 2, 48 * 2)
-
+                self.drop_attack_image.clip_draw(Drop_attack_focus[frame][0], 0, p_size_x, 86, self.x, self.y,
+                                               p_size_x * 2, 86 * 2)
             elif self.dir == -1:
-                self.drop_attack_image.clip_composite_draw(Drop_attack_focus[frame][0], 0, Drop_attack_focus[frame][1], 48, 0, 'h',
-                                                         self.x, self.y, Drop_attack_focus[frame][1] * 2, 48 * 2)
+                self.drop_attack_image.clip_composite_draw(Drop_attack_focus[frame][0], 0, p_size_x, 86, 0, 'h',
+                                                         self.x, self.y, p_size_x * 2, 86 * 2)
 
 
         elif self.state == 'Falling_attack':
@@ -350,30 +354,24 @@ class Master_Kirby:
 
         elif self.state == 'Normal_attack':
             if self.dir == 1:
-                return self.x - 35, self.y - 35, self.x + 35, self.y + 15
+                return self.x - 35, self.y - 45, self.x + 35, self.y + 15
             elif self.dir == -1:
-                return self.x - 45, self.y - 35, self.x + 25, self.y + 15
+                return self.x - 45, self.y - 45, self.x + 25, self.y + 15
 
         elif self.state == 'Upper_attack':
-            if self.dir == 1:
-                return self.x - 45, self.y - 30, self.x, self.y + 10
-            elif self.dir == -1:
-                return self.x, self.y - 30, self.x + 45, self.y + 10
+            return self.x - 20, self.y - 60, self.x + 20, self.y - 20
 
         elif self.state == 'Drop_attack':
-            if self.dir == 1:
-                return self.x - 40, self.y - 20, self.x, self.y + 20
-            elif self.dir == -1:
-                return self.x, self.y - 20, self.x + 40, self.y + 20
+            return self.x - 20, self.y - 40, self.x + 20, self.y + 10
 
         elif self.state == 'Falling_attack':
             return self.x - 20, self.y - 20, self.x + 20, self.y + 20
 
         elif self.state == 'Hurt':
-            if self.dir == 1:
-                return self.x - 10, self.y - 35, self.x + 30, self.y + 5
-            elif self.dir == -1:
-                return self.x - 30, self.y - 35, self.x + 10, self.y + 5
+            if self.dir == -1:
+                return self.x - 12, self.y - 35, self.x + 32, self.y + 5
+            elif self.dir == 1:
+                return self.x - 32, self.y - 35, self.x + 12, self.y + 5
 
 
 
@@ -435,12 +433,19 @@ class Master_Kirby:
     def move_to(self, r=0.5):
         self.state = 'Walk'
         self.move_slightly_to(self.tx, self.ty)
-        if self.distance_less_than(self.tx, self.ty, self.x, self.y, r):
+        if self.distance_less_than(self.tx, 0, self.x, 0, r):
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.RUNNING
 
     def is_player_nearby(self, distance):
+        if self.distance_less_than(one_player_mode.Player.x, one_player_mode.Player.y, self.x, self.y, distance):
+            return BehaviorTree.SUCCESS
+        else:
+            self.state = 'Idle'
+            return BehaviorTree.FAIL
+
+    def is_player_attack_range(self, distance):
         if self.distance_less_than(one_player_mode.Player.x, one_player_mode.Player.y, self.x, self.y, distance):
             return BehaviorTree.SUCCESS
         else:
@@ -467,7 +472,7 @@ class Master_Kirby:
 
 
     def is_attack_possible(self, t):
-        if int(get_time() - self.Attack_cool_time) >= t:
+        if int(get_time() - self.Attack_cool_time) >= t or self.state == 'Normal_attack':
             if self.x > one_player_mode.Player.x:
                 self.dir = -1
             elif self.x < one_player_mode.Player.x:
@@ -483,9 +488,11 @@ class Master_Kirby:
             self.frame = 0
             self.Attack_called = True
 
+        self.attack_frame += 0.4
+
         self.state = 'Normal_attack'
 
-        if 5 <= int(self.frame) == 8:
+        if 5 <= int(self.attack_frame) < 8:
             self.Attacking = True
 
         if int(self.frame) == 8:
@@ -493,6 +500,7 @@ class Master_Kirby:
             self.Attack_called = False
             self.Attacking = False
             self.state = 'Idle'
+            self.attack_frame = 0
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.RUNNING
@@ -582,7 +590,6 @@ class Master_Kirby:
         else:
             self.y += self.jump_value/5
 
-
         speed = RUN_SPEED_PPS * 1.5
         self.x += self.dir * speed * game_framework.frame_time
 
@@ -601,6 +608,16 @@ class Master_Kirby:
         else:
             return BehaviorTree.RUNNING
 
+    def check_avoid(self):
+        if int(get_time() - self.Avoid_time) >= 3:
+            self.Avoid_time = get_time()
+            return BehaviorTree.FAIL
+        elif one_player_mode.Player.Attacking:
+            self.dir = one_player_mode.Player.dir
+            self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
+            return BehaviorTree.FAIL
+        return BehaviorTree.SUCCESS
+
 
 
     def build_behavior_tree(self):
@@ -614,19 +631,19 @@ class Master_Kirby:
         a7 = Action('Jump',self.jump)
 
 
-
         c1 = Condition('근처에 플레이어가 있는가?', self.is_player_nearby, 10)
         c2 = Condition('멀리에 플레이어가 있는가?', self.is_player_nearby, 15)
 
 
         c3 = Condition('마지막으로 공격한지 3초가 지났는가?', self.is_attack_possible, 3)
-        c4 = Condition('플레이어가 공격범위 내에 있는가?', self.is_player_nearby, 5)
+        c4 = Condition('플레이어가 공격범위 내에 있는가?', self.is_player_attack_range, 10)
 
         c5 = Condition('공격을 받은 상태인가?', self.is_hurt)
 
         c6 = Condition('상대가 공중에 있는가?', self.check_player_y_for_attack, 3)
         c7 = Condition('현재 공중 액션에 있는가?', self.check_last_action)
 
+        c8 = Condition('도망가기', self.check_avoid) # 3초마다 Fail을 반환하여 하던 행동 중단
 
         SEQ_If_in_jumping = Sequence('if_in_jumping', c7, a7)
         SEQ_follow_jump = Sequence('jump_to_follow', c6, a7) # 상대에 따라 점프하기
@@ -652,7 +669,9 @@ class Master_Kirby:
         SEQ_Chase = Sequence("chase", c3, SEQ_far_chase, SEQ_near_chase)  # 마지막으로 공격한지 3초가 지났다면 추격
         SEQ_chase_attack = Sequence("chase_and_attack", SEQ_Chase, SEQ_ground_attack)
 
-        root = SEQ_1stage = Selector("1 stage: move and normal_attack", SEQ_hurt,SEL_do_air_action, SEQ_chase_attack, SEQ_wander)
+        TEST = Sequence("chase_and_attack", c8, SEQ_Chase, SEQ_ground_attack)
+
+        root = SEQ_1stage = Selector("1 stage: move and normal_attack", SEQ_hurt, SEL_do_air_action, TEST, SEQ_wander)
         self.bt = BehaviorTree(root)
         pass
 

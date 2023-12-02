@@ -712,8 +712,6 @@ class Drop_Attack:
     @staticmethod
     def draw(p1):
         frame = int(p1.frame)
-
-
         if frame <= 4:
             p_start_x = Jump_focus[frame][0]
             p_start_y = 0

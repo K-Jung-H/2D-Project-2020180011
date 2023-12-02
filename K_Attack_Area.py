@@ -39,9 +39,9 @@ class Kirby_Attack_Area:
             self.x_range, self.y_range, self.power = 0, 0, 0
             self.charge_attack = False
 
+
         else: # 공격 상태일 때
             if self.player_cur_state == player_Kirby.Normal_Attack:
-
                 self.x_range, self.y_range = 50, 50
                 self.power = 2
             elif self.player_cur_state == player_Kirby.Speed_Attack:
