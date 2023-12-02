@@ -61,6 +61,9 @@ class Animation:
         self.sound4 = load_wav('resource/sound/Guard.wav')
         self.sound4.set_volume(128)
 
+        self.bgm = load_music('resource/sound/Title_bgm.mp3')
+        self.bgm.set_volume(128)
+
 
     def draw(self):
         frame = 0
@@ -106,7 +109,9 @@ class Animation:
                 self.sound3.set_volume(0)
                 self.sound1.set_volume(0)
                 self.sound4.play()
+                self.bgm.repeat_play()
                 self.Cartoon = 4
+
 
 
 def init():
@@ -120,6 +125,11 @@ def init():
     animation = Animation()
 
 def finish():
+    animation.sound1.set_volume(0)
+    animation.sound2.set_volume(0)
+    animation.sound3.set_volume(0)
+    animation.sound4.set_volume(0)
+    animation.bgm.stop()
     pass
 
 

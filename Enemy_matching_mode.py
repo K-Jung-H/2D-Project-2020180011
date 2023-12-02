@@ -1,4 +1,4 @@
-from pico2d import load_image, get_events, clear_canvas, update_canvas, get_time, load_font
+from pico2d import *
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDLK_UP, SDLK_DOWN, SDLK_LEFT, SDLK_RIGHT
 
 
@@ -6,6 +6,7 @@ import game_framework
 import one_player_mode
 import Mode_Select_mode
 import Round_score
+import BGM_player
 
 K_Standing_focus = [[223, 1195], [268, 1195], [315, 1195], [362, 1195]]
 M_walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
@@ -107,6 +108,12 @@ class P_Controller:
 
 def init():
     global Controller
+    global bgm, boss_bgm, bgm_p
+    bgm = load_music('resource/sound/Enemy_Matching_bgm.mp3')
+    boss_bgm = load_music('resource/sound/Stage_boss_Ready_bgm.mp3')
+    bgm.set_volume(64)
+    boss_bgm.set_volume(64)
+
     Controller = P_Controller()
 
     player_character = None
@@ -146,10 +153,17 @@ def init():
             Round_score.Background_stage = 3
 
 
+    if  Round_score.difficulty == 3:
+        boss_bgm.play()
+    else:
+        bgm.play()
 
+    bgm_p = BGM_player.BGM()
 
 
 def finish():
+    boss_bgm.stop()
+    bgm.stop()
     pass
 
 
@@ -158,8 +172,9 @@ def handle_events():
 
     for event in events:
         if event.type == SDL_QUIT:
-            game_framework.change_mode(Mode_Select_mode)
+            game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            bgm_p.play(-3)
             game_framework.change_mode(Mode_Select_mode)
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
             game_framework.change_mode(one_player_mode)

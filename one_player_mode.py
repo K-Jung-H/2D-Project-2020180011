@@ -7,7 +7,9 @@ import one_player_character_select_mode
 import Enemy_matching_mode
 import Result_mode
 import one_player_mode
+import Mode_Select_mode
 import falling_zone
+import BGM_player
 
 from Background import BackGround
 from ai_metaknight import MetaKnight as AI_MetaKnight
@@ -38,7 +40,8 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-            game_framework.quit()
+            bgm.play(-3)
+            game_framework.change_mode(Mode_Select_mode)
         else:
             if P_handle_L(event) and one_player_character_select_mode.Player_side == 'Left':
                 Player.handle_event(event)
@@ -52,6 +55,8 @@ def init():
     global Check_Victory, hp_bar, score
     global p1, p2
     global F_Z
+    global bgm
+
 
     picked_side = None
     computer_side = None
@@ -125,9 +130,13 @@ def init():
     hp_bar = HP_BAR(picked_character, computer_character, picked_side)
     score = Round_score.Score()
 
+    bgm = BGM_player.BGM()
+    bgm.play(Round_score.Background_stage)
+
 
 def finish():
     World.clear()
+
     pass
 
 
@@ -203,10 +212,11 @@ def stage_clamp(stage_num):
 
 
 def Compare_set_win():
-    if p1.Life >= p2.Life: # p1이 이겼다면?
+    if p1.Life > p2.Life: # p1이 이겼다면?
         Round_score.p2_score -= 1
-    else:
+    elif p1.Life < p2.Life: # p2이 이겼다면?
         Round_score.p1_score -= 1
+    bgm.play(-2)
 
 
 def Compare_game_win():
@@ -219,11 +229,13 @@ def Compare_game_win():
                 Round_score.p1_score = 2
                 Round_score.p2_score += 2
             Round_score.difficulty += 1
+            bgm.play(-1)
             game_framework.change_mode(Enemy_matching_mode)
         else:
             Round_score.solo_mode_result = 'Lose'
             game_framework.change_mode(Result_mode)
     else:
+        bgm.play(0)
         game_framework.change_mode(one_player_mode)
 
 

@@ -7,6 +7,7 @@ import Enemy_matching_mode
 import game_framework
 import one_player_mode
 import Mode_Select_mode
+import BGM_player
 
 K_walk_focus = [[0, 22], [39, 27], [80, 30], [120, 37], [167, 37], [214, 32], [259, 29], [299, 20]]
 M_walk_focus = [[2,39], [51,36], [100, 34], [149, 37], [203, 36], [258, 40], [316, 41], [377, 38] ]
@@ -152,9 +153,16 @@ class UI:
 
 def init():
     global Controller, ui
+    global bgm, select_effect
+    global bgm_p
+    bgm = load_music('resource/sound/Character_Select_bgm.mp3')
+    select_effect = load_wav('resource/sound/Space_bar.wav')
+    bgm.set_volume(64)
+    select_effect.set_volume(64)
+    bgm.play()
     Controller = P1_Controller()
     ui = UI()
-
+    bgm_p = BGM_player.BGM()
 
 def finish():
     global Controller
@@ -163,6 +171,7 @@ def finish():
     Round_score.p1_score = 2
     Round_score.p2_score = 2
     Round_score.difficulty = 1
+    bgm.stop()
 
 
 def handle_events():
@@ -170,10 +179,10 @@ def handle_events():
 
     for event in events:
         if event.type == SDL_QUIT:
-            game_framework.change_mode(Mode_Select_mode)
+            game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            bgm_p.play(-3)
             game_framework.change_mode(Mode_Select_mode)
-
         if event.type == SDL_KEYDOWN and (event.key == SDLK_UP or event.key == SDLK_w):
             Controller.P_character = (Controller.P_character + 1) % 3
         elif event.type == SDL_KEYDOWN and (event.key == SDLK_DOWN or event.key == SDLK_s):
@@ -183,6 +192,8 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and (event.key == SDLK_RIGHT or event.key == SDLK_d): # 우측 키세팅 선택
             Controller.P_side = 'Right'
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
+            select_effect.play()
+            delay(0.5)
             game_framework.change_mode(Enemy_matching_mode)
 
 

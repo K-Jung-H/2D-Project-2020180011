@@ -1,10 +1,11 @@
-from pico2d import load_image, get_events, clear_canvas, update_canvas, get_time, clamp
+from pico2d import *
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDL_MOUSEBUTTONDOWN, SDL_MOUSEMOTION
 
 import game_framework
 import two_player_character_select_mode
 import two_player_mode
 import Round_score
+import BGM_player
 
 
 TIME_PER_FRAME = 0.3
@@ -41,6 +42,10 @@ class Stage_Selector:
         self.stage2 = load_image('resource/Background_Valley.png')
         self.stage3 = load_image('resource/boss_map.png')
         self.stage4 = load_image('resource/Background_Water.png')
+
+        self.effect1 = load_wav('resource/sound/stage_select.wav')
+        self.effect2 = load_wav('resource/sound/Point_Map.wav')
+        self.effect1.set_volume(128)
 
         self.s1_x, self.s1_y = 300, 450
         self.s2_x, self.s2_y = 700, 450
@@ -95,12 +100,20 @@ class Stage_Selector:
 def init():
     global S_select
     global message
+    global bgm, bgm_p
+    bgm = load_music('resource/sound/Stage_Select_bgm.mp3')
+    bgm.set_volume(64)
+    bgm.play()
+
+
     S_select = Stage_Selector()
     message = Message()
+    bgm_p = BGM_player.BGM()
     pass
 
 
 def finish():
+    bgm.stop()
     pass
 
 
@@ -111,22 +124,36 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            bgm_p.play(-3)
             game_framework.change_mode(two_player_character_select_mode)
         elif event.type == SDL_MOUSEMOTION:
             S_select.mx, S_select.my = event.x, 600 - 1 - event.y
             if (300 - 150 <= S_select.mx <= 300 + 150) and (450 - 100 <= S_select.my <= 450 + 100):
+                if S_select.Pointed_map != 1:
+                    S_select.effect2.play()
                 S_select.Pointed_map = 1
+
             elif (700 - 150 <= S_select.mx <= 700 + 150) and (450 - 100 <= S_select.my <= 450 + 100):
+                if S_select.Pointed_map != 2:
+                    S_select.effect2.play()
                 S_select.Pointed_map = 2
+
             elif (300 - 150 <= S_select.mx <= 300 + 150) and (200 - 100 <= S_select.my <= 200 + 100):
+                if S_select.Pointed_map != 3:
+                    S_select.effect2.play()
                 S_select.Pointed_map = 3
+
             elif (700 - 150 <= S_select.mx <= 700 + 150) and (200 - 100 <= S_select.my <= 200 + 100):
+                if S_select.Pointed_map != 4:
+                    S_select.effect2.play()
                 S_select.Pointed_map = 4
             else:
                 S_select.Pointed_map = None
 
         if event.type == SDL_MOUSEBUTTONDOWN and  S_select.Pointed_map is not None:
             Round_score.Background_stage = S_select.Pointed_map
+            S_select.effect1.play()
+            delay(2.0)
             game_framework.change_mode(two_player_mode)
 
 

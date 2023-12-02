@@ -1,9 +1,11 @@
-from pico2d import load_image, get_events, clear_canvas, update_canvas, get_time, clamp
+from pico2d import *
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDL_MOUSEBUTTONDOWN
 
 import game_framework
 import two_player_character_select_mode
 import one_player_character_select_mode
+import Title_mode
+import BGM_player
 
 
 TIME_PER_FRAME = 0.3
@@ -65,12 +67,19 @@ def init():
     global Title_image
     global P_B
     global message
+    global bgm, bgm_p
+    bgm = load_music('resource/sound/Mode_Select_bgm.mp3')
+    bgm.set_volume(128)
+    bgm.play()
+
     Title_image = load_image('resource/Kirby_Title.png')
     P_B = Player_Button()
     message = Message()
+    bgm_p = BGM_player.BGM()
     pass
 
 def finish():
+    bgm.stop()
     pass
 
 
@@ -82,15 +91,24 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-            game_framework.quit()
+            esc_effect = load_wav('resource/sound/esc.wav')
+            esc_effect.play()
+            delay(1.0)
+            game_framework.change_mode(Title_mode)
+
         elif event.type == SDL_MOUSEBUTTONDOWN:
             P_B.mx, P_B.my = event.x, 600 - 1 - event.y
             if 0 <= P_B.mx <= 417 and 115 <= P_B.my <= 488: # 1인 모드
                 game_framework.change_mode(one_player_character_select_mode)
+                effect1 = load_wav('resource/sound/mode_select.wav')
+                effect1.play()
+                delay(1.0)
             elif 582 <= P_B.mx <= 1000 and 115 <= P_B.my <= 488: # 2인 모드
                 game_framework.change_mode(two_player_character_select_mode)
-            else:
-                print(P_B.mx, P_B.my)
+                effect1 = load_wav('resource/sound/mode_select.wav')
+                effect1.play()
+                delay(1.0)
+
 
 
 def update():

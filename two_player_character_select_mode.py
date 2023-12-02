@@ -1,4 +1,4 @@
-from pico2d import load_image, get_events, clear_canvas, update_canvas, get_time, load_font
+from pico2d import *
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LEFT, SDLK_RIGHT
 
 import Mode_Select_mode
@@ -6,6 +6,7 @@ import game_framework
 import two_player_mode
 import stage_select_mode
 import Round_score
+import BGM_player
 
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
@@ -121,13 +122,24 @@ def P2_handle(event):
 
 def init():
     global Controller
+    global bgm, select_effect
+    global bgm_p
+    bgm = load_music('resource/sound/Character_Select_bgm.mp3')
+    select_effect = load_wav('resource/sound/Space_bar.wav')
+
+    bgm.set_volume(64)
+    select_effect.set_volume(64)
+    bgm.play()
+
     Round_score.p1_score = 2
     Round_score.p2_score = 2
 
     Controller = P_Controller()
+    bgm_p = BGM_player.BGM()
     pass
 
 def finish():
+    bgm.stop()
     pass
 
 
@@ -138,6 +150,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            bgm_p.play(-3)
             game_framework.change_mode(Mode_Select_mode)
 
         elif P1_handle(event):
@@ -156,6 +169,8 @@ def handle_events():
 
 
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
+            select_effect.play()
+            delay(1.0)
             game_framework.change_mode(stage_select_mode)
 
     print(f"P1: {Controller.P1}, P2: {Controller.P2}")

@@ -7,6 +7,7 @@ import World
 import two_player_character_select_mode
 import Title_mode
 import two_player_mode
+import BGM_player
 from Background import BackGround
 from player_MetaKnight import MetaKnight
 from player_Kirby import Kirby
@@ -33,6 +34,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            bgm.play(-3)
             game_framework.change_mode(two_player_character_select_mode)
         else:
             if P1_handle(event):
@@ -49,6 +51,7 @@ def init():
     global HP_gui
     global score
     global F_Z
+    global bgm
 
     F_Z = falling_zone.Falling_area(Round_score.Background_stage)
     background = BackGround(500, 300, Round_score.Background_stage)
@@ -91,7 +94,8 @@ def init():
     HP_gui = HP_BAR()
     Check_Victory = KO()
     score = Round_score.Score()
-
+    bgm = BGM_player.BGM()
+    bgm.play(Round_score.Background_stage)
 
 
 def finish():
@@ -177,9 +181,15 @@ def Compare_set_win():
 
 def Compare_game_win():
     if Round_score.p1_score == -1 or Round_score.p2_score == -1:
+        bgm.play(-1)
         game_framework.change_mode(two_player_character_select_mode)
     else:
+        bgm.play(-2)
         game_framework.change_mode(two_player_mode)
+
+
+
+
 
 
 
