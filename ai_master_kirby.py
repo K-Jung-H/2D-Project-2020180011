@@ -115,7 +115,7 @@ class Master_Kirby:
 
     def __init__(self, Player = "p1"):
         self.x, self.y = 400, 150
-        self.Life = 20
+        self.Life = 30
         self.Picked_Player = Player
         if Player == "p1":
             self.dir = 1

@@ -166,9 +166,12 @@ def stage_clamp(stage_num):
 
 
 def Compare_set_win():
-    if p1.Life >= p2.Life: # p1이 이겼다면?
+    if p1.Life > p2.Life: # p1이 이겼다면?
         Round_score.p2_score -= 1
+    elif p1.Life < p2.Life:
+        Round_score.p1_score -= 1
     else:
+        Round_score.p2_score -= 1
         Round_score.p1_score -= 1
 
 
