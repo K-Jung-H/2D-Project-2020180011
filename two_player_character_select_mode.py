@@ -16,6 +16,7 @@ K_Standing_focus = [[223, 1195], [268, 1195], [315, 1195], [362, 1195]]
 M_walking_focus = [[3, 58], [3, 66], [10, 66], [15, 50], [6, 50], [3, 66], [5, 66]]
 SK_walk_focus = [[0, 25], [29, 28], [61, 31], [96, 32], [133, 32], [169, 28], [201, 24], [229, 23], [256, 23], [283, 28], [315, 25]] # 11개
 
+Change_focus = [[0, 32], [36, 32], [72, 32], [109, 32]]
 
 P1 = 0
 P2 = 0
@@ -39,6 +40,9 @@ class P_Controller:
         self.image_k = load_image('resource/Master_Kirby.png')
         self.image_sk = load_image('resource/Sword_Kirby/Sword_kirby_Walk.png')
         self.image_p1_p2 = load_image('resource/p1_p2.png')
+
+        self.P_image = load_image('resource/change.png')
+        self.Pointer_image =  load_image('resource/Pointer.png')
 
         self.font = load_font('resource/ENCR10B.TTF', 16)
 
@@ -102,10 +106,13 @@ class P_Controller:
 
 
     def draw_gui(self):
+        frame = int(self.frame_sk) % 4
         self.image_p1_p2.clip_draw(0,0, 31, 27, 100, 100, 150, 150 )# p1
         self.image_p1_p2.clip_draw(66,0, 32, 27, 900, 100, 150, 150 )# p1
-
-
+        self.P_image.clip_draw(Change_focus[frame][0], 0, Change_focus[frame][1], 24, 900, 250, 150, 100)
+        self.P_image.clip_composite_draw(Change_focus[frame][0], 0, Change_focus[frame][1], 24, 0, 'h', 100, 250, 150, 100)
+        self.Pointer_image.clip_draw(0, 0, 35, 16, 100, 350, 100, 50)
+        self.Pointer_image.clip_draw(0, 0, 35, 16, 900, 350, 100, 50)
 
 
 def P1_handle(event):
@@ -172,8 +179,6 @@ def handle_events():
             select_effect.play()
             delay(1.0)
             game_framework.change_mode(stage_select_mode)
-
-    print(f"P1: {Controller.P1}, P2: {Controller.P2}")
 
 
 def update():

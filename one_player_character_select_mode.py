@@ -106,6 +106,7 @@ class P1_Controller:
                 self.image_sk.clip_composite_draw(p_start_x, 0, p_size_x, p_size_y, 0, 'h', self.x, self.y, p_size_x * 2, p_size_y * 2)
 
 
+
 class UI:
     def __init__(self):
         self.P_image = load_image('resource/change.png')
@@ -142,12 +143,6 @@ class UI:
 
         self.Pointer_image.clip_draw(0, 0, 15, 16, self.p1_x, self.p1_y, 100, 100)
         self.Pointer_image.clip_draw(20, 0, 15, 16, self.p2_x, self.p2_y, 100, 100)
-
-
-
-
-
-
 
 
 
