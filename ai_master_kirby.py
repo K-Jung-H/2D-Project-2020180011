@@ -1,4 +1,4 @@
-from pico2d import (get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_q, draw_rectangle, load_font )
+from pico2d import *
 import World
 import game_framework
 import random
@@ -159,6 +159,14 @@ class Master_Kirby:
         self.upper_attack_image = load_image('resource/Kirby_Upper_Attack.png')
         self.drop_attack_image = load_image('resource/Kirby_Drop_Attack.png')
         self.falling_attack_image = load_image('resource/Kirby_Falling_Attack.png')
+
+        self.normal_effect = load_wav('resource/sound/MK_normal_a.wav')
+        self.hurt_effect = load_wav('resource/sound/MK_hurt.wav')
+
+        self.jump_effect = load_wav('resource/sound/MK_jump.wav')
+        self.upper_effect = load_wav('resource/sound/MK_upper_a.wav')
+        self.drop_effect = load_wav('resource/sound/MK_drop_a.wav')
+        self.falling_effect = load_wav('resource/sound/falling_attack.wav')
 
 
         # ai
@@ -487,6 +495,8 @@ class Master_Kirby:
         if not self.Attack_called:
             self.frame = 0
             self.Attack_called = True
+            self.normal_effect.set_volume(64)
+            self.normal_effect.play()
 
         self.attack_frame += 0.4
 
@@ -512,6 +522,8 @@ class Master_Kirby:
                 self.damaged_time = get_time()
                 self.jump_value = 5
                 self.y += self.jump_value
+                self.hurt_effect.set_volume(64)
+                self.hurt_effect.play()
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.FAIL
@@ -558,13 +570,19 @@ class Master_Kirby:
                 if (self.distance_less_than(one_player_mode.Player.x, one_player_mode.Player.y, self.x, self.y, 5)
                         and self.state == 'Jump'):
                     self.state = 'Falling_attack'
+                    self.falling_effect.set_volume(64)
+                    self.falling_effect.play()
                     return True
                 elif self.state == 'Jump' and self.jump_value < 0:
                     self.state = 'Drop_attack'
+                    self.drop_effect.set_volume(64)
+                    self.drop_effect.play()
                     return True
 
                 elif self.state == 'Jump' and self.jump_value >= 5:
                     self.state = 'Upper_attack'
+                    self.upper_effect.set_volume(64)
+                    self.upper_effect.play()
                     return True
         return False
 
@@ -582,6 +600,8 @@ class Master_Kirby:
             self.jump_value = 20
             self.Jumping = True
             self.state = 'Jump'
+            self.jump_effect.set_volume(64)
+            self.jump_effect.play()
 
         self.jump_value -= 1
         if self.state != 'Falling_attack':
