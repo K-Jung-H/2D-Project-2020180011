@@ -955,6 +955,7 @@ class Sword_Kirby:
         self.falling_attack_image = load_image('resource/Sword_Kirby/sword_kirby_falling_attack.png')
         self.defense_image = load_image('resource/Sword_Kirby/Defense_Kirby.png')
 
+
         self.normal_effect = load_wav('resource/sound/SK_normal_a.wav')
         self.fast_effect = load_wav('resource/sound/SK_fast_a.wav')
         self.charge_effect = load_wav('resource/sound/SK_charge_a.wav')

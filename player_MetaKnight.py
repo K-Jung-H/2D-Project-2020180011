@@ -898,6 +898,7 @@ class MetaKnight:
         self.falling_attack_image = load_image('resource/Meta_Knight_Air_Hard_Attack.png')
         self.damaged_image = load_image('resource/Meta_Knight_Damaged.png')
 
+
         self.normal_effect = load_wav('resource/sound/Meta_normal_a.wav')
         self.fast_effect = load_wav('resource/sound/Meta_fast_a.wav')
         self.charge_effect = load_wav('resource/sound/Meta_Charge_attack.wav')

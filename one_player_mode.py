@@ -63,7 +63,7 @@ def init():
 
 
     picked_character = one_player_character_select_mode.Player
-    computer_difficulty = Round_score.difficulty
+    computer_difficulty = 2#Round_score.difficulty
     computer_character = 1 # 기본 1
 
     if one_player_character_select_mode.Player_side == 'Left':
@@ -137,7 +137,6 @@ def init():
 def finish():
     World.clear()
 
-    pass
 
 
 def update():

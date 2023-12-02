@@ -1,5 +1,4 @@
-from pico2d import (get_time, load_image, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_q, draw_rectangle, load_font )
-import World
+from pico2d import *
 import game_framework
 import random
 import math
@@ -129,6 +128,9 @@ class MetaKnight:
         self.falling_attack_image = load_image('resource/Meta_Knight_Air_Hard_Attack.png')
         self.damaged_image = load_image('resource/Meta_Knight_Damaged.png')
 
+        self.hurt_effect = load_wav('resource/sound/Meta_hurt.wav')
+        self.normal_effect = load_wav('resource/sound/Meta_normal_a.wav')
+
 
         # ai
         self.tx, self.ty = 0, 0
@@ -213,7 +215,7 @@ class MetaKnight:
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
                 if other.Attacking:
-                    print("com is damaged")
+
                     #ai damaged
                     if self.state != 'Hurt':
                         self.damaged_amount = max(1, other.power)
@@ -224,7 +226,6 @@ class MetaKnight:
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
-                    print("com is damaged by", group, other.x_range, other.y_range)
                     #ai damaged
                     if self.state != 'Hurt':
                         self.damaged_amount = max(1, other.power)
@@ -304,6 +305,8 @@ class MetaKnight:
         if not self.Attack_called:
             self.frame = 0
             self.Attack_called = True
+            self.normal_effect.set_volume(64)
+            self.normal_effect.play()
 
         self.state = 'Normal_attack'
 
@@ -326,6 +329,8 @@ class MetaKnight:
                 self.damaged_time = get_time()
                 self.jump_value = 5
                 self.y += self.jump_value
+                self.hurt_effect.set_volume(64)
+                self.hurt_effect.play()
             return BehaviorTree.SUCCESS
         else:
             return BehaviorTree.FAIL
