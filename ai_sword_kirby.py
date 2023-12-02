@@ -314,8 +314,8 @@ class Sword_Kirby:
                 self.falling_attack_image.clip_composite_draw(Falling_attack_focus[frame][0], 0, Falling_attack_focus[frame][1], 54,
                                                             0,'h',self.x, self.y, Falling_attack_focus[frame][1] * 2, 54 * 2)
 
-        draw_rectangle(*self.get_bb())
-        draw_rectangle(*self.attack_area.get_bb())
+        # draw_rectangle(*self.get_bb())
+        # draw_rectangle(*self.attack_area.get_bb())
 
 
     def get_bb(self):
@@ -569,9 +569,7 @@ class Sword_Kirby:
                     self.upper_effect.set_volume(64)
                     self.upper_effect.play()
                     return True
-        # self.falling_effect.set_volume(0)
-        # self.drop_effect.set_volume(0)
-        # self.upper_effect.set_volume(0)
+
         return False
 
 

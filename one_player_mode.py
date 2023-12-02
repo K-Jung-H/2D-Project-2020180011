@@ -133,7 +133,6 @@ def init():
     bgm = BGM_player.BGM()
     bgm.play(Round_score.Background_stage)
 
-
 def finish():
     World.clear()
 
@@ -153,7 +152,7 @@ def update():
 def draw():
     clear_canvas()
     World.render()
-    F_Z.draw()
+    #F_Z.draw()
     Check_Victory.draw()
     hp_bar.draw()
     score.draw()
@@ -215,26 +214,36 @@ def Compare_set_win():
         Round_score.p2_score -= 1
     elif p1.Life < p2.Life: # p2이 이겼다면?
         Round_score.p1_score -= 1
-    bgm.play(-2)
+
 
 
 def Compare_game_win():
-    if Round_score.p1_score == -1 or Round_score.p2_score == -1: # 게임 종료시
-        if Player.Life >= 0: # 플레이어가 이겼다면
-            if Round_score.player_side == 'Left':
-                Round_score.p1_score += 2
-                Round_score.p2_score = 2
-            else:
-                Round_score.p1_score = 2
-                Round_score.p2_score += 2
+    if Round_score.p1_score == -1 or Round_score.p2_score == -1: # 게임이 끝난거라면
+        if Round_score.player_side == 'Left' and Round_score.p2_score == -1: #플레이어가 p1 일때, p2가 진 경우
+            Round_score.p1_score += 2
+            Round_score.p2_score = 2
             Round_score.difficulty += 1
             bgm.play(-1)
-            game_framework.change_mode(Enemy_matching_mode)
-        else:
+            if Round_score.difficulty == 4:
+                Round_score.solo_mode_result = 'Win'
+                game_framework.change_mode(Result_mode)
+            else:
+                game_framework.change_mode(Enemy_matching_mode)
+        elif Round_score.player_side == 'Right' and Round_score.p1_score == -1: #플레이어가 p2 일때, p1가 진 경우
+            Round_score.p1_score = 2
+            Round_score.p2_score += 2
+            Round_score.difficulty += 1
+            bgm.play(-1)
+            if Round_score.difficulty == 4:
+                Round_score.solo_mode_result = 'Win'
+                game_framework.change_mode(Result_mode)
+            else:
+                game_framework.change_mode(Enemy_matching_mode)
+        else:                                                                    # 두경우가 아니라면 플레이어의 패배
             Round_score.solo_mode_result = 'Lose'
             game_framework.change_mode(Result_mode)
-    else:
-        bgm.play(0)
+    else:                                               # 세트 경기가 끝난거라면
+        bgm.play(-2)
         game_framework.change_mode(one_player_mode)
 
 
@@ -259,6 +268,10 @@ class KO:
 
         self.Round_end = False # 이걸로 해당 라운드 끝났는지 확인
         self.Round_end_time = None
+
+        self.KO_Bell = load_wav('resource/sound/boxing-bell.wav')
+        self.KO_Bell.set_volume(64)
+        self.KO_Bell_Ring = False
 
 
     def update(self):
@@ -294,6 +307,10 @@ class KO:
                         self.spotlight = 0
                         if self.Round_end_time is None: # 타임 아웃이 안일어났다면 KO 출력 3초후 종료하게
                             self.Round_end_time = get_time()
+
+        if self.Round_end and self.KO_Bell_Ring == False:
+            self.KO_Bell.play()
+            self.KO_Bell_Ring = True
 
         # 3초후 게임 재시작
         if self.Round_end_time is not None:

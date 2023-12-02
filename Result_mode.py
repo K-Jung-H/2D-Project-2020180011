@@ -1,4 +1,4 @@
-from pico2d import load_image, get_events, clear_canvas, update_canvas, get_time, clamp
+from pico2d import *
 from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE
 
 import game_framework
@@ -15,6 +15,11 @@ class Result_Motion:
     def __init__(self):
         self.lose_image = load_image('resource/Loser.png')
         self.win_image = load_image('resource/Winner.png')
+
+        self.lose_effect = load_music('resource/sound/Lose.wav')
+        self.win_effect = load_music('resource/sound/Win.wav')
+        self.lose_effect.set_volume(64)
+        self.win_effect.set_volume(64)
         self.x, self.y = 500, 300
 
     def draw(self):
@@ -29,6 +34,11 @@ class Result_Motion:
 def init():
     global R_M
     R_M = Result_Motion()
+    if Round_score.solo_mode_result == 'Win':
+        R_M.win_effect.play()
+    elif Round_score.solo_mode_result == 'Lose':
+        R_M.lose_effect.play()
+
 
 def finish():
     pass

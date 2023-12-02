@@ -6,14 +6,18 @@ class BGM:
         self.bgm2 = load_music('resource/sound/Sunset_bgm.mp3')
         self.bgm3 = load_music('resource/sound/Boss_Fight.mp3')
         self.bgm4 = load_music('resource/sound/Sea_bgm.mp3')
+
+        self.guide_stage_bgm = load_music('resource/sound/guide_room_bgm.mp3')
+
         self.set_end = load_wav('resource/sound/stage_select.wav')
         self.game_end_effect = load_wav('resource/sound/mode_select.wav')
         self.out_effect = load_wav('resource/sound/esc.wav')
 
-        self.bgm1.set_volume(64)
-        self.bgm2.set_volume(64)
+        self.bgm1.set_volume(32)
+        self.bgm2.set_volume(32)
         self.bgm3.set_volume(32)
-        self.bgm4.set_volume(64)
+        self.bgm4.set_volume(32)
+        self.guide_stage_bgm.set_volume(32)
 
         self.set_end.set_volume(64)
         self.game_end_effect.set_volume(64)
@@ -51,5 +55,12 @@ class BGM:
             self.bgm2.stop()
             self.bgm3.stop()
             self.bgm4.stop()
+            self.guide_stage_bgm.stop()
             self.out_effect.play()
+
+        elif stage == 0:
+            self.guide_stage_bgm.play()
+        else:
+            pass
+
 

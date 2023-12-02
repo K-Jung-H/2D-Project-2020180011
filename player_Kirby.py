@@ -913,7 +913,6 @@ class StateMachine:
 
     def draw(self):
         self.cur_state.draw(self.player)
-        self.player.attack_area.draw()
         self.player.font.draw(self.player.x - 10, self.player.y + 60, f'{self.player.Life:02d}', (255, 0, 0))
 
 
@@ -994,7 +993,8 @@ class Kirby:
 
     def draw(self):
         self.state_machine.draw()
-        draw_rectangle(*self.get_bb())
+        #self.attack_area.draw()
+        #draw_rectangle(*self.get_bb())
 
 
     def SwordStrike(self):

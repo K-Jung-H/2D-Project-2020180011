@@ -10,8 +10,6 @@ solo_mode_result = None
 
 Background_stage = 1
 
-
-
 number_list = [[25, 8], [35, 6], [43, 8], [53, 8], [63, 8]]
 
 class Score:

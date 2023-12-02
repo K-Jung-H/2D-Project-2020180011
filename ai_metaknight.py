@@ -73,7 +73,7 @@ class Attack_Area:
         elif self.Attacking:
             if self.p.state == 'Normal_attack':
                 self.x_range, self.y_range = 50, 50
-                self.power = 2
+                self.power = 3
 
     def get_bb(self):
         p_L = self.x - self.x_range
@@ -197,8 +197,8 @@ class MetaKnight:
                 elif self.dir == 1:
                     self.damaged_image.clip_composite_draw(damaged_focus[frame][0], 0, damaged_focus[frame][1], 42,
                                                          0, 'h', self.x, self.y, damaged_focus[frame][1] * 2, 42 * 2)
-        draw_rectangle(*self.get_bb())
-        draw_rectangle(*self.attack_area.get_bb())
+        # draw_rectangle(*self.get_bb())
+        # draw_rectangle(*self.attack_area.get_bb())
 
 
     def get_bb(self):

@@ -5,6 +5,7 @@ import game_framework
 import two_player_character_select_mode
 import one_player_character_select_mode
 import Title_mode
+import guide_mode
 import BGM_player
 
 
@@ -19,11 +20,17 @@ solo_kirby = [[98, 40], [146, 40]]
 
 class Message:
     image = None
+    guide = None
     def __init__(self):
         if Message.image == None:
             Message.image = load_image('resource/select_mode_message.png')
+            Message.guide = load_image('resource/Guide_message.png')
         self.x = 500
         self.y = 50
+
+        self.gx = 500
+        self.gy = 550
+
         self.start_time = get_time()
 
     def draw(self):
@@ -31,6 +38,13 @@ class Message:
             self.image.clip_draw(0, 0, 626, 29, self.x, self.y, 600, 50)
         else:
             self.image.clip_draw(0, 30, 626, 59, self.x, self.y, 600, 50)
+
+        if int(get_time() - self.start_time) % 2 == 1:
+            self.guide.clip_draw(0, 0, 634, 30, self.gx, self.gy, 600, 50)
+        else:
+            self.guide.clip_draw(0, 30, 634, 61, self.gx, self.gy, 600, 50)
+
+
 
 
 
@@ -95,6 +109,12 @@ def handle_events():
             esc_effect.play()
             delay(1.0)
             game_framework.change_mode(Title_mode)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_TAB:
+            game_framework.change_mode(guide_mode)
+            effect1 = load_wav('resource/sound/mode_select.wav')
+            effect1.set_volume(64)
+            effect1.play()
+            delay(1.0)
 
         elif event.type == SDL_MOUSEBUTTONDOWN:
             P_B.mx, P_B.my = event.x, 600 - 1 - event.y

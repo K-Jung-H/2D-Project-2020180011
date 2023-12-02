@@ -117,7 +117,7 @@ def draw():
     clear_canvas()
     World.render()
     HP_gui.draw()
-    F_Z.draw()
+    #F_Z.draw()
     Check_Victory.draw()
     score.draw()
     update_canvas()
@@ -215,6 +215,10 @@ class KO:
         self.Round_end = False # 이걸로 해당 라운드 끝났는지 확인
         self.Round_end_time = None
 
+        self.KO_Bell = load_wav('resource/sound/boxing-bell.wav')
+        self.KO_Bell.set_volume(64)
+        self.KO_Bell_Ring = False
+
     def update(self):
         # 시간 판별
         if self.Round_end == False:
@@ -248,6 +252,10 @@ class KO:
                         self.spotlight = 0
                         if self.Round_end_time is None:  # 타임 아웃이 안일어났다면 KO 출력 3초후 종료하게
                             self.Round_end_time = get_time()
+
+        if self.Round_end and self.KO_Bell_Ring == False:
+            self.KO_Bell.play()
+            self.KO_Bell_Ring = True
 
         # 3초후 게임 재시작
         if self.Round_end_time is not None:
