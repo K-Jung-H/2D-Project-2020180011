@@ -26,7 +26,8 @@ class Sword_Kirby_Sword_Strike:
         self.p_dir = velocity / abs(velocity)
         self.Attacking = True
         self.charge_attack = False
-        self.effect_size = min(32 * self.power, 128)
+        self.effect.set_volume(128)
+        self.effect.play()
 
 
     def draw(self):
@@ -38,7 +39,7 @@ class Sword_Kirby_Sword_Strike:
         elif self.p_dir == -1:
             self.image.clip_composite_draw(skill_focus[frame][0], 0, skill_focus[frame][1], 62,  0, 'h',self.x, self.y,
                                            p_size_x, p_size_y)
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
 
 
 
@@ -47,12 +48,6 @@ class Sword_Kirby_Sword_Strike:
         self.frame = (self.frame + FRAMES_PER_SKILL_EFFECT * ATTACK_PER_TIME * game_framework.frame_time) % 3
         self.x_size = self.power
         self.y_size = self.power
-
-        if int(self.frame) == 2:
-            self.effect_size -= 1
-            self.effect.set_volume(self.effect_size)
-            self.effect.play()
-
         if self.x < 25 or self.x > 1600 - 25:
             self.effect.set_volume(0)
             World.remove_object(self)

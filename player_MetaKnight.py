@@ -522,6 +522,7 @@ class Charge_Attack:
     @staticmethod
     def exit(p1, e):
         p1.Attacking = False
+        p1.attack_area.charge_attack = False
         p1.charging_effect.set_volume(0)
         p1.charge_effect.set_volume(0)
         p1.Right_Move = False
@@ -535,7 +536,7 @@ class Charge_Attack:
             p1.Charging_Point = int(get_time() - p1.Charging_Time)
         elif  p1.charging == False:
             p1.frame = (p1.frame + FRAMES_PER_CHARGE_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 10
-
+            p1.attack_area.charge_attack = True
         if int (p1.frame) == 5: # 투사체 발사
             if p1.Charging_Point >= 1:
                 p1.SwordStrike()
@@ -828,7 +829,7 @@ class StateMachine:
             Falling_Attack: {STOP: Jump,  Right_Move_Down: Falling_Attack, Left_Move_Down: Falling_Attack,
                              Right_Move_Up: Falling_Attack, Left_Move_Up: Falling_Attack, Get_Damage: Hurt},
 
-            Defense: { Defense_Up: Idle, STOP: Idle, }
+            Defense: { Defense_Up: Idle, STOP: Idle, Get_Damage: Hurt}
 
 
         }
@@ -1064,17 +1065,16 @@ class MetaKnight:
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
-                    if other.Attacking:
-                        # 직접적인 공격 받고, 강공격이 아니라면 반사하기
-                        if self.Defensing and group == 'p2 : p1_attack_range' and other.charge_attack == False:
-                            self.guard_effect.set_volume(64)
-                            self.guard_effect.play()
-                            other.p.state_machine.handle_event(('Damaged', 0, other.power))
-                            other.p.dir = self.dir
-                        else:
-                            if other.power != 0:
-                                self.state_machine.handle_event(('Damaged', 0, other.power))
-                                self.dir = other.p_dir
+                    # 직접적인 공격 받고, 강공격이 아니라면 반사하기
+                    if self.Defensing and group == 'p2 : p1_attack_range' and other.charge_attack == False:
+                        self.guard_effect.set_volume(64)
+                        self.guard_effect.play()
+                        other.p.state_machine.handle_event(('Damaged', 0, other.power))
+                        other.p.dir = self.dir
+                    else:
+                        if other.power != 0:
+                            self.state_machine.handle_event(('Damaged', 0, other.power))
+                            self.dir = other.p_dir
 
 
         if group == 'p : Falling_area':

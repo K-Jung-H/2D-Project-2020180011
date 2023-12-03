@@ -531,6 +531,7 @@ class Charge_Attack:
         elif Charge_Attack_Up(e):
             p1.charging = False
             p1.Attacking = True
+            p1.attack_area.charge_attack = True
             p1.charge_effect.set_volume(64)
             p1.charge_effect.play()
 
@@ -553,6 +554,8 @@ class Charge_Attack:
 
     @staticmethod
     def exit(p1, e):
+        p1.Attacking = False
+        p1.attack_area.charge_attack = False
         p1.charging_effect.set_volume(0)
         p1.charge_effect.set_volume(0)
         p1.Right_Move = False
@@ -887,7 +890,7 @@ class StateMachine:
             Falling_Attack: {STOP: Jump, Right_Move_Down: Falling_Attack, Left_Move_Down: Falling_Attack,
                              Right_Move_Up: Falling_Attack, Left_Move_Up: Falling_Attack, Get_Damage: Hurt},
 
-            Defense: { STOP: Idle, } # Defense_Up: Idle,
+            Defense: { STOP: Idle, Get_Damage: Hurt } # Defense_Up: Idle,
 
         }
 
@@ -1093,8 +1096,23 @@ class Sword_Kirby:
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
                 if other.Attacking:
-                    # 직접적인 공격 받고, 강공격이 아니라면 밀쳐내기
+                    # 직접적인 공격 받고, 강공격이 아니라면 반사하기
                     if self.Defensing and group == 'p1 : p2_attack_range' and other.charge_attack == False:
+                        self.guard_effect.set_volume(64)
+                        self.guard_effect.play()
+                        other.p.state_machine.handle_event(('Damaged', 0, other.power))
+                        other.p.dir = self.dir
+                    else:
+                        print("????????????????????????????????????????????????????????????????????????????????????????", other.power)
+                        if other.power != 0:
+                            self.state_machine.handle_event(('Damaged', 0, other.power))
+                            self.dir = other.p_dir
+
+        else:
+            if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
+                if other.Attacking:
+                    # 직접적인 공격 받고, 강공격이 아니라면 반사하기
+                    if self.Defensing and group == 'p2 : p1_attack_range' and other.charge_attack == False:
                         self.guard_effect.set_volume(64)
                         self.guard_effect.play()
                         other.p.state_machine.handle_event(('Damaged', 0, other.power))
@@ -1104,23 +1122,7 @@ class Sword_Kirby:
                             self.state_machine.handle_event(('Damaged', 0, other.power))
                             self.dir = other.p_dir
 
-        else:
-            if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
-                if other.Attacking:
-                    if other.Attacking:
-                        # 직접적인 공격 받고, 강공격이 아니라면 반사하기
-                        if self.Defensing and group == 'p2 : p1_attack_range' and other.charge_attack == False:
-                            self.guard_effect.set_volume(64)
-                            self.guard_effect.play()
-                            other.p.state_machine.handle_event(('Damaged', 0, other.power))
-                            other.p.dir = self.dir
-                        else:
-                            if other.power != 0:
-                                self.state_machine.handle_event(('Damaged', 0, other.power))
-                                self.dir = other.p_dir
-
         if group == 'p : Falling_area':
             if self.state_machine.cur_state == Hurt:
                 self.state_machine.handle_event(('Damaged', 0, 0))
                 self.y -= 10
-

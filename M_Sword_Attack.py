@@ -23,21 +23,17 @@ class Meta_Knight_Sword_Strike:
         self.p_dir = velocity / abs(velocity)
         self.Attacking = True
         self.charge_attack = False
-        self.effect_size = min(32 * self.power, 128)
+        self.effect.set_volume(128)
+        self.effect.play()
 
 
     def draw(self):
         self.image.clip_draw(int(self.frame) * 49, 0, 49, 49, self.x, self.y, self.x_size, self.y_size)
-        draw_rectangle(*self.get_bb())
+        #draw_rectangle(*self.get_bb())
 
     def update(self):
         self.x += self.velocity * 100 * game_framework.frame_time
         self.frame = (self.frame + FRAMES_PER_SKILL_EFFECT * ATTACK_PER_TIME * game_framework.frame_time) % 5
-        if int(self.frame) == 4:
-            self.effect_size -= 1
-            self.effect.set_volume(self.effect_size)
-            self.effect.play()
-
         self.x_size = self.power * 25
         self.y_size = self.power * 25
         if self.x < 25 or self.x > 1600 - 25:

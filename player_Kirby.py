@@ -1094,29 +1094,26 @@ class Kirby:
                     if self.Defensing and group == 'p1 : p2_attack_range' and other.charge_attack == False:
                         self.guard_effect.set_volume(64)
                         self.guard_effect.play()
-
                         other.p.state_machine.handle_event(('Damaged', 0, other.power))
                         other.p.dir = self.dir
                     else:
                         if other.power != 0:
-                            print("p1 is damaged")
                             self.state_machine.handle_event(('Damaged', 0, other.power))
                             self.dir = other.p_dir
 
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
-                    if other.Attacking:
-                        # 직접적인 공격 받고, 강공격이 아니라면 반사하기
-                        if self.Defensing and group == 'p2 : p1_attack_range' and other.charge_attack == False:
-                            print("p2 Defensed")
-                            other.p.state_machine.handle_event(('Damaged', 0, other.power))
-                            other.p.dir = self.dir
-                        else:
-                            if other.power != 0:
-                                print("p2 is damaged")
-                                self.state_machine.handle_event(('Damaged', 0, other.power))
-                                self.dir = other.p_dir
+                    # 직접적인 공격 받고, 강공격이 아니라면 반사하기
+                    if self.Defensing and group == 'p2 : p1_attack_range' and other.charge_attack == False:
+                        self.guard_effect.set_volume(64)
+                        self.guard_effect.play()
+                        other.p.state_machine.handle_event(('Damaged', 0, other.power))
+                        other.p.dir = self.dir
+                    else:
+                        if other.power != 0:
+                            self.state_machine.handle_event(('Damaged', 0, other.power))
+                            self.dir = other.p_dir
 
         if group == 'p : Falling_area':
             if self.state_machine.cur_state == Hurt:
