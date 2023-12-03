@@ -168,6 +168,11 @@ def stage_clamp(stage_num):
         p2.x = clamp(20, p2.x, 980)
 
 
+    elif stage_num == 4:
+        p1.x = clamp(20, p1.x, 980)
+        p2.x = clamp(20, p2.x, 980)
+
+
 
 def Compare_set_win():
     if p1.Life > p2.Life: # p1이 이겼다면?
@@ -186,8 +191,6 @@ def Compare_game_win():
     else:
         bgm.play(-2)
         game_framework.change_mode(two_player_mode)
-
-
 
 
 

@@ -4,9 +4,18 @@ from sdl2 import SDL_QUIT, SDL_KEYDOWN, SDLK_ESCAPE, SDLK_SPACE
 import game_framework
 import Mode_Select_mode
 
+PIXEL_PER_METER = (10.0 / 0.3) # 10 pixel 30 cm
+RUN_SPEED_KMPH = 20.0 # Km / Hour
+RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+
 TIME_PER_FRAME = 0.3
 FRAME_PER_TIME = 1.0 / TIME_PER_FRAME
 FRAMES_PER_BACK_EFFECT = 10
+
+
 black_holl = [0, 260, 520, 780, 1040, 1300]
 
 
@@ -48,21 +57,22 @@ class Animation:
         self.c2 = 1000
         self.frame = 0
         self.sound1 = load_wav('resource/sound/Start_animation_background.wav')
-        self.sound1.set_volume(128)
+        self.sound1.set_volume(64)
         self.sound1.play()
 
         self.sound2 = load_wav('resource/sound/Start_star.wav')
-        self.sound2.set_volume(128)
+        self.sound2.set_volume(64)
 
         self.sound3 = load_wav('resource/sound/Start_animation_fight.wav')
-        self.sound3.set_volume(128)
+        self.sound3.set_volume(64)
 
 
         self.sound4 = load_wav('resource/sound/Guard.wav')
-        self.sound4.set_volume(128)
+        self.sound4.set_volume(64)
 
         self.bgm = load_music('resource/sound/Title_bgm.mp3')
-        self.bgm.set_volume(128)
+        self.bgm.set_volume(64)
+
 
 
     def draw(self):
@@ -87,15 +97,15 @@ class Animation:
     def update(self):
         self.frame = (self.frame + FRAMES_PER_BACK_EFFECT * FRAME_PER_TIME * game_framework.frame_time) % 6
         if self.Cartoon == 1:
-            self.c1 += 2
-            self.c2 -= 2
+            self.c1 += (1 * RUN_SPEED_PPS * game_framework.frame_time)
+            self.c2 -= (1 * RUN_SPEED_PPS * game_framework.frame_time)
             if self.c2 - self.c1 < 200:
                 self.Cartoon = 2
                 self.sound2.play()
 
         elif self.Cartoon == 2:
-            self.c1 -= 0.3
-            self.c2 += 0.3
+            self.c1 -= (0.1 * RUN_SPEED_PPS * game_framework.frame_time)
+            self.c2 += (0.1 * RUN_SPEED_PPS * game_framework.frame_time)
             if self.c2 - self.c1 >= 300:
                 self.Cartoon = 3
                 self.sound2.set_volume(0)
@@ -103,8 +113,8 @@ class Animation:
 
 
         elif self.Cartoon == 3:
-            self.c1 += 10
-            self.c2 -= 10
+            self.c1 += (5 * RUN_SPEED_PPS * game_framework.frame_time)
+            self.c2 -= (5 * RUN_SPEED_PPS * game_framework.frame_time)
             if self.c2 - self.c1 < 50:
                 self.sound3.set_volume(0)
                 self.sound1.set_volume(0)
@@ -150,8 +160,8 @@ def update():
     global Title_w, Title_h
     animation.update()
     if animation.Cartoon == 4:
-        Title_w += 50
-        Title_h += 50
+        Title_w += (10 * RUN_SPEED_PPS * game_framework.frame_time)
+        Title_h += (5 * RUN_SPEED_PPS * game_framework.frame_time)
         Title_w = clamp(0, Title_w, 1000)
         Title_h = clamp(0, Title_h, 600)
 

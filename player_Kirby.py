@@ -197,7 +197,6 @@ class Walk:
 
     @staticmethod
     def do(p1):
-
         p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7
         if p1.Left_Move and p1.Right_Move:
             p1.dir = p1.Last_Input_Direction
@@ -324,10 +323,13 @@ class Jump:
         # 점프: y값 변경
         #p1.y += p1.jump_value
         p1.y += (p1.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
-        p1.jump_value -= 1
+        #p1.jump_value -= 1
+        p1.jump_value -= (0.75 * JUMP_SPEED_PPS * game_framework.frame_time)
+        #JUMP_SPEED_PPS = RUN_SPEED_PPS * 0.5
         if p1.y <= 150:  # 나중엔 충돌 체크로 바꿀 것
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
+
 
 
     @staticmethod

@@ -187,7 +187,6 @@ def stage_clamp(stage_num):
         if not Com.Get_Damage:
             Com.x = clamp(80, Com.x, 1000 - 80)
 
-
     elif stage_num == 2:
         if Player.y == 150:
             Player.x = custom_clamp(Player.x, 0, 380, 600, 1000)

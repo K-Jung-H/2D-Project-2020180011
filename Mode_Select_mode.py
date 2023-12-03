@@ -8,6 +8,12 @@ import Title_mode
 import guide_mode
 import BGM_player
 
+PIXEL_PER_METER = (10.0 / 0.3) # 10 pixel 30 cm
+RUN_SPEED_KMPH = 20.0 # Km / Hour
+RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
 
 TIME_PER_FRAME = 0.3
 FRAME_PER_TIME = 1.0 / TIME_PER_FRAME
@@ -62,8 +68,8 @@ class Player_Button:
 
     def update(self):
         self.frame = (self.frame + FRAMES_PER_BACK_EFFECT * FRAME_PER_TIME * game_framework.frame_time) % 6
-        self.P1_right_pos += 5
-        self.P2_left_pos -= 5
+        self.P1_right_pos += (1 * RUN_SPEED_PPS * game_framework.frame_time)
+        self.P2_left_pos -= (1 * RUN_SPEED_PPS * game_framework.frame_time)
         self.P1_right_pos = clamp(0, self.P1_right_pos, 417)
         self.P2_left_pos = clamp(582, self.P2_left_pos, 1000)
 
