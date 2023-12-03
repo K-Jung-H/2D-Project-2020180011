@@ -14,7 +14,7 @@ RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 FAST_RUN_SPEED_PPS = RUN_SPEED_PPS * 1.8
-
+JUMP_SPEED_PPS = RUN_SPEED_PPS * 0.5
 
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
@@ -521,7 +521,8 @@ class Sword_Kirby:
             self.Get_Damage = True
             self.damaged_motion += 1
             self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time * (self.damaged_amount * 0.5)
-            self.y += self.jump_value
+            #self.y += self.jump_value
+            self.y += (self.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
             self.jump_value -= 1
 
             if self.falling == False:
@@ -587,10 +588,11 @@ class Sword_Kirby:
 
         self.jump_value -= 1
         if self.state != 'Falling_attack':
-            self.y += self.jump_value
-
+            #self.y += self.jump_value
+            self.y += (self.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
         else:
-            self.y += self.jump_value/5
+            #self.y += self.jump_value/5
+            self.y += ((self.jump_value/5) * JUMP_SPEED_PPS * game_framework.frame_time)
 
 
         speed = RUN_SPEED_PPS * 1.5

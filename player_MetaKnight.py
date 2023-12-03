@@ -10,6 +10,7 @@ RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 FAST_RUN_SPEED_PPS = RUN_SPEED_PPS * 1.8
+JUMP_SPEED_PPS = RUN_SPEED_PPS * 0.5
 
 # Player Action Speed
 TIME_PER_ACTION = 0.5
@@ -267,11 +268,11 @@ class Jump:
     @staticmethod
     def enter(p1, e):
         if p1.state_machine.last_state != Jump and p1.state_machine.last_state != Falling_Attack:
-            p1.jump_value = 20
+            p1.jump_value = 18
             p1.jump_effect.set_volume(64)
             p1.jump_effect.play()
+            p1.frame = int(p1.frame) % 7
 
-            p1.frame = (p1.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 7 #10
         else: # 점프 도중에 새로운 입력을 받는 경우
             if Right_Move_Down(e):
                 p1.Right_Move, p1.dir = True, 1
@@ -320,7 +321,8 @@ class Jump:
         p1.x = clamp(25, p1.x, 1000 - 25)
 
         # 점프: y값 변경
-        p1.y += p1.jump_value
+        #p1.y += p1.jump_value
+        p1.y += (p1.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
         p1.jump_value -= 1
         if p1.y <= 150:  # 나중엔 충돌 체크로 바꿀 것
             p1.y = 150
@@ -381,7 +383,7 @@ class Hurt:
         p1.x = clamp(25, p1.x, 1000 - 25)
 
         if p1.y > 150:
-            p1.y += p1.jump_value
+            p1.y += (p1.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
             p1.jump_value -= 1
             p1.y = clamp(150, p1.y, 1000 - 25)
 
@@ -522,6 +524,8 @@ class Charge_Attack:
         p1.Attacking = False
         p1.charging_effect.set_volume(0)
         p1.charge_effect.set_volume(0)
+        p1.Right_Move = False
+        p1.Left_Move = False
 
 
     @staticmethod
@@ -578,7 +582,7 @@ class Upper_Attack:
 
     @staticmethod
     def do(p1):
-        p1.y += 3
+        p1.y += (3 * JUMP_SPEED_PPS * game_framework.frame_time)
         p1.jump_value -= 0.5
         p1.Attacking = True
         p1.frame = (p1.frame + FRAMES_PER_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 6
@@ -638,7 +642,7 @@ class Drop_Attack:
         if int(p1.frame) != 8:
             p1.frame = (p1.frame + FRAMES_PER_DROP_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 9
         else:
-            p1.y += p1.jump_value
+            p1.y += (p1.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
             p1.jump_value -= 1
 
         if p1.y <= 150:
@@ -711,7 +715,8 @@ class Falling_Attack:
 
 
         if int(p1.frame) != 27:
-            p1.y += p1.jump_value/10
+            #p1.y += p1.jump_value/10
+            p1.y += ((p1.jump_value/10) * JUMP_SPEED_PPS * game_framework.frame_time)
             p1.jump_value -= 0.1
             p1.frame = (p1.frame + 3 * FRAMES_PER_FALLING_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 28
         else:

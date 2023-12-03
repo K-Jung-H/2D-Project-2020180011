@@ -13,6 +13,7 @@ RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 FAST_RUN_SPEED_PPS = RUN_SPEED_PPS * 1.8
+JUMP_SPEED_PPS = RUN_SPEED_PPS * 0.5
 
 # Player Action Speed
 TIME_PER_ACTION = 0.5
@@ -329,6 +330,7 @@ class MetaKnight:
                 self.damaged_time = get_time()
                 self.jump_value = 5
                 self.y += self.jump_value
+
                 self.hurt_effect.set_volume(64)
                 self.hurt_effect.play()
             return BehaviorTree.SUCCESS
@@ -351,7 +353,8 @@ class MetaKnight:
             self.x = clamp(25, self.x, 1000 - 25)
 
             if self.y > 150:
-                self.y += self.jump_value
+                #self.y += self.jump_value
+                self.y += (self.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
                 self.jump_value -= 1
             self.y = clamp(150, self.y, 1000 - 25)
 

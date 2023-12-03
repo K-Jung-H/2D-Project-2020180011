@@ -14,7 +14,7 @@ RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 FAST_RUN_SPEED_PPS = RUN_SPEED_PPS * 1.8
-
+JUMP_SPEED_PPS = RUN_SPEED_PPS * 0.5
 
 
 TIME_PER_ACTION = 1.0
@@ -213,7 +213,7 @@ class Master_Kirby:
     def draw(self):
         self.font.draw(self.x - 10, self.y + 60, f'{self.Life:02d}', (255, 0, 0))
         if self.state == 'Walk':
-            frame = int(self.frame) % 7
+            frame = int(self.frame) % 8
             p_size_x = walk_focus[frame][1]
             if self.dir == 1:
                 self.walk_image.clip_draw(walk_focus[frame][0], 0, p_size_x, 49, self.x, self.y + 10, p_size_x * 2,
@@ -306,7 +306,7 @@ class Master_Kirby:
 
 
         elif self.state == 'Drop_attack':
-            frame = int(self.frame)
+            frame = int(self.frame) % 5
             p_size_x = Drop_attack_focus[frame][1]
             if self.dir == 1:
                 self.drop_attack_image.clip_draw(Drop_attack_focus[frame][0], 0, p_size_x, 86, self.x, self.y,
@@ -317,7 +317,7 @@ class Master_Kirby:
 
 
         elif self.state == 'Falling_attack':
-            frame = int(self.frame) % 27
+            frame = int(self.frame) % 24
             if self.dir == 1:
                 self.falling_attack_image.clip_draw(Falling_attack_focus[frame][0], 0, Falling_attack_focus[frame][1], 54, self.x, self.y,
                                                     Falling_attack_focus[frame][1] * 2, 54 * 2)
@@ -540,7 +540,8 @@ class Master_Kirby:
             self.Get_Damage = True
             self.damaged_motion += 1
             self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time * (self.damaged_amount * 0.5)
-            self.y += self.jump_value
+            #self.y += self.jump_value
+            self.y += (self.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
             self.jump_value -= 1
 
             if self.falling == False:
@@ -605,10 +606,13 @@ class Master_Kirby:
 
         self.jump_value -= 1
         if self.state != 'Falling_attack':
-            self.y += self.jump_value
+            #self.y += self.jump_value
+            self.y += (self.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
 
         else:
-            self.y += self.jump_value/5
+            #self.y += self.jump_value/5
+            self.y += (self.jump_value/5 * JUMP_SPEED_PPS * game_framework.frame_time)
+
 
         speed = RUN_SPEED_PPS * 1.5
         self.x += self.dir * speed * game_framework.frame_time
