@@ -46,9 +46,7 @@ class Meta_Knight_Sword_Strike:
 
 
     def get_bb(self):
-        x_range = self.x_size // 2
-        y_range = self.y_size // 2
-        return self.x - x_range, self.y - y_range, self.x + x_range, self.y + y_range
+        return self.x - self.x_size // 2, self.y - self.y_size // 2, self.x + self.x_size // 2, self.y + self.y_size // 2
 
 
     def handle_collision(self, group, other):

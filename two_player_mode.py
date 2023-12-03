@@ -208,7 +208,7 @@ class KO:
         self.spotlight = 0
 
         self.Time_drawing = False
-        self.stage_time = 30
+        self.stage_time = 60
         self.remain_time = 0
         self.stage_start_time = get_time()
 

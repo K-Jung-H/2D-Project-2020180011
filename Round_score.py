@@ -27,6 +27,6 @@ class Score:
         self.image.clip_draw(number_list[p1_point][0], 0, number_list[p1_point][1], 16, 40 + 50, 480, number_list[p1_point][1] * 2, 50)
 
         #p2
-        p2_point = max(0, p2_score)
+        p2_point = clamp(0 , p2_score, 4)
         self.image.clip_draw(0, 0, 34, 16, 930, 480, 80, 50)
         self.image.clip_draw(number_list[p2_point][0], 0, number_list[p2_point][1], 16, 980, 480, number_list[p2_point][1] * 2, 50)

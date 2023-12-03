@@ -420,7 +420,7 @@ class Normal_Attack:
     @staticmethod
     def do(p1):
 
-        p1.frame = (p1.frame + FRAMES_PER_ATTACK * ACTION_PER_TIME * game_framework.frame_time)
+        p1.frame = (p1.frame + FRAMES_PER_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 6
         if int(p1.frame) == 5:
             p1.state_machine.handle_event(('STOP', 0))
 
@@ -433,7 +433,7 @@ class Normal_Attack:
 
     @staticmethod
     def draw(p1):
-        frame = int(p1.frame)
+        frame = int(p1.frame) % 6
         p_size_x = Normal_Attack_focus[frame][1]
         p_size_y = 60
         if p1.dir == 1:
@@ -472,7 +472,7 @@ class Speed_Attack:
 
     @staticmethod
     def draw(p1):
-        frame = int(p1.frame)
+        frame = int(p1.frame)  % 8
         p_size_x = Speed_Attack_focus[frame][1]
         p_size_y = 60
         if p1.dir == 1:

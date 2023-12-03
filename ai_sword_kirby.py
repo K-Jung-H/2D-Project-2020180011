@@ -383,7 +383,6 @@ class Sword_Kirby:
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
                 if other.Attacking:
-                    print("com is damaged")
                     #ai damaged
                     if self.state != 'Hurt':
                         self.damaged_amount = max(1, other.power)
@@ -394,7 +393,6 @@ class Sword_Kirby:
         else:
             if group == 'p2 : p1_attack_range' or group == 'p2 : p1_Sword_Skill':
                 if other.Attacking:
-                    print("com is damaged by", group, other.x_range, other.y_range)
                     #ai damaged
                     if self.state != 'Hurt':
                         self.damaged_amount = max(1, other.power)
@@ -407,8 +405,6 @@ class Sword_Kirby:
                 self.falling = True
             if self.falling:
                 self.y -=10
-
-
 
     #===================================ai======================================================
 
