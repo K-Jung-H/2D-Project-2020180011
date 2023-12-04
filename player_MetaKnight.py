@@ -323,7 +323,8 @@ class Jump:
         # 점프: y값 변경
         #p1.y += p1.jump_value
         p1.y += (p1.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
-        p1.jump_value -= 1
+        #p1.jump_value -= 1
+        p1.jump_value -= (0.75 * JUMP_SPEED_PPS * game_framework.frame_time)
         if p1.y <= 150:  # 나중엔 충돌 체크로 바꿀 것
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
@@ -384,7 +385,8 @@ class Hurt:
 
         if p1.y > 150:
             p1.y += (p1.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
-            p1.jump_value -= 1
+            #p1.jump_value -= 1
+            p1.jump_value -= (0.75 * JUMP_SPEED_PPS * game_framework.frame_time)
             p1.y = clamp(150, p1.y, 1000 - 25)
 
         if get_time() - p1.damaged_time >= 0.2 * p1.damaged_amount:
@@ -584,7 +586,8 @@ class Upper_Attack:
     @staticmethod
     def do(p1):
         p1.y += (3 * JUMP_SPEED_PPS * game_framework.frame_time)
-        p1.jump_value -= 0.5
+        #p1.jump_value -= 0.5
+        p1.jump_value -= (0.375 * JUMP_SPEED_PPS * game_framework.frame_time)
         p1.Attacking = True
         p1.frame = (p1.frame + FRAMES_PER_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 6
         if int(p1.frame) == 5:
@@ -644,7 +647,8 @@ class Drop_Attack:
             p1.frame = (p1.frame + FRAMES_PER_DROP_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 9
         else:
             p1.y += (p1.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
-            p1.jump_value -= 1
+            #p1.jump_value -= 1
+            p1.jump_value -= (0.75 * JUMP_SPEED_PPS * game_framework.frame_time)
 
         if p1.y <= 150:
             p1.Attacking = False
@@ -718,7 +722,8 @@ class Falling_Attack:
         if int(p1.frame) != 27:
             #p1.y += p1.jump_value/10
             p1.y += ((p1.jump_value/10) * JUMP_SPEED_PPS * game_framework.frame_time)
-            p1.jump_value -= 0.1
+            #p1.jump_value -= 0.1
+            p1.jump_value -= (0.05 * JUMP_SPEED_PPS * game_framework.frame_time)
             p1.frame = (p1.frame + 3 * FRAMES_PER_FALLING_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 28
         else:
             p1.state_machine.handle_event(('STOP', 0))
@@ -1080,5 +1085,5 @@ class MetaKnight:
         if group == 'p : Falling_area':
             if self.state_machine.cur_state == Hurt:
                 self.state_machine.handle_event(('Damaged', 0, 0))
-                self.y -= 10
-
+                #self.y -= 10
+                self.y -= (3 * JUMP_SPEED_PPS * game_framework.frame_time)

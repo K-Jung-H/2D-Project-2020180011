@@ -10,7 +10,7 @@ import BGM_player
 
 TIME_PER_FRAME = 0.3
 FRAME_PER_TIME = 1.0 / TIME_PER_FRAME
-FRAMES_PER_BACK_EFFECT = 10
+FRAMES_PER_BACK_EFFECT = 5
 
 black_holl = [0, 260, 520, 780, 1040, 1300]
 double_kirby = [[0, 34], [48, 34]]

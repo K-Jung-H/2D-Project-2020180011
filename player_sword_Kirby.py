@@ -328,7 +328,8 @@ class Jump:
         # 점프: y값 변경
         #p1.y += p1.jump_value
         p1.y += (p1.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
-        p1.jump_value -= 1
+        #p1.jump_value -= 1
+        p1.jump_value -= (0.75 * JUMP_SPEED_PPS * game_framework.frame_time)
         if p1.y <= 150:  # 나중엔 충돌 체크로 바꿀 것
             p1.y = 150
             p1.state_machine.handle_event(('STOP', 0))
@@ -384,7 +385,8 @@ class Hurt:
 
         if p1.y > 150:
             p1.y += (p1.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
-            p1.jump_value -= 1
+            #p1.jump_value -= 1
+            p1.jump_value -= (0.75 * JUMP_SPEED_PPS * game_framework.frame_time)
             p1.y = clamp(150, p1.y, 1000 - 25)
 
         if get_time() - p1.damaged_time >= 0.2 * p1.damaged_amount:
@@ -646,7 +648,8 @@ class Upper_Attack:
     @staticmethod
     def enter(p1, e):
         p1.frame = 0
-
+        p1.upper_effect.set_volume(64)
+        p1.upper_effect.play()
 
     @staticmethod
     def exit(p1, e):
@@ -654,18 +657,14 @@ class Upper_Attack:
 
     @staticmethod
     def do(p1):
-        if int(p1.frame) == 4:
-            p1.upper_effect.set_volume(64)
-            p1.upper_effect.play()
-
         if (4 <= int(p1.frame) <= 7):
             #p1.y += 15
-
             p1.y += (8 * JUMP_SPEED_PPS * game_framework.frame_time)
         else:
             #p1.y += 1
             p1.y += (1 * JUMP_SPEED_PPS * game_framework.frame_time)
-        p1.jump_value -= 0.1
+        #p1.jump_value -= 0.1
+        p1.jump_value -= (0.05 * JUMP_SPEED_PPS * game_framework.frame_time)
         p1.Attacking = True
         p1.frame = (p1.frame + FRAMES_PER_UPPER_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 12
         if int(p1.frame) == 11:
@@ -698,6 +697,8 @@ class Drop_Attack:
     def enter(p1, e):
         if Drop_Attack_DOWN(e):
             p1.frame = 0
+            p1.drop_effect.set_volume(64)
+            p1.drop_effect.play()
         else:  # 점프 도중에 새로운 입력을 받는 경우
             if Right_Move_Down(e):
                 p1.Right_Move, p1.dir = True, 1
@@ -724,21 +725,17 @@ class Drop_Attack:
 
     @staticmethod
     def do(p1):
-        if int(p1.frame) == 5:
-            p1.drop_effect.set_volume(64)
-            p1.drop_effect.play()
-
         if 5 <= int(p1.frame):
             p1.Attacking = True
             #p1.y += p1.jump_value
             p1.y += (p1.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
-            p1.jump_value -= 1.5
+            #p1.jump_value -= 1.5
+            p1.jump_value -= (1 * JUMP_SPEED_PPS * game_framework.frame_time)
             p1.frame = min(int(p1.frame), 5)
 
         elif int(p1.frame) <= 4:
             #p1.y += p1.jump_value/10
             p1.y += ((p1.jump_value/10) * JUMP_SPEED_PPS * game_framework.frame_time)
-
 
         p1.frame = (p1.frame + FRAMES_PER_DROP_ATTACK * ACTION_PER_TIME * game_framework.frame_time) % 7
 
@@ -813,7 +810,8 @@ class Falling_Attack:
         if int(p1.frame) != 24:
             #p1.y += p1.jump_value / 10
             p1.y += ((p1.jump_value/10) * JUMP_SPEED_PPS * game_framework.frame_time)
-            p1.jump_value -= 0.1
+            #p1.jump_value -= 0.1
+            p1.jump_value -= (0.05 * JUMP_SPEED_PPS * game_framework.frame_time)
             p1.frame = (p1.frame + 50 * ACTION_PER_TIME * game_framework.frame_time) % 25
         else:
             p1.Attacking = False
@@ -1125,4 +1123,5 @@ class Sword_Kirby:
         if group == 'p : Falling_area':
             if self.state_machine.cur_state == Hurt:
                 self.state_machine.handle_event(('Damaged', 0, 0))
-                self.y -= 10
+                #self.y -= 10
+                self.y -= (3 * JUMP_SPEED_PPS * game_framework.frame_time)

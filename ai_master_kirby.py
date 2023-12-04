@@ -411,8 +411,8 @@ class Master_Kirby:
             if self.state == 'Hurt':
                 self.falling = True
             if self.falling:
-                self.y -=10
-
+                #self.y -=10
+                self.y -= (3 * JUMP_SPEED_PPS * game_framework.frame_time)
 
 
     #===================================ai======================================================
@@ -542,8 +542,9 @@ class Master_Kirby:
             self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time * (self.damaged_amount * 0.5)
             #self.y += self.jump_value
             self.y += (self.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
-            self.jump_value -= 1
 
+            #self.jump_value -= 1
+            self.jump_value -= (0.75 * JUMP_SPEED_PPS * game_framework.frame_time)
             if self.falling == False:
                 self.y = max(self.y, 150)
             return BehaviorTree.RUNNING
@@ -604,7 +605,9 @@ class Master_Kirby:
             self.jump_effect.set_volume(64)
             self.jump_effect.play()
 
-        self.jump_value -= 1
+        #self.jump_value -= 1
+        self.jump_value -= (0.75 * JUMP_SPEED_PPS * game_framework.frame_time)
+
         if self.state != 'Falling_attack':
             #self.y += self.jump_value
             self.y += (self.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)

@@ -283,7 +283,7 @@ class Sword_Kirby:
 
         elif self.state == 'Upper_attack':
             frame = int(self.frame) % 11
-            self.y += 5
+            self.y -= (3 * JUMP_SPEED_PPS * game_framework.frame_time)
             if self.dir == 1:
                 self.upper_attack_image.clip_draw(Upper_attack_focus[frame][0], 0, Upper_attack_focus[frame][1], 61, self.x, self.y,
                                                 Upper_attack_focus[frame][1] * 2, 61 * 2)
@@ -404,7 +404,8 @@ class Sword_Kirby:
             if self.state == 'Hurt':
                 self.falling = True
             if self.falling:
-                self.y -=10
+                #self.y -=10
+                self.y -= (3 * JUMP_SPEED_PPS * game_framework.frame_time)
 
     #===================================ai======================================================
 
@@ -523,7 +524,8 @@ class Sword_Kirby:
             self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time * (self.damaged_amount * 0.5)
             #self.y += self.jump_value
             self.y += (self.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
-            self.jump_value -= 1
+            #self.jump_value -= 1
+            self.jump_value -= (0.75 * JUMP_SPEED_PPS * game_framework.frame_time)
 
             if self.falling == False:
                 self.y = max(self.y, 150)
@@ -586,7 +588,9 @@ class Sword_Kirby:
             self.jump_effect.set_volume(64)
             self.jump_effect.play()
 
-        self.jump_value -= 1
+        #self.jump_value -= 1
+        self.jump_value -= (0.75 * JUMP_SPEED_PPS * game_framework.frame_time)
+
         if self.state != 'Falling_attack':
             #self.y += self.jump_value
             self.y += (self.jump_value * JUMP_SPEED_PPS * game_framework.frame_time)
