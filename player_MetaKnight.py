@@ -677,7 +677,7 @@ class Drop_Attack:
 class Falling_Attack:
     @staticmethod
     def enter(p1, e):
-        if  p1.state_machine.last_state != Falling_Attack:
+        if p1.state_machine.last_state != Falling_Attack:
             p1.frame = 0
             p1.falling_effect.set_volume(64)
             p1.falling_effect.play()
@@ -704,7 +704,8 @@ class Falling_Attack:
 
     @staticmethod
     def exit(p1, e):
-        p1.frame = 1
+        if not (Right_Move_Down(e) or  Left_Move_Down(e) or Right_Move_Up(e) or Left_Move_Up(e)):
+            p1.frame = 1
         p1.Attacking = False
         p1.falling_effect.set_volume(0)
 

@@ -216,7 +216,6 @@ class MetaKnight:
         if self.Picked_Player == "p1":
             if group == 'p1 : p2_attack_range' or group == 'p1 : p2_Sword_Skill':
                 if other.Attacking:
-
                     #ai damaged
                     if self.state != 'Hurt':
                         self.damaged_amount = max(1, other.power)
