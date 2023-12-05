@@ -329,6 +329,8 @@ class MetaKnight:
                 self.damaged_time = get_time()
                 self.jump_value = 5
                 self.y += self.jump_value
+                self.Attack_called = False
+                self.Attacking = False
 
                 self.hurt_effect.set_volume(64)
                 self.hurt_effect.play()

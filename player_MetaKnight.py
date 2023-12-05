@@ -498,6 +498,7 @@ class Charge_Attack:
             p1.Charging_Time = get_time()
             p1.charging_effect.set_volume(64)
             p1.charging_effect.play()
+            print("?????????????")
         elif Charge_Attack_Up(e):
             p1.charging = False
             p1.charge_effect.set_volume(64)

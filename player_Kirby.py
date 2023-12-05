@@ -496,13 +496,13 @@ class Speed_Attack:
         elif p1.dir == -1:
             if frame < 3:
                 p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y,
-                                             0, 'h', p1.x, p1.y, p_size_x * 2, p_size_y * 2)
+                                             0, 'h', p1.x, p1.y + 10, p_size_x * 2, p_size_y * 2)
             elif 3 <= frame < 6:
                 p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y,
-                                             0, 'h', p1.x - 10 * frame, p1.y, p_size_x * 2, p_size_y * 2)
+                                             0, 'h', p1.x - 10 * frame, p1.y + 10, p_size_x * 2, p_size_y * 2)
             else:
                 p1.image.clip_composite_draw(Speed_Attack_focus[frame][0], Speed_Attack_focus[frame][1], p_size_x, p_size_y,
-                                             0, 'h', p1.x - 40, p1.y - 10, p_size_x * 2, p_size_y * 2)
+                                             0, 'h', p1.x - 40, p1.y, p_size_x * 2, p_size_y * 2)
 
 
 
